@@ -17,7 +17,6 @@ path_output=args[3]
 
 dir.create(path_output, recursive = TRUE, showWarnings = FALSE)
 
-file_out = file.path(path_output, "deseq2_genes.xls")
 
 design_file = file.path(path_design, "design.tsv")
 design = read.table(design_file, header = TRUE, stringsAsFactors=FALSE)
@@ -39,4 +38,5 @@ dds_wald <- DESeq(dds)
 res <- results(dds_wald, contrast=c("condition","Query","Ref"))
 
 res = cbind(data.frame(ID=row.names(res), stringsAsFactors=FALSE), res)
+file_out = file.path(path_output, "deseq2_genes.xls")
 write.table(res, file_out, quote=FALSE, row.names=FALSE, sep="\t")

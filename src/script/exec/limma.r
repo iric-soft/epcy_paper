@@ -15,7 +15,6 @@ path_output=args[3]
 
 dir.create(path_output, recursive = TRUE, showWarnings = FALSE)
 
-file_out = file.path(path_output, "limma_voom_genes.xls")
 
 design_file = file.path(path_design, "design.tsv")
 design = read.table(design_file, header = TRUE, stringsAsFactors=FALSE)
@@ -46,4 +45,5 @@ fit <- eBayes(fit)
 #topTreat(fit, coef=ncol(design))
 res = topTable(fit, n=Inf, sort.by="p")
 res = cbind(data.frame(ID=row.names(res), stringsAsFactors=FALSE), res)
+file_out = file.path(path_output, "limma_voom_genes.xls")
 write.table(res, file_out, quote=FALSE, row.names=FALSE, sep="\t")

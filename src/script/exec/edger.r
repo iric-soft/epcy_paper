@@ -13,7 +13,6 @@ path_output=args[3]
 
 dir.create(path_output, recursive = TRUE, showWarnings = FALSE)
 
-file_out = file.path(path_output, "edger_genes.xls")
 
 design_file = file.path(path_design, "design.tsv")
 design = read.table(design_file, header = TRUE, stringsAsFactors=FALSE)
@@ -40,4 +39,5 @@ fit = glmQLFit(y,design)
 qlf = glmQLFTest(fit,coef=2)
 res_qlf = topTags(qlf, n=Inf)
 res_qlf = cbind(data.frame(ID=row.names(res_qlf), stringsAsFactors=FALSE), res_qlf)
+file_out = file.path(path_output, "edger_genes.xls")
 write.table(res_qlf, file_out, quote=FALSE, row.names=FALSE, sep="\t")
