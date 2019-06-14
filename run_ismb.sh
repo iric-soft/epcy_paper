@@ -1,7 +1,7 @@
 
 num_fold="loo" # "loo" "10" "0"() ...
 type_exec="torque" # "slurm" "bash" "torque"
-#subgroups="28_inv16 33_MLL 132_FLT3-ITD 139_NPM1_mut"
+#subgroups="28_inv16"
 subgroups="28_inv16_vs_28 28_inv16 33_MLL 132_FLT3-ITD 139_NPM1_mut"
 num_proc="4"
 

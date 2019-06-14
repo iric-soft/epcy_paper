@@ -18,7 +18,7 @@ path_jobout="${working_dir}/tmp"
 ###############################################################################
 # wall time and memory usage for num_proc="4"
 ###############################################################################
-walltime_epcy="2:00:00"
+walltime_epcy="3:00:00"
 mem_epcy="4Gb"
 
 walltime_edger="1:00:00"
@@ -175,7 +175,7 @@ LDE()
 	  job_name="LDE_${subgroup}"
 		path_output_lde="${path_output}/readcounts"
 	  path_exec="${working_dir}/src/script/exec/LDE.r"
-	  cmd=$(bash ${path_cmd}/LDE.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_deseq2} ${num_proc})
+	  cmd=$(bash ${path_cmd}/LDE.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_lde} ${num_proc})
 		exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_LDE} ${walltime_LDE} ${job_name} ${path_jobout}
 	else
 		if [ ! -f ${path_output}/readcounts/limma_voom_genes.xls ]
