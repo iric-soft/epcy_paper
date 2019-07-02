@@ -84,7 +84,7 @@ def main_eval_cv(args, argparser):
     dict_res_SHUFFLED = defaultdict(list)
 
     for design in search_params_dict['designs']:
-        dir_design = os.path.join(args.PATH, "design", design, "cv", fold)
+        dir_design = os.path.join(args.PATH, design, "cv", fold)
         datasets = os.listdir(dir_design)
         n_datasets =  int(args.N_DATASETS) if args.N_DATASETS != 'all' else len(datasets)
 

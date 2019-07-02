@@ -206,7 +206,7 @@ LDE()
 
 }
 
-path_design="${path_data}/design/${subgroup}"
+path_design="${path_data}/design/${data_project}/${subgroup}"
 path_output="${path_design}/${src_data}"
 path_jobout_subgroup="${path_jobout}/${data_project}/${src_data}/${subgroup}/"
 

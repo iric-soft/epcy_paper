@@ -61,7 +61,7 @@ not_tn = her2_er_pr[which(!her2_er_pr %in% her2_er_pr_tn)]
 design = data.frame(sample=clinical$bcr_patient_barcode[her2_er_pr_tn], subgroup="Query")
 design = rbind(design, data.frame(sample=clinical$bcr_patient_barcode[not_tn], subgroup="Ref"))
 
-dir_out = file.path(script_dir, "data", "design", "116_BRCA_tn_vs_606")
+dir_out = file.path(script_dir, "data", "design", "TCGA_BRCA", "116_triple_neg")
 file_out = file.path(dir_out, "design.tsv")
 dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
 write.table(design, file_out, quote=FALSE, row.names=FALSE, sep="\t")
