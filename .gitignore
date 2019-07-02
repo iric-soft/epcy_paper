@@ -10,5 +10,8 @@ __pycache__/
 cv
 STAR
 
+# Results
+data/res
+
 #temp
 tmp

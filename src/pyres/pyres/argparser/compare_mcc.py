@@ -12,11 +12,12 @@ def get_argparser_compare_mcc(parser):
                         type=str,
                         default="")
 
-    parser.add_argument("--dataset",
-                        dest="DATASET",
-                        help="list of dataset separet by ',' (Default: 28_inv16,28_inv16_vs28,33_MLL,18_t8_21)",
+    parser.add_argument("--design",
+                        dest="DESIGN",
+                        help="Name of designs to evaluate",
+                        nargs='+' ,
                         type=str,
-                        default="28_inv16,28_inv16_vs28,33_MLL,18_t8_21")
+                        default=None)
 
     parser.add_argument("--gene",
                         dest="GENE",

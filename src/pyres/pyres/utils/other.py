@@ -40,40 +40,30 @@ def select_top(args, df_diff, top):
 
 def select_epcy(args, df_diff, exp_genes, method, df_ext):
     #print("Read epcy")
-    #if (not args.BIOTYPE is None):
-    #    selected_biotype = args.BIOTYPE.split(",")
-    #    df_diff = df_diff.loc[df_diff["biotype"].isin(selected_biotype)]
 
-    df_diff = df_diff.loc[df_diff["gene_name"].isin(exp_genes)]
-    df_diff = df_diff.loc[df_diff["MCC_K"] >= args.MCC]
-    df_diff = df_diff.loc[abs(df_diff["log2_FC"]) >= args.LOG_FC]
+    df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
+    df_diff = df_diff.loc[df_diff["KERNEL_MCC"] >= args.MCC]
+    df_diff = df_diff.loc[abs(df_diff["L2FC"]) >= args.LOG_FC]
     if df_ext is not None:
-        df_diff.rename(columns={"gene_name":"ID"}, inplace=True)
         df_diff = df_diff.merge(df_ext, on="ID")
-        df_diff.log2_FC = df_diff.log2_FC_ext
+        df_diff.L2FC = df_diff.L2FC_ext
 
-    df_diff["abs_log2_FC"] = df_diff.log2_FC.abs()
+    df_diff["abs_L2FC"] = df_diff.L2FC.abs()
 
-    ####JUST A TRY
-    #df_diff = df_diff.loc[df_diff["chrom"] != "X"]
-    #df_diff = df_diff.loc[df_diff["chrom"] != "Y"]
 
-    if method == "epcy" or method == "epcy_bs" or method == "epcy_mcc":
-        df_diff = df_diff.sort_values("MCC_K", ascending=False)
+    if method == "epcy" or method == "epcy_bs" or method == "epcy_kernel":
+        df_diff = df_diff.sort_values(["KERNEL_MCC", "abs_L2FC"], ascending=False)
     elif method == "epcy_auc":
-        df_diff = df_diff.sort_values("auc", ascending=False)
-    elif method == "epcy_binom":
-        df_diff = df_diff.sort_values("MCC", ascending=False)
+        df_diff = df_diff.sort_values("AUC", ascending=False)
+    elif method == "epcy_normal":
+        df_diff = df_diff.sort_values(["NORMAL_MCC", "abs_L2FC"], ascending=False)
     elif method == "epcy_log2FC":
-        df_diff = df_diff.sort_values("abs_log2_FC", ascending=False)
+        df_diff = df_diff.sort_values("abs_L2FC", ascending=False)
     else:
         sys.stderr.write('ERROR: in utils/other.py function select_epcy.\n')
         sys.stderr.write(method)
         sys.exit()
 
-    # df_diff = select_top(args, df_diff, top)
-
-    df_diff.rename(columns={"gene_name":"ID"}, inplace=True)
     return(df_diff)
 
 def select_deseq(args, df_diff, exp_genes):
@@ -109,16 +99,17 @@ def select_limma(args, df_diff, exp_genes):
 
     return(df_diff)
 
-def read_diff_table(args, file_name, method, exp_genes, path_dir=None, subgroup=None, df_ext=None):
+def read_diff_table(args, file_name, method, exp_genes, path_dir=None, design=None, df_ext=None):
     path_file = path_dir
     if path_dir is None:
         path_file = os.path.join(args.PATH)
-    if subgroup is not None:
-        path_file = os.path.join(args.PATH, subgroup)
+    if design is not None:
+        path_file = os.path.join(args.PATH, design)
 
-    path_file = os.path.join(path_file, file_name)
+    #TODO: add parameters for STAR and readcounts
+    path_file = os.path.join(path_file, "STAR", "readcounts", file_name)
 
-    df_diff = pd.read_table(path_file)
+    df_diff = pd.read_csv(path_file, sep="\t")
 
     if "epcy" in method:
         df_diff = select_epcy(args, df_diff, exp_genes, method, df_ext)
@@ -151,7 +142,7 @@ def read_sample_pred_table(args, file_name, df_diff, dataset=None):
     df_pred = df_pred.replace(4, -1)
 
     for i, row in df_diff.iterrows():
-        df_pred.loc[row["ID"]] = df_pred.loc[row["ID"]] * 10**row["MCC_K"]
+        df_pred.loc[row["ID"]] = df_pred.loc[row["ID"]] * 10**row["KERNEL_MCC"]
 
     return(df_pred)
 
@@ -170,17 +161,24 @@ def get_design(args, path=None, dataset=None, file_name="design.tsv"):
     return(design)
 
 def get_exp(args, file_name, df_design=None):
-    df_exp = pd.read_csv(file_name, sep="\t")
+    df_biotype = pd.read_csv(args.BF, sep="\t")
+
     if (not args.BIOTYPE is None):
         selected_biotype = args.BIOTYPE.split(",")
-        df_exp = df_exp.loc[df_exp["gene_biotype"].isin(selected_biotype)]
+        df_biotype = df_biotype.loc[df_biotype["gene_biotype"].isin(selected_biotype)]
 
-    df_exp = df_exp.drop(['ens_gene', 'ext_gene', 'gene_biotype'], 1)
+    df_exp = pd.read_csv(file_name, sep="\t")
+    df_exp = df_exp.loc[df_exp["ID"].isin(df_biotype["ensembl_gene_id"])]
 
-    df_exp = df_exp.set_index("Gene.names")
+    df_exp = df_exp.set_index("ID")
     if df_design is not None:
         df_exp = df_exp[df_design["sample"]]
 
+    if args.CPM:
+        f_norm = 1e6 /  df_exp.sum()
+        df_exp = df_exp * f_norm
+
+    df_exp = np.log2(df_exp + 1)
     return(df_exp)
 
 def get_silhouette_kmeans(df, metric):
@@ -399,7 +397,7 @@ def get_dist_by_group(df, df_design, samples_dist, method, top, metric):
     return(dict_dist, dist_diff, dist_diff_sample)
 
 
-def run_kmeans(XTEST, YTEST, subgroup, method, dataset, top):
+def run_kmeans(XTEST, YTEST, design, method, dataset, top):
     silh_score, n_clusters_, labels = get_silhouette_kmeans(XTEST, "euclidean")
     YTEST = np.array(YTEST)
     labels = np.array(labels)
@@ -415,12 +413,12 @@ def run_kmeans(XTEST, YTEST, subgroup, method, dataset, top):
     dict_kmean['top'].append(top)
     dict_kmean['pred'].append(pred)
     dict_kmean['dataset'].append(id_dataset)
-    dict_kmean['subgroup'].append(subgroup)
+    dict_kmean['design'].append(design)
     dict_kmean['learn'].append("k_mean")
 
     return(dict_kmean)
 
-def run_rand_forest(XTRAIN, YTRAIN, XTEST, YTEST, subgroup, method, dataset, top):
+def run_rand_forest(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top):
     rf = RandomForestClassifier(n_estimators=100, class_weight="balanced_subsample")
     rf.fit(XTRAIN.T, YTRAIN)
 
@@ -438,88 +436,50 @@ def run_rand_forest(XTRAIN, YTRAIN, XTEST, YTEST, subgroup, method, dataset, top
     dict_rf['label_train'].append(YTRAIN.values)
     dict_rf['proba_train'].append(proba_train)
     dict_rf['dataset'].append(id_dataset)
-    dict_rf['subgroup'].append(subgroup)
+    dict_rf['design'].append(design)
     dict_rf['learn'].append("R-Forest")
 
     return(dict_rf)
 
 
-def run_logR(XTRAIN, YTRAIN, XTEST, YTEST, subgroup, method, dataset, top):
-
-
-    #tpm_train = np.reshape(df_exp_train, (-1, 1))
-    logR = linear_model.LogisticRegression(solver="liblinear", C = 1e10, penalty = 'l2') ### large C ==> no regularization
-    logR.fit(XTRAIN.T, YTRAIN)
+def run_LR(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top):
+    ### large C ==> no regularization
+    LR = linear_model.LogisticRegression(solver="liblinear", C = 1e10, penalty = 'l2', max_iter=1000)
+    LR.fit(XTRAIN.T, YTRAIN)
 
 
     #tpm_test = np.reshape(df_exp_test, (-1, 1))
-    proba_test = logR.predict_proba(XTEST.T)
-    proba_train = logR.predict_proba(XTRAIN.T)
+    proba_test = LR.predict_proba(XTEST.T)
+    proba_train = LR.predict_proba(XTRAIN.T)
 
     id_dataset = re.findall(r'\d+', dataset)[0]
     id_dataset = int(id_dataset)
 
-    dict_logR = defaultdict(list)
-    dict_logR['method'].append(method)
-    dict_logR['top'].append(top)
-    dict_logR['label'].append(YTEST.values)
-    dict_logR['proba'].append(proba_test)
-    dict_logR['label_train'].append(YTRAIN.values)
-    dict_logR['proba_train'].append(proba_train)
-    dict_logR['dataset'].append(id_dataset)
-    dict_logR['subgroup'].append(subgroup)
-    dict_logR['learn'].append("L-Reg")
+    dict_LR = defaultdict(list)
+    dict_LR['method'].append(method)
+    dict_LR['top'].append(top)
+    dict_LR['label'].append(YTEST.values)
+    dict_LR['proba'].append(proba_test)
+    dict_LR['label_train'].append(YTRAIN.values)
+    dict_LR['proba_train'].append(proba_train)
+    dict_LR['dataset'].append(id_dataset)
+    dict_LR['design'].append(design)
+    dict_LR['learn'].append("L-Reg")
 
-    return(dict_logR)
+    return(dict_LR)
 
-def get_exp_cluster(args, df_exp, df_design, df_diff, prefix_file_out, method, subgroup, top, max_exp, metric='euclidean'):
+def get_exp_cluster(args, df_exp, df_design, df_diff, prefix_file_out, method, design, top, max_exp, metric='euclidean'):
     df_exp = df_exp.loc[df_exp.index.isin(df_diff["ID"][:top])]
-    return(get_cluster(args, df_exp, df_design, prefix_file_out, method, subgroup, top, max_exp, metric=metric))
+    return(get_cluster(args, df_exp, df_design, prefix_file_out, method, design, top, max_exp, metric=metric))
 
-def get_cluster(args, df, df_design, prefix_file_out, method, subgroup, top, max_exp, metric='euclidean'):
-    #if top == 0:
+def get_cluster(args, df, df_design, prefix_file_out, method, design, top, max_exp, metric='euclidean'):
     display_cluster(args, df, df_design, prefix_file_out, method, metric, top, max_exp)
-    (close_perc, samples_dist) = get_sample_dist(df, df_design, metric)
-    #silh_score = get_silhouette(df, df_design, metric)
     (silh_score, num_cluster, labels) = get_silhouette_kmeans(df, metric)
+    get_silhouette_graph(df, labels, metric, prefix_file_out, method, top, silh_score, num_cluster)
 
-    pred = [labels[i] == df_design["group"][i] for i in range(len(df_design["group"]))]
-    pred = np.sum(pred) / len(df_design["group"])
-    if pred < 0.5:
-        pred = 1 - pred
+    #pred = [labels[i] == df_design["group"][i] for i in range(len(df_design["group"]))]
+    #pred = np.sum(pred) / len(df_design["group"])
+    #if pred < 0.5:
+    #    pred = 1 - pred
 
-    #get_silhouette_graph(df, labels, metric, prefix_file_out, method, top, silh_score, num_cluster)
-    (dict_dist, dist_diff, dist_diff_sample) = get_dist_by_group(df, df_design, samples_dist, method, top, metric)
-    min_dist = np.min(dist_diff)
-    id_min_dist = np.where(dist_diff == min_dist)[0]
-    closest_samples = ""
-    for id in id_min_dist:
-        pair_min_dist = dist_diff_sample[id]
-        closest_samples += "(" + pair_min_dist[0] + ", " + pair_min_dist[1] + ")"
-
-    dict_perf = defaultdict(list)
-    dict_perf['method'].append(method)
-    dict_perf['perc'].append(close_perc[0])
-    dict_perf['group'].append("Query")
-    dict_perf['top'].append(top)
-    dict_perf['metric'].append(metric)
-    dict_perf['subgroup'].append(subgroup)
-    dict_perf['method'].append(method)
-    dict_perf['perc'].append(close_perc[1])
-    dict_perf['group'].append("Ref")
-    dict_perf['top'].append(top)
-    dict_perf['metric'].append(metric)
-    dict_perf['subgroup'].append(subgroup)
-
-    dict_silh = defaultdict(list)
-    dict_silh['method'].append(method)
-    dict_silh['min_dist'].append(min_dist)
-    dict_silh['silhouette_score'].append(silh_score)
-    dict_silh['pred'].append(pred)
-    dict_silh['closest_samples'].append(closest_samples)
-    dict_silh['top'].append(top)
-    dict_silh['metric'].append(metric)
-    dict_silh['subgroup'].append(subgroup)
-
-    return(dict_dist, dict_perf, dict_silh)
-    #return(None, None, None)
+    return(silh_score)

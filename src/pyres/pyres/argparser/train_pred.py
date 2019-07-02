@@ -16,11 +16,11 @@ def get_argparser_train_pred(parser):
                         help="Design of dataset which need to be predict",
                         type=lambda x: is_valid_path(parser, x))
 
-    parser.add_argument("--group",
-                        dest="GROUP",
+    parser.add_argument("--subgroup",
+                        dest="SUBGROUP",
                         help="Name column of group sample in the design file (Default: group)",
                         type=str,
-                        default="group")
+                        default="subgroup")
 
     parser.add_argument("--query",
                         dest="QUERY",

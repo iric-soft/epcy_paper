@@ -4,13 +4,11 @@ from .argparser.compare_deg import *
 from .argparser.compare_mcc import *
 from .argparser.gen_cv import *
 from .argparser.eval_cv import *
-from .argparser.train_pred import *
 
 from .tools.compare_deg import main_compare_deg
 from .tools.compare_mcc import main_compare_mcc
 from .tools.gen_cv import main_gen_cv
 from .tools.eval_cv import main_eval_cv
-from .tools.train_pred import main_train_pred
 
 
 
@@ -52,14 +50,6 @@ def main():
     )
     eval_cv.set_defaults(func=main_eval_cv)
     get_argparser_eval_cv(eval_cv)
-
-    # create the argparser for the "train_pred" command
-    train_pred = subparsers.add_parser(
-        'train_pred',
-        help='Train on a dataset and pred an other one'
-    )
-    train_pred.set_defaults(func=main_train_pred)
-    get_argparser_train_pred(train_pred)
 
     # recover arguments
     args = argparser.parse_args()

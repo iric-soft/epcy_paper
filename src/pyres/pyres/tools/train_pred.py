@@ -28,43 +28,19 @@ def main_train_pred(args, argparser):
     if not os.path.exists(fig_dir):
         os.makedirs(fig_dir)
 
-    log_dir = os.path.join(args.OUTDIR, 'logs')
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-
     csv_dir = os.path.join(args.OUTDIR, 'tables')
     if not os.path.exists(csv_dir):
         os.makedirs(csv_dir)
-    # create path for log file
 
-    # if analysis is done on genes
-    if args.GENE:
-        file_dict = {
-            # results filenames
-            'kt' : "genes_prediction.xls",
-            'deseq2' :  "deseq2_genes_h5.xls",
-            'deseq2_lrt' :"deseq2_genes_h5.xls",
-            'edger_lrt' :  "edger_lrt_genes_h5.xls",
-            'edger_qlf' : "edger_qlf_genes_h5.xls",
-            'limma' : "limma_voom_genes_h5.xls",
-        }
+    file_dict = {
+        # results filenames
+        'kt' : "genes_prediction.xls",
+        'deseq2' :  "deseq2_genes.xls",
+        'edger' :  "edger_genes.xls",
+        'limma' : "limma_voom_genes.xls",
+    }
 
-        col_ids_name = "gene_id"
-        file_exp = "/u/eaudemard/project/kt_paper/data/all_exp_404.csv"
-
-    # if analysis is done on transcripts
-    else:
-        file_dict = {
-            'kt' : "trans_prediction.xls",
-            'deseq2' : "deseq2_trans_h5.xls",
-            'deseq2_lrt' : "deseq2_trans_h5.xls",
-            'edger_lrt' : "edger_lrt_trans_h5.xls",
-            'edger_qlf' : "edger_qlf_trans_h5.xls",
-            'limma' : "limma_voom_trans_h5.xls",
-        }
-
-        col_ids_name = "trans_id"
-        file_exp = "/u/eaudemard/project/kt_paper/data/"
+    col_ids_name = "ID"
 
     search_params_dict = {
         'tops' : [1, 3, 10, 20, 50, 100, 200], # top R best ranked genes to use for prediction
@@ -73,16 +49,10 @@ def main_train_pred(args, argparser):
     }
 
     ## get all df for all samples & filters on biotype (ex coding)
-    df_exp = uo.get_exp(args, file_exp)
-    df_exp_pred = uo.get_exp(args, args.EXP)
-
+    df_exp = uo.get_exp(args, args.EXP)
     df_exp = df_exp[pd.notnull(df_exp)]
-    df_exp_pred = df_exp_pred[pd.notnull(df_exp_pred)]
-
     df_exp.drop_duplicates(inplace=True)
-    df_exp_pred.drop_duplicates(inplace=True)
 
-    df_exp = pd.merge(df_exp, df_exp_pred, left_index=True, right_index=True)
     list_genes = df_exp.index.tolist()
 
     ##############################################################################################################
@@ -110,41 +80,39 @@ def main_train_pred(args, argparser):
                 # define our (X TRAIN)
                 df_exp_train = df_signature[df_design_train["sample"]]
                 # set our (Y TRAIN)
-                df_label_train = df_design_train[args.GROUP]
+                df_label_train = df_design_train[args.SUBGOUP]
 
                 # define (X TEST)
                 df_exp_test = df_signature[df_design_test["sample"]]
                 # define (Y TEST)
-                df_label_test = df_design_test[args.GROUP]
+                df_label_test = df_design_test[args.SUBGOUP]
+
                 # predict with logistic regression (may be change name)
                 dict_tmp = uo.run_logR(df_exp_train, df_label_train, df_exp_test, df_label_test, subgroup, method, "dataset_0", top)
-
                 for key in dict_tmp.keys():
                     dict_supervised[key] = dict_supervised[key] + dict_tmp[key]
 
-                dict_tmp = uo.run_rand_forest(df_exp_train, df_label_train, df_exp_test, df_label_test, subgroup, method, "dataset_0", top)
+                #dict_tmp = uo.run_rand_forest(df_exp_train, df_label_train, df_exp_test, df_label_test, subgroup, method, "dataset_0", top)
+                #for key in dict_tmp.keys():
+                #    dict_supervised[key] = dict_supervised[key] + dict_tmp[key]
 
-                for key in dict_tmp.keys():
-                    dict_supervised[key] = dict_supervised[key] + dict_tmp[key]
-
-                dict_tmp = uo.run_kmeans(df_exp_test, df_label_test, subgroup, method, "dataset_0", top)
-
-                for key in dict_tmp.keys():
-                    dict_unsupervised[key] = dict_unsupervised[key] + dict_tmp[key]
+                #dict_tmp = uo.run_kmeans(df_exp_test, df_label_test, subgroup, method, "dataset_0", top)
+                #for key in dict_tmp.keys():
+                #    dict_unsupervised[key] = dict_unsupervised[key] + dict_tmp[key]
 
 
     df_supervised = pd.DataFrame(dict_supervised)
-    df_unsupervised = pd.DataFrame(dict_unsupervised)
+    #df_unsupervised = pd.DataFrame(dict_unsupervised)
     ##############################################################################################################
     ############################## COMPUTE PREDICTION SCORES FOR TOPS, METHODS  ##################################
     ##############################################################################################################
     ct = [0,0,0,0]
-    dict_auc = defaultdict(list)
+    dict_res = defaultdict(list)
 
     for subgroup in search_params_dict['subgroups']:
         for top in search_params_dict['tops']:
             for method in search_params_dict['methods']:
-                for learn in ['L-Reg', 'R-Forest']:
+                for learn in ['L-Reg']#, 'R-Forest']:
                     df = df_supervised.loc[df_supervised.top == top]
                     df = df.loc[df.method == method]
                     df = df.loc[df.learn == learn]
@@ -163,15 +131,13 @@ def main_train_pred(args, argparser):
                     ct[3] = np.sum(proba[ids_ref] < 0.5)
                     ct[2] = np.sum(proba[ids_ref] >= 0.5)
                     mcc = uo.get_mcc(ct)
-                    # compute auc for method's proba.
-                    auc = uo.auc_u_test(proba, ids_query, ids_ref)
-                    dict_auc['auc'].append(auc[0])
-                    dict_auc['mcc'].append(mcc)
-                    dict_auc['method'].append(method)
-                    dict_auc['top'].append(top)
-                    dict_auc['subgroup'].append(subgroup)
-                    dict_auc['learn'].append(learn)
-                    dict_auc['type'].append("test")
+
+                    dict_res['mcc'].append(mcc)
+                    dict_res['method'].append(method)
+                    dict_res['top'].append(top)
+                    dict_res['subgroup'].append(subgroup)
+                    dict_res['learn'].append(learn)
+                    dict_res['type'].append("test")
 
                     proba = [y for x in df.proba_train.values for y in x[:,0] ]
                     # same for labels
@@ -186,49 +152,32 @@ def main_train_pred(args, argparser):
                     ct[3] = np.sum(proba[ids_ref] < 0.5)
                     ct[2] = np.sum(proba[ids_ref] >= 0.5)
                     mcc = uo.get_mcc(ct)
-                    #print(proba)
-                    #print(label)
-                    # compute auc for method's proba.
-                    auc = uo.auc_u_test(proba, ids_query, ids_ref)
-                    dict_auc['auc'].append(auc[0])
-                    dict_auc['mcc'].append(mcc)
-                    dict_auc['method'].append(method)
-                    dict_auc['top'].append(top)
-                    dict_auc['subgroup'].append(subgroup)
-                    dict_auc['learn'].append(learn)
-                    dict_auc['type'].append("train")
+
+                    dict_res['mcc'].append(mcc)
+                    dict_res['method'].append(method)
+                    dict_res['top'].append(top)
+                    dict_res['subgroup'].append(subgroup)
+                    dict_res['learn'].append(learn)
+                    dict_res['type'].append("train")
 
 
-    df_auc = pd.DataFrame(dict_auc)
-    df_auc_test =  df_auc.loc[df_auc.type == "test"]
-    plt_auc = sns.catplot(data=df_auc_test, x="top", y="mcc", hue="method", col="subgroup", row="learn", kind="point")#, facet_kws=dict(linestyles=["-", "--"])
-    fig_out = os.path.join(fig_dir, "mcc_tcga_aml_test.pdf")
+    df_res = pd.DataFrame(dict_res)
+    df_res_test =  df_res.loc[df_res.type == "test"]
+    plt_auc = sns.catplot(data=df_res_test, x="top", y="mcc", hue="method", col="subgroup", row="learn", kind="point")#, facet_kws=dict(linestyles=["-", "--"])
+    fig_out = os.path.join(fig_dir, "mcc_test.pdf")
     plt_auc.savefig(fig_out)
     plt.close()
 
-    df_auc = pd.DataFrame(dict_auc)
-    df_auc_test =  df_auc.loc[df_auc.type == "test"]
-    plt_auc = sns.catplot(data=df_auc_test, x="top", y="auc", hue="method", col="subgroup", row="learn", kind="point")#, facet_kws=dict(linestyles=["-", "--"])
-    fig_out = os.path.join(fig_dir, "auc_tcga_aml_test.pdf")
+    #plt_pred = sns.catplot(data=df_unsupervised, x="top", y="pred", hue="method", col="subgroup", row="learn", kind="point")#, facet_kws=dict(linestyles=["-", "--"])
+    #fig_out = os.path.join(fig_dir, "pred_tcga_aml_test.pdf")
+    #plt_pred.savefig(fig_out)
+    #plt.close()
+
+    df_res_train = df_res.loc[df_res.type == "train"]
+    plt_auc = sns.catplot(data=df_res_train, x="top", y="mcc", hue="method", col="subgroup", row="learn", kind="point")#, facet_kws=dict(linestyles=["-", "--"])
+    fig_out = os.path.join(fig_dir, "mcc_train.pdf".format(start_time.isoformat()))
     plt_auc.savefig(fig_out)
     plt.close()
 
-    plt_pred = sns.catplot(data=df_unsupervised, x="top", y="pred", hue="method", col="subgroup", row="learn", kind="point")#, facet_kws=dict(linestyles=["-", "--"])
-    fig_out = os.path.join(fig_dir, "pred_tcga_aml_test.pdf")
-    plt_pred.savefig(fig_out)
-    plt.close()
-
-    df_auc_train = df_auc.loc[df_auc.type == "train"]
-    plt_auc = sns.catplot(data=df_auc_train, x="top", y="auc", hue="method", col="subgroup", row="learn", kind="point")#, facet_kws=dict(linestyles=["-", "--"])
-    fig_out = os.path.join(fig_dir, "auc_tcga_aml_train.pdf")
-    plt_auc.savefig(fig_out)
-    plt.close()
-
-    df_auc_train = df_auc.loc[df_auc.type == "train"]
-    plt_auc = sns.catplot(data=df_auc_train, x="top", y="mcc", hue="method", col="subgroup", row="learn", kind="point")#, facet_kws=dict(linestyles=["-", "--"])
-    fig_out = os.path.join(fig_dir, "mcc_tcga_aml_train.pdf".format(start_time.isoformat()))
-    plt_auc.savefig(fig_out)
-    plt.close()
-
-    df_auc_path = os.path.join(csv_dir, "tcga_aml.xls")
-    df_auc.to_csv(df_auc_path, index=False, sep="\t")
+    df_res_path = os.path.join(csv_dir, "tcga_aml.xls")
+    df_res.to_csv(df_res_path, index=False, sep="\t")
