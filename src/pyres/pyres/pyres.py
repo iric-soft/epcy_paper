@@ -1,14 +1,14 @@
 import argparse
 
-from .argparser.compare_deg import *
-from .argparser.compare_mcc import *
+from .argparser.clust_exp import *
 from .argparser.gen_cv import *
 from .argparser.eval_cv import *
+from .argparser.heatmap_cv import *
 
-from .tools.compare_deg import main_compare_deg
-from .tools.compare_mcc import main_compare_mcc
+from .tools.clust_exp import main_clust_exp
 from .tools.gen_cv import main_gen_cv
 from .tools.eval_cv import main_eval_cv
+from .tools.heatmap_cv import main_heatmap_cv
 
 
 
@@ -19,21 +19,13 @@ def main():
     argparser = argparse.ArgumentParser(prog='PROG')
     subparsers = argparser.add_subparsers(help='sub-command help')
 
-    # create the argparser for the "deg" command
-    deg = subparsers.add_parser(
-        'compare_deg',
-        help='Compare with deg analysis.'
+    # create the argparser for the "clust_exp" command
+    clust_exp = subparsers.add_parser(
+        'clust_exp',
+        help='Clustring compute on expression data.'
     )
-    deg.set_defaults(func=main_compare_deg)
-    get_argparser_compare_deg(deg)
-
-    # create the argparser for the "mcc" command
-    mcc = subparsers.add_parser(
-        'compare_mcc',
-        help='Compare with mcc.'
-    )
-    mcc.set_defaults(func=main_compare_mcc)
-    get_argparser_compare_mcc(mcc)
+    clust_exp.set_defaults(func=main_clust_exp)
+    get_argparser_compare_deg(clust_exp)
 
     # create the argparser for the "gen_cv" command
     gen_cv = subparsers.add_parser(
@@ -50,6 +42,14 @@ def main():
     )
     eval_cv.set_defaults(func=main_eval_cv)
     get_argparser_eval_cv(eval_cv)
+
+    # create the argparser for the "heatmap_cv" command
+    heatmap_cv = subparsers.add_parser(
+        'heatmap_cv',
+        help='display heatmap of top x features a cross all datasets of cross validation.'
+    )
+    heatmap_cv.set_defaults(func=main_heatmap_cv)
+    get_argparser_heatmap_cv(heatmap_cv)
 
     # recover arguments
     args = argparser.parse_args()

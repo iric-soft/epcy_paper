@@ -1,8 +1,7 @@
 __all__ = [
     'common',
-    'compare_deg',
-    'compare_mcc',
+    'clust_exp',
     'gen_cv',
     'eval_cv',
-    'train_pred'
+    'heatmap_cv'
 ]
