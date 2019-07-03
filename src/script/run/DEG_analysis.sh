@@ -18,17 +18,17 @@ path_jobout="${working_dir}/tmp"
 ###############################################################################
 # wall time and memory usage for num_proc="4"
 ###############################################################################
-walltime_epcy="3:00:00"
-mem_epcy="4Gb"
+walltime_epcy="8:00:00"
+mem_epcy="6Gb"
 
-walltime_edger="1:00:00"
-mem_edger="2Gb"
+walltime_edger="3:00:00"
+mem_edger="3Gb"
 
-walltime_limma="1:00:00"
-mem_limma="2Gb"
+walltime_limma="3:00:00"
+mem_limma="3Gb"
 
-walltime_LDE="4:00:00"
-mem_LDE="8Gb" # 2 * num_proc
+walltime_LDE="10:00:00"
+mem_LDE="14Gb" # 2 * num_proc
 
 
 echo "##################### $subgroup #########################"
@@ -46,9 +46,9 @@ send2torque()
 	eval path_jobout="$6"
 
 	mkdir -p ${path_jobout}
-	echo "${cmd}" | qsub -V -l nodes=1:ppn=${ppn},mem=${mem},walltime=${walltime} -j oe -N ${job_name} -o ${path_jobout}
+	#echo "${cmd}" | qsub -V -l nodes=1:ppn=${ppn},mem=${mem},walltime=${walltime} -j oe -N ${job_name} -o ${path_jobout}
 	#FORDEBUG
-	#echo "${cmd} | qsub -V -l nodes=1:ppn=${ppn},mem=${mem},walltime=${walltime} -j oe -N ${job_name} -o ${path_jobout}"
+	echo "${cmd} | qsub -V -l nodes=1:ppn=${ppn},mem=${mem},walltime=${walltime} -j oe -N ${job_name} -o ${path_jobout}"
 }
 
 exec_cmd()
@@ -210,7 +210,7 @@ path_design="${path_data}/design/${data_project}/${subgroup}"
 path_output="${path_design}/${src_data}"
 path_jobout_subgroup="${path_jobout}/${data_project}/${src_data}/${subgroup}/"
 
-epcy "tpm" ${path_design} ${path_output} ${path_jobout_subgroup}
+#epcy "tpm" ${path_design} ${path_output} ${path_jobout_subgroup}
 epcy "count" ${path_design} ${path_output} ${path_jobout_subgroup}
 LDE ${path_design} ${path_output} ${path_jobout_subgroup}
 
@@ -223,7 +223,7 @@ then
 		path_output_cv="${path_design_cv}/${src_data}"
 		path_jobout_subgroup_cv="${path_jobout_subgroup}/cv/${num_fold}/${num_cv_dir}"
 
-		epcy "tpm" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
+		#epcy "tpm" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
 		epcy "count" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
 		LDE ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
 	done

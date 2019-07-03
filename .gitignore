@@ -6,9 +6,9 @@ __pycache__/
 *.so
 
 # Data
-*.xls
 cv
-STAR
+data/design/*/*/STAR
+data/design/*/*/htseq
 
 # Results
 data/res

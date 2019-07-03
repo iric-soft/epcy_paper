@@ -5,6 +5,7 @@
 
 ##LIB
 library(GenomicDataCommons)
+library(SummarizedExperiment)
 library(data.table)
 library(here)
 
@@ -12,28 +13,37 @@ library(here)
 script_dir = here()
 
 ##FUNCTION
-create_matrix <- function(tcga_se, dir_out, file_out) {
+create_matrix <- function(design, tcga_se, dir_out, file_out) {
   matrix = assay(tcga_se)
   clinical = colData(tcga_se)
   matrix = matrix[,match(colnames(matrix), clinical$file_id)]
+  matrix = matrix[which(rowSums(matrix) != 0),]
+
+  #remove samples sequenced severals times
+  ids_duplicate = clinical$submitter_id.main[duplicated(clinical$submitter_id.main)]
+  ids2del = which(!clinical$submitter_id.main %in% ids_duplicate)
+  clinical = clinical[ids2del,]
+  matrix = matrix[,ids2del]
+  ids_duplicate = gsub("-", "_", ids_duplicate)
+  design = design[which(!design$sample %in% ids_duplicate), ]
+
   colnames(matrix) = clinical$submitter_id.main
-  matrix = cbind(data.frame(ID=rownames(matrix)), all_count)
+  matrix = cbind(data.frame(ID=rownames(matrix)), matrix)
+  colnames(matrix) = gsub("-", "_", colnames(matrix))
+
+  #emove sample not in matrix (witout htseq count)
+  design = design[which(design$sample %in% colnames(matrix)), ]
+
+  col_selected = which(colnames(matrix) %in% design$sample)
+  matrix = matrix[,c(1, col_selected)]
 
   dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
-  write.table(all_count, file_out, quote=FALSE, row.names=FALSE, sep="\t")
+  write.table(matrix, file_out, quote=FALSE, row.names=FALSE, sep="\t")
+
+  return(design)
 }
 
 ##MAIN
-dir_out = file.path(script_dir, "data", "TCGA_BRCA", "htseq")
-
-file_out = file.path(dir_out, "readcounts.xls")
-tcga_se = gdc_rnaseq('TCGA-BRCA', 'HTSeq - Counts')
-create_matrix(tcga_se, dir_out, file_out)
-
-#TODO gdc_rnaseq('TCGA-BRCA', 'HTSeq - FPKM') doesn't work
-#file_out = file.path(dir_out, "fpkm.xls")
-#tcga_se = gdc_rnaseq('TCGA-BRCA', 'HTSeq - FPKM')
-#create_matrix(tcga_se, dir_out, file_out)
 
 dir_other = file.path(script_dir, "data", "other")
 file_clinical = file.path(dir_other, "nationwidechildrens.org_clinical_patient_brca.txt")
@@ -60,8 +70,21 @@ not_tn = her2_er_pr[which(!her2_er_pr %in% her2_er_pr_tn)]
 
 design = data.frame(sample=clinical$bcr_patient_barcode[her2_er_pr_tn], subgroup="Query")
 design = rbind(design, data.frame(sample=clinical$bcr_patient_barcode[not_tn], subgroup="Ref"))
+design$sample = gsub("-", "_", design$sample)
 
-dir_out = file.path(script_dir, "data", "design", "TCGA_BRCA", "116_triple_neg")
+dir_out = file.path(script_dir, "data", "TCGA_BRCA", "htseq")
+
+file_out = file.path(dir_out, "readcounts.xls")
+tcga_se = gdc_rnaseq('TCGA-BRCA', 'HTSeq - Counts')
+design = create_matrix(design, tcga_se, dir_out, file_out)
+
+
+dir_out = file.path(script_dir, "data", "design", "TCGA_BRCA", "104_triple_neg")
 file_out = file.path(dir_out, "design.tsv")
 dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
 write.table(design, file_out, quote=FALSE, row.names=FALSE, sep="\t")
+
+#TODO gdc_rnaseq('TCGA-BRCA', 'HTSeq - FPKM') doesn't work
+#file_out = file.path(dir_out, "fpkm.xls")
+#tcga_se = gdc_rnaseq('TCGA-BRCA', 'HTSeq - FPKM')
+#create_matrix(tcga_se, dir_out, file_out)

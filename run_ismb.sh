@@ -4,12 +4,12 @@ type_exec="torque" # "slurm" "bash" "torque"
 num_proc="4"
 
 num_fold_leucegene="loo" # "loo" "10" "0"() ...
-path_design_leucegene="../../data/design/leucegne"
+path_design_leucegene="../../data/design/leucegene"
 designs_leucegene="28_inv16_vs_28 28_inv16 33_MLL 132_FLT3-ITD 139_NPM1_mut"
 
 num_fold_brca="200" # "loo" "10" "0"() ...
-path_design_brca="../../data/design/brca"
-designs_brca="116_triple_neg"
+path_design_brca="../../data/design/TCGA_BRCA"
+designs_brca="104_triple_neg"
 
 ######################################
 # Generate cross-validation folder
@@ -19,9 +19,9 @@ create_cv()
 {
   if [ ${num_fold} == "loo" ]
   then # for leave one out cross-validation
-    python3 -m pyres gen_cv -p ${path_design}/${subgroup} --loo
+    python3 -m pyres gen_cv -p ${path_design}/${design} --loo
   else # For x-fold cross-validation
-    python3 -m pyres gen_cv -p ${path_design}/${subgroup} -f ${num_fold}
+    python3 -m pyres gen_cv -p ${path_design}/${design} -f ${num_fold}
   fi
 }
 
@@ -77,7 +77,7 @@ do
 done
 
 data_project="TCGA_BRCA"
-for src_data in STAR #kallisto
+for src_data in htseq
 do
   for design in ${designs_brca}
   do
