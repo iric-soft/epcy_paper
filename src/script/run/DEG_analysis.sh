@@ -46,9 +46,9 @@ send2torque()
 	eval path_jobout="$6"
 
 	mkdir -p ${path_jobout}
-	#echo "${cmd}" | qsub -V -l nodes=1:ppn=${ppn},mem=${mem},walltime=${walltime} -j oe -N ${job_name} -o ${path_jobout}
+	echo "${cmd}" | qsub -V -l nodes=1:ppn=${ppn},mem=${mem},walltime=${walltime} -j oe -N ${job_name} -o ${path_jobout}
 	#FORDEBUG
-	echo "${cmd} | qsub -V -l nodes=1:ppn=${ppn},mem=${mem},walltime=${walltime} -j oe -N ${job_name} -o ${path_jobout}"
+	#echo "${cmd} | qsub -V -l nodes=1:ppn=${ppn},mem=${mem},walltime=${walltime} -j oe -N ${job_name} -o ${path_jobout}"
 }
 
 exec_cmd()
