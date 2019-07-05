@@ -1,6 +1,6 @@
 from .common import *
 
-def get_argparser_compare_deg(parser):
+def get_argparser_clust_exp(parser):
     parser.add_argument("-p",
                         dest="PATH",
                         help="Folder path of all input files",

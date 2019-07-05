@@ -9,8 +9,6 @@ library("BiocParallel")
 
 args = commandArgs(trailingOnly=TRUE)
 
-MulticoreParam(args[4])
-
 path_design=args[1]
 path_counts=args[2]
 path_output=args[3]
@@ -34,7 +32,7 @@ counts = trunc(counts)
 dds <- DESeqDataSetFromMatrix(counts, sampleTable, ~condition)
 
 ## wald
-dds_wald <- DESeq(dds)
+dds_wald <- DESeq(dds, parallel=TRUE, BPPARAM=MulticoreParam(args[4]))
 res <- results(dds_wald, contrast=c("condition","Query","Ref"))
 
 res = cbind(data.frame(ID=row.names(res), stringsAsFactors=FALSE), res)

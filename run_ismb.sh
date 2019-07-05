@@ -1,7 +1,7 @@
 
 
 type_exec="torque" # "slurm" "bash" "torque"
-num_proc="4"
+num_proc="8"
 
 num_fold_leucegene="loo" # "loo" "10" "0"() ...
 path_design_leucegene="../../data/design/leucegene"

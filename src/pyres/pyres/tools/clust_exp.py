@@ -14,7 +14,7 @@ mpl.rcParams['pdf.fonttype'] = 42
 
 from .. utils import other as uo
 
-def main_compare_deg(args, argparser):
+def main_clust_exp(args, argparser):
     path_file_out = os.path.join(args.PATH, "res", "deg")
     if not os.path.exists(path_file_out):
         os.makedirs(path_file_out)

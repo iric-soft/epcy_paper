@@ -112,6 +112,9 @@ def main_eval_cv(args, argparser):
 
                     df_exp_train = df_feature[df_design_train["sample"]]
                     df_label_train = df_design_train[args.SUBGROUP]
+                    if top==1:
+                        print(df_exp_train)
+                        print(df_label_train)
 
                     df_exp_test = df_feature[df_design_test["sample"]]
                     df_label_test = df_design_test[args.SUBGROUP]

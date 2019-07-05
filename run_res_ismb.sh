@@ -14,8 +14,8 @@ python3 -m pyres eval_cv -p ../../data/design/leucegene \
   --outdir ../../data/res/leucegene/ \
   --top_values 1 3 5 10 50 100 200 \
   --cpm
-  #--n_datasets 3
-  #--shuffle_seeds 1234
+#  #--n_datasets 3
+#  #--shuffle_seeds 1234
 
 ###########################################################
 # Using random forest
@@ -29,3 +29,37 @@ python3 -m pyres eval_cv -p ../../data/design/leucegene \
 #  --cpm
 #  #--n_datasets 3
 #  #--shuffle_seeds 1234
+
+#for method in epcy deseq2 edger limma
+#do
+#  python3 -m pyres heatmap_cv -p ../../data/design/leucegene \
+#    --loo --biotype protein_coding \
+#    --design ${designs} \
+#    --outdir ../../data/res/leucegene/heatmap_cv \
+#    --top 10 --method ${method} \
+#    --bf ../../data/other/GRCh38_84_genes_biotype.tsv
+#done
+
+for gene in ENSG00000272767.1 ENSG00000232431.3
+do
+  for tool in density log_reg
+  do
+    python3 -m pyres ${tool} -p ../../data/design/leucegene \
+      -m ../../data/leucegene/STAR/readcounts.xls \
+      --cpm --design 33_MLL \
+      --outdir ../../data/res/leucegene/ \
+      --id ${gene}
+  done
+done
+
+for gene in ENSG00000133392.16
+do
+  for tool in density log_reg
+  do
+    python3 -m pyres ${tool} -p ../../data/design/leucegene \
+      -m ../../data/leucegene/STAR/readcounts.xls \
+      --cpm --design 28_inv16 \
+      --outdir ../../data/res/leucegene/ \
+      --id ${gene}
+  done
+done

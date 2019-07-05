@@ -1,6 +1,6 @@
 from .common import *
 
-def get_argparser_eval_cv(parser):
+def get_argparser_heatmap_cv(parser):
 
     parser.add_argument("-f",
                         dest="FOLD",
@@ -13,11 +13,6 @@ def get_argparser_eval_cv(parser):
                         help="path to data folder ",
                         type=lambda x: is_valid_path(parser, x))
 
-    parser.add_argument("--loo",
-                        dest="LOO",
-                        help="Activate leave one out (Default: False)",
-                        action='store_true')
-
     parser.add_argument("--biotype",
                         dest="BIOTYPE",
                         help="List of filtred biotype (ex: protein_coding,antisense,pseudogene).",
@@ -29,11 +24,23 @@ def get_argparser_eval_cv(parser):
                         help="path to biotype annotation file.",
                         type=str)
 
+    parser.add_argument("--design",
+                        dest="DESIGN",
+                        help="Name of designs to evaluate",
+                        nargs='+' ,
+                        type=str,
+                        default=None)
+
     parser.add_argument("--lfc",
                         dest="LOG_FC",
                         help="abs(LOG_FC) filter value (Default: 0).",
                         type=float,
                         default=0)
+
+    parser.add_argument("--loo",
+                        dest="LOO",
+                        help="Activate leave one out (Default: False)",
+                        action='store_true')
 
     parser.add_argument("--mcc",
                         dest="MCC",
@@ -41,8 +48,8 @@ def get_argparser_eval_cv(parser):
                         type=float,
                         default=0.0)
 
-    parser.add_argument("--methods",
-                        dest = "METHODS",
+    parser.add_argument("--method",
+                        dest = "METHOD",
                         help = 'Method analyzed: epcy, deseq2, edger or limma (Default: epcy)',
                         type = str,
                         default = 'epcy')

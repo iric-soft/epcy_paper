@@ -27,8 +27,8 @@ mem_edger="3Gb"
 walltime_limma="3:00:00"
 mem_limma="3Gb"
 
-walltime_LDE="10:00:00"
-mem_LDE="14Gb" # 2 * num_proc
+walltime_LDE="12:00:00"
+mem_LDE="80Gb" # 2 * num_proc
 
 
 echo "##################### $subgroup #########################"
@@ -180,14 +180,14 @@ LDE()
 	else
 		if [ ! -f ${path_output}/readcounts/limma_voom_genes.xls ]
 		then
-			limma ${input_design} ${path_output} ${path_jobout_subgroup}
+			limma ${input_design} ${path_output} ${path_jobout}
 		else
 			echo "limma ${subgroup} done!"
 		fi
 
 		if [ ! -f ${path_output}/readcounts/deseq2_genes.xls ]
 		then
-			deseq ${input_design} ${path_output} ${path_jobout_subgroup}
+			deseq ${input_design} ${path_output} ${path_jobout}
 		else
 			echo "deseq2 ${subgroup} done!"
 		fi
@@ -195,7 +195,7 @@ LDE()
 
 		if [ ! -f ${path_output}/readcounts/edger_genes.xls ]
 		then
-			edger ${input_design} ${path_output} ${path_jobout_subgroup}
+			edger ${input_design} ${path_output} ${path_jobout}
 		else
 			echo "edger ${subgroup} done!"
 		fi

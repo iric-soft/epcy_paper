@@ -41,7 +41,8 @@ def select_top(args, df_diff, top):
 def select_epcy(args, df_diff, exp_genes, method, df_ext):
     #print("Read epcy")
 
-    df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
+    if exp_genes is not None:
+        df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
     df_diff = df_diff.loc[df_diff["KERNEL_MCC"] >= args.MCC]
     df_diff = df_diff.loc[abs(df_diff["L2FC"]) >= args.LOG_FC]
     if df_ext is not None:
@@ -68,7 +69,8 @@ def select_epcy(args, df_diff, exp_genes, method, df_ext):
 
 def select_deseq(args, df_diff, exp_genes):
     #print("Read deseq")
-    df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
+    if exp_genes is not None:
+        df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
     df_diff = df_diff.loc[df_diff["pvalue"] <= args.PVALUE]
     df_diff = df_diff.loc[abs(df_diff["log2FoldChange"]) >= args.LOG_FC]
     df_diff = df_diff.reindex(df_diff.log2FoldChange.abs().sort_values(ascending=False).index)
@@ -79,7 +81,8 @@ def select_deseq(args, df_diff, exp_genes):
 
 def select_edger(args, df_diff, exp_genes):
     #print("Read edger")
-    df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
+    if exp_genes is not None:
+        df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
     df_diff = df_diff.loc[df_diff["PValue"] <= args.PVALUE]
     df_diff = df_diff.loc[abs(df_diff["logFC"]) >= args.LOG_FC]
     df_diff = df_diff.reindex(df_diff.logFC.abs().sort_values(ascending=False).index)
@@ -90,7 +93,8 @@ def select_edger(args, df_diff, exp_genes):
 
 def select_limma(args, df_diff, exp_genes):
     #print("Read limma")
-    df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
+    if exp_genes is not None:
+        df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
     df_diff = df_diff.loc[df_diff["P.Value"] <= args.PVALUE]
     df_diff = df_diff.loc[abs(df_diff["logFC"]) >= args.LOG_FC]
     df_diff = df_diff.reindex(df_diff.logFC.abs().sort_values(ascending=False).index)
@@ -99,7 +103,7 @@ def select_limma(args, df_diff, exp_genes):
 
     return(df_diff)
 
-def read_diff_table(args, file_name, method, exp_genes, path_dir=None, design=None, df_ext=None):
+def read_diff_table(args, file_name, method, exp_genes=None, path_dir=None, design=None, df_ext=None):
     path_file = path_dir
     if path_dir is None:
         path_file = os.path.join(args.PATH)
@@ -161,14 +165,15 @@ def get_design(args, path=None, dataset=None, file_name="design.tsv"):
     return(design)
 
 def get_exp(args, file_name, df_design=None):
-    df_biotype = pd.read_csv(args.BF, sep="\t")
-
-    if (not args.BIOTYPE is None):
+    if args.BIOTYPE is not None:
+        df_biotype = pd.read_csv(args.BF, sep="\t")
         selected_biotype = args.BIOTYPE.split(",")
         df_biotype = df_biotype.loc[df_biotype["gene_biotype"].isin(selected_biotype)]
 
     df_exp = pd.read_csv(file_name, sep="\t")
-    df_exp = df_exp.loc[df_exp["ID"].isin(df_biotype["ensembl_gene_id"])]
+
+    if args.BIOTYPE is not None:
+        df_exp = df_exp.loc[df_exp["ID"].isin(df_biotype["ensembl_gene_id"])]
 
     df_exp = df_exp.set_index("ID")
     if df_design is not None:
