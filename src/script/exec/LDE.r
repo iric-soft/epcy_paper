@@ -6,10 +6,8 @@
 library(limma)
 library(edgeR)
 library(DESeq2)
-library("BiocParallel")
 
 args = commandArgs(trailingOnly=TRUE)
-MulticoreParam(args[4])
 
 path_design=args[1]
 path_counts=args[2]
@@ -52,14 +50,16 @@ run_limma <- function(counts, design, path_output) {
   write.table(res, file_out, quote=FALSE, row.names=FALSE, sep="\t")
 }
 
-run_deseq2 <- function(counts, design, path_output) {
+run_deseq2 <- function(counts, design, path_output, num_proc) {
+  library("BiocParallel")
+
   counts = trunc(counts)
   #rownames(counts) = unlist(lapply(rownames(counts), function(x) unlist(strsplit(x, "[.]"))[1]))
 
   dds <- DESeqDataSetFromMatrix(counts, sampleTable, ~condition)
 
   ## wald
-  dds_wald <- DESeq(dds)
+  dds_wald <- DESeq(dds, parallel=TRUE, BPPARAM=MulticoreParam(num_proc))
   res <- results(dds_wald, contrast=c("condition","Query","Ref"))
 
   res = cbind(data.frame(ID=row.names(res), stringsAsFactors=FALSE), res)
@@ -88,4 +88,4 @@ run_edger <- function(counts, design, path_output) {
 
 run_limma(counts, design, path_output)
 run_edger(counts, design, path_output)
-run_deseq2(counts, design, path_output)
+run_deseq2(counts, design, path_output, args[4])
