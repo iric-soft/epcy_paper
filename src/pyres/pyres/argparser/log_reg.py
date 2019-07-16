@@ -13,7 +13,6 @@ def get_argparser_log_reg(parser):
                         help="path to data folder ",
                         type=lambda x: is_valid_path(parser, x))
 
-
     parser.add_argument("--biotype",
                         dest="BIOTYPE",
                         help="(Not available for density tools)",

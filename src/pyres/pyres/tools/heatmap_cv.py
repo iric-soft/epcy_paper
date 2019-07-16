@@ -65,7 +65,7 @@ def main_heatmap_cv(args, argparser):
         result = None
         for dataset in datasets[:n_datasets]:
             path_dataset_train = os.path.join(dir_design, dataset, "train")
-            data = uo.read_diff_table(args, file_dict[method], method, df_biotype["ensembl_gene_id"], path_dir=path_dataset_train)
+            data = uo.read_diff_table(args, file_dict[method], method, path_dataset_train, df_biotype["ensembl_gene_id"])
 
             tmp = data[["ID",criteria_dict[method]]][:top]
             tmp.columns = ["ID", dataset]

@@ -10,7 +10,7 @@ def get_argparser_eval_cv(parser):
 
     parser.add_argument("-m",
                         dest="MATRIX",
-                        help="path matrix file.",
+                        help="path to matrix file.",
                         type=str,
                         default=None)
 
@@ -19,11 +19,23 @@ def get_argparser_eval_cv(parser):
                         help="path to data folder ",
                         type=lambda x: is_valid_path(parser, x))
 
+    parser.add_argument("-q",
+                        dest="QUANT",
+                        help="Software used for quantification (STAR, htseq). (Default: STAR)",
+                        type=str,
+                        default='STAR')
+
+    parser.add_argument("-t",
+                        dest="TYPE_QUANT",
+                        help="Type of quantification (readcounts, tpm). (Default: readcounts)",
+                        type=str,
+                        default='readcounts')
+
     parser.add_argument("--cpm",
                         dest="CPM",
                         help="To normalize the matrix, as Count Par Million (CPM)",
                         action='store_true')
-                        
+
     parser.add_argument("--loo",
                         dest="LOO",
                         help="Activate leave one out (Default: False)",
@@ -78,24 +90,18 @@ def get_argparser_eval_cv(parser):
                         type=str,
                         default='OUT')
 
-    parser.add_argument("--pvalue",
-                        dest="PVALUE",
-                        help="PValue filter value(Default: 0.05).",
+    parser.add_argument("--pvalues",
+                        dest="PVALUES",
+                        help="PValues cutt-off used for LDE method (Default: [0.05]).",
                         type=float,
-                        default=0.05)
+                        nargs= '+',
+                        default=[0.05])
 
     parser.add_argument("--query",
                         dest="QUERY",
                         help="Query value in the class column (Default: Query)",
                         type=str,
                         default="Query")
-
-    parser.add_argument("--shuffle_seeds",
-                        dest = "SHUFFLE_SEEDS",
-                        help = 'set seeds for dataset rankings shuffles before predictions',
-                        nargs = '+',
-                        type = int,
-                        default = None)
 
     parser.add_argument("--subgroup",
                         dest="SUBGROUP",

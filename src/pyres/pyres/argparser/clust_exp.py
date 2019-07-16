@@ -1,27 +1,52 @@
 from .common import *
 
 def get_argparser_clust_exp(parser):
+
+    parser.add_argument("-m",
+                        dest="MATRIX",
+                        help="path to matrix file.",
+                        type=str,
+                        default=None)
+
     parser.add_argument("-p",
                         dest="PATH",
                         help="Folder path of all input files",
                         type=lambda x: is_valid_path(parser, x))
 
-    parser.add_argument("--prefix",
-                        dest="PREFIX",
-                        help="prefix for output files",
+    parser.add_argument("-q",
+                        dest="QUANT",
+                        help="Software used for quantification (STAR, htseq). (Default: STAR)",
                         type=str,
-                        default="")
+                        default='STAR')
 
-    parser.add_argument("--subgroup",
-                        dest="SUBGROUP",
-                        help="list of subgroup separet by ',' (Default: 28_inv16,28_inv16_vs28,33_MLL,18_t8_21)",
+    parser.add_argument("-t",
+                        dest="TYPE_QUANT",
+                        help="Type of quantification (readcounts, tpm). (Default: readcounts)",
                         type=str,
-                        default="139_NPM1_mut,132_FLT3-ITD,28_inv16,28_inv16_vs28,33_MLL")
+                        default='readcounts')
 
-    parser.add_argument("--gene",
-                        dest="GENE",
-                        help="Calculate AUCs on genes (vs Transcripts)",
+    parser.add_argument("--cpm",
+                        dest="CPM",
+                        help="To normalize the matrix, as Count Par Million (CPM)",
                         action='store_true')
+
+    parser.add_argument("--biotype",
+                        dest="BIOTYPE",
+                        help="List of filtred biotype (ex: protein_coding,antisense,pseudogene).",
+                        type=str,
+                        default=None)
+
+    parser.add_argument("--bf",
+                        dest="BF",
+                        help="path to biotype annotation file.",
+                        type=str)
+
+    parser.add_argument("--design",
+                        dest="DESIGN",
+                        help="Name of designs to evaluate",
+                        nargs='+' ,
+                        type=str,
+                        default=None)
 
     parser.add_argument("--lfc",
                         dest="LOG_FC",
@@ -35,17 +60,31 @@ def get_argparser_clust_exp(parser):
                         type=float,
                         default=0.0)
 
+    parser.add_argument("--methods",
+                        dest = "METHODS",
+                        help = 'methods to be tested',
+                        type = str,
+                        nargs = '+',
+                        default = ['deseq2', 'edger', 'limma', 'epcy'])
+
+    parser.add_argument("--num_cluster",
+                        dest = "NUM_CLUSTER",
+                        type = int,
+                        help = 'Explicitly set values of top to search',
+                        nargs= '+',
+                        default = [2])
+
+    parser.add_argument("--outdir",
+                        dest="OUTDIR",
+                        help="Output directory for evaluation metrics tables and log file",
+                        type=str,
+                        default='OUT')
+
     parser.add_argument("--pvalue",
                         dest="PVALUE",
                         help="pValue filter value(Default: 0.05).",
                         type=float,
                         default=0.05)
-
-    parser.add_argument("--group",
-                        dest="GROUP",
-                        help="Name column of group sample in the design file (Default: group)",
-                        type=str,
-                        default="group")
 
     parser.add_argument("--query",
                         dest="QUERY",
@@ -53,15 +92,22 @@ def get_argparser_clust_exp(parser):
                         type=str,
                         default="Query")
 
+    parser.add_argument("--subgroup",
+                        dest="SUBGROUP",
+                        help="Name column of group sample in the design file (Default: subgroup)",
+                        type=str,
+                        default="subgroup")
+
+    parser.add_argument("--top_values",
+                        dest = "TOP_VALUES",
+                        type = int,
+                        help = 'Explicitly set values of top to search',
+                        nargs= '+',
+                        default = [1, 3, 5, 10, 50, 100, 200])
+
     parser.add_argument("--scaled",
                         dest="SCALED",
                         help="Scale the fig, to read each samples and 'features'.",
                         action='store_true')
-
-    parser.add_argument("--biotype",
-                        dest="BIOTYPE",
-                        help="List of filtred biotype (ex: protein_coding,antisense,pseudogene).",
-                        type=str,
-                        default=None)
 
     parser.set_defaults(SCALED=False)

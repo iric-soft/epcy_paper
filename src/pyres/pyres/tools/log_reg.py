@@ -47,7 +47,7 @@ def main_log_reg(args, argparser):
     #https://scikit-learn.org/stable/auto_examples/linear_model/plot_logistic.html#sphx-glr-auto-examples-linear-model-plot-logistic-py
     ########################################################
     # Fit the classifier
-    clf = linear_model.LogisticRegression(solver="liblinear", C = 1e10, penalty = 'l2', max_iter=1000)
+    clf = linear_model.LogisticRegression(solver="liblinear", C = 1e10, penalty = 'l2', max_iter=1000, class_weight='balanced')
     clf.fit(X, y)
 
     # and plot the result

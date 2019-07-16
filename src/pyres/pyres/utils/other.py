@@ -67,11 +67,11 @@ def select_epcy(args, df_diff, exp_genes, method, df_ext):
 
     return(df_diff)
 
-def select_deseq(args, df_diff, exp_genes):
+def select_deseq(args, df_diff, exp_genes, pvalue):
     #print("Read deseq")
     if exp_genes is not None:
         df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
-    df_diff = df_diff.loc[df_diff["pvalue"] <= args.PVALUE]
+    df_diff = df_diff.loc[df_diff["pvalue"] <= pvalue]
     df_diff = df_diff.loc[abs(df_diff["log2FoldChange"]) >= args.LOG_FC]
     df_diff = df_diff.reindex(df_diff.log2FoldChange.abs().sort_values(ascending=False).index)
 
@@ -79,11 +79,11 @@ def select_deseq(args, df_diff, exp_genes):
 
     return(df_diff)
 
-def select_edger(args, df_diff, exp_genes):
+def select_edger(args, df_diff, exp_genes, pvalue):
     #print("Read edger")
     if exp_genes is not None:
         df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
-    df_diff = df_diff.loc[df_diff["PValue"] <= args.PVALUE]
+    df_diff = df_diff.loc[df_diff["PValue"] <= pvalue]
     df_diff = df_diff.loc[abs(df_diff["logFC"]) >= args.LOG_FC]
     df_diff = df_diff.reindex(df_diff.logFC.abs().sort_values(ascending=False).index)
 
@@ -91,11 +91,11 @@ def select_edger(args, df_diff, exp_genes):
 
     return(df_diff)
 
-def select_limma(args, df_diff, exp_genes):
+def select_limma(args, df_diff, exp_genes, pvalue):
     #print("Read limma")
     if exp_genes is not None:
         df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
-    df_diff = df_diff.loc[df_diff["P.Value"] <= args.PVALUE]
+    df_diff = df_diff.loc[df_diff["P.Value"] <= pvalue]
     df_diff = df_diff.loc[abs(df_diff["logFC"]) >= args.LOG_FC]
     df_diff = df_diff.reindex(df_diff.logFC.abs().sort_values(ascending=False).index)
 
@@ -103,26 +103,22 @@ def select_limma(args, df_diff, exp_genes):
 
     return(df_diff)
 
-def read_diff_table(args, file_name, method, exp_genes=None, path_dir=None, design=None, df_ext=None):
+def read_diff_table(args, file_name, method, path_dir, pvalue, exp_genes=None, df_ext=None):
     path_file = path_dir
-    if path_dir is None:
-        path_file = os.path.join(args.PATH)
-    if design is not None:
-        path_file = os.path.join(args.PATH, design)
 
     #TODO: add parameters for STAR and readcounts
-    path_file = os.path.join(path_file, "STAR", "readcounts", file_name)
+    path_file = os.path.join(path_file, args.QUANT, args.TYPE_QUANT, file_name)
 
     df_diff = pd.read_csv(path_file, sep="\t")
 
     if "epcy" in method:
         df_diff = select_epcy(args, df_diff, exp_genes, method, df_ext)
     if method == "deseq2":
-        df_diff = select_deseq(args, df_diff, exp_genes)
+        df_diff = select_deseq(args, df_diff, exp_genes, pvalue)
     if method == "edger":
-        df_diff = select_edger(args, df_diff, exp_genes)
+        df_diff = select_edger(args, df_diff, exp_genes, pvalue)
     if method == "limma":
-        df_diff = select_limma(args, df_diff, exp_genes)
+        df_diff = select_limma(args, df_diff, exp_genes, pvalue)
 
     return(df_diff)
 
@@ -186,29 +182,28 @@ def get_exp(args, file_name, df_design=None):
     df_exp = np.log2(df_exp + 1)
     return(df_exp)
 
-def get_silhouette_kmeans(df, metric):
+def get_silhouette_kmeans(df, metric, num_cluster):
     X = df.T.values
-    n_clusters_ = 2
-    kmeans = KMeans(n_clusters=n_clusters_)
+    kmeans = KMeans(n_clusters=num_cluster)
     labels = kmeans.fit_predict(X)
 
     silh_score = silhouette_score(X, labels, metric=metric)
 
-    return(silh_score, n_clusters_, labels)
+    return(silh_score, labels)
 
 
-def get_silhouette_af(df, df_design, metric, prefix_file_out, method, top):
+def get_silhouette_af(df, metric):
     X = df.T.values
     af = AffinityPropagation().fit(X)
     cluster_centers_indices = af.cluster_centers_indices_
-    n_clusters_ = len(cluster_centers_indices)
+    num_cluster_ = len(cluster_centers_indices)
     labels = af.labels_
 
     silh_score = silhouette_score(X, labels, metric=metric)
 
-    return(silh_score, n_clusters_, labels)
+    return(silh_score, num_cluster_, labels)
 
-def get_silhouette_graph(df, labels, metric, prefix_file_out, method, top, silhouette_avg, n_clusters):
+def get_silhouette_graph(df, labels, metric, path_out, method, top, silhouette_avg, num_cluster):
     X = df.T.values
     cluster_labels = labels
 
@@ -220,14 +215,14 @@ def get_silhouette_graph(df, labels, metric, prefix_file_out, method, top, silho
     # The silhouette coefficient can range from -1, 1 but in this example all
     # lie within [-0.1, 1]
     ax1.set_xlim([-0.1, 1])
-    # The (n_clusters+1)*10 is for inserting blank space between silhouette
+    # The (num_cluster+1)*10 is for inserting blank space between silhouette
     # plots of individual clusters, to demarcate them clearly.
-    ax1.set_ylim([0, len(X) + (n_clusters + 1) * 10])
+    ax1.set_ylim([0, len(X) + (num_cluster + 1) * 10])
 
     # Compute the silhouette scores for each sample
     sample_silhouette_values = silhouette_samples(X, cluster_labels, metric=metric)
     y_lower = 10
-    for i in range(n_clusters):
+    for i in range(num_cluster):
         # Aggregate the silhouette scores for samples belonging to
         # cluster i, and sort them
         ith_cluster_silhouette_values = \
@@ -238,7 +233,7 @@ def get_silhouette_graph(df, labels, metric, prefix_file_out, method, top, silho
         size_cluster_i = ith_cluster_silhouette_values.shape[0]
         y_upper = y_lower + size_cluster_i
 
-        color = cm.nipy_spectral(float(i) / n_clusters)
+        color = cm.nipy_spectral(float(i) / num_cluster)
         ax1.fill_betweenx(np.arange(y_lower, y_upper),
                           0, ith_cluster_silhouette_values,
                           facecolor=color, edgecolor=color, alpha=0.7)
@@ -260,7 +255,7 @@ def get_silhouette_graph(df, labels, metric, prefix_file_out, method, top, silho
     ax1.set_xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
 
     # 2nd Plot showing the actual clusters formed
-    colors = cm.nipy_spectral(cluster_labels.astype(float) / n_clusters)
+    colors = cm.nipy_spectral(cluster_labels.astype(float) / num_cluster)
     ax2.scatter(X[:, 0], X[:, 1], marker='.', s=30, lw=0, alpha=0.7,
                 c=colors, edgecolor='k')
 
@@ -279,17 +274,20 @@ def get_silhouette_graph(df, labels, metric, prefix_file_out, method, top, silho
     ax2.set_ylabel("Feature space for the 2nd feature")
 
     plt.suptitle(("Silhouette analysis for KMeans clustering on sample data "
-                  "with n_clusters = %d" % n_clusters),
+                  "with num_cluster = %d" % num_cluster),
                  fontsize=14, fontweight='bold')
 
-    file_out = prefix_file_out + "_" + method + "_" + str(top) + "_silhouette.pdf"
+    fig_dir = os.path.join(path_out, method, str(num_cluster))
+    if not os.path.exists(fig_dir):
+        os.makedirs(fig_dir)
+    file_out = os.path.join(fig_dir, str(top) + "_silhouette.pdf")
     plt.savefig(file_out)
     plt.close()
 
 
 
 def get_silhouette(df, df_design, metric):
-    silh_score = silhouette_score(df.T, df_design["group"], metric=metric)
+    silh_score = silhouette_score(df.T, df_design[args.SUBGROUP], metric=metric)
 
     return(silh_score)
 
@@ -321,13 +319,13 @@ def get_sample_dist(df, df_design, metric):
     samples_dist = pdist(df.T, metric=metric)
     samples_dist = squareform(samples_dist)
 
-    num_sample = len(df_design["group"])
-    sample_query = df_design["sample"].loc[df_design["group"] == 1]
+    num_sample = len(df_design[args.SUBGROUP])
+    sample_query = df_design["sample"].loc[df_design[args.SUBGROUP] == 1]
 
     close_perc = [0.0, 0.0]
 
     for group in [0, 1]:
-        sample_selected = df_design["sample"].loc[df_design["group"] == group]
+        sample_selected = df_design["sample"].loc[df_design[args.SUBGROUP] == group]
         num_sample_selected = len(sample_selected)
         ind_exp_selected = np.where(df.columns.isin(sample_selected))[0]
 
@@ -338,7 +336,7 @@ def get_sample_dist(df, df_design, metric):
             closest_samples = np.where(sample_dist <= cutoff_dist)
             closest_samples = df.columns.values[closest_samples]
 
-            num_same_group = np.sum(df_design["group"].loc[df_design["sample"].isin(closest_samples)] == group)
+            num_same_group = np.sum(df_design[args.SUBGROUP].loc[df_design["sample"].isin(closest_samples)] == group)
             num_same_group = np.min([num_same_group, num_sample_selected])
             sum_same_group += num_same_group - 1
 
@@ -346,11 +344,14 @@ def get_sample_dist(df, df_design, metric):
 
     return(close_perc, samples_dist)
 
-def display_cluster(args, df, df_design, prefix_file_out, method, metric, top, max_exp):
-    col_pal = sns.color_palette("vlag", 200)
-
-    samples_palette = dict(zip(df_design.group.unique(), [col_pal[199], col_pal[0]]))
-    samples_colors = df_design.group.map(samples_palette)
+def display_cluster(args, df, df_design, path_out, method, metric, top, num_cluster, max_exp):
+    col_pal = [
+        mpl.colors.hex2color('#E62528'),
+        mpl.colors.hex2color('#0D6BAC')
+    ]
+    max_exp=12
+    samples_palette = dict(zip(df_design[args.SUBGROUP].unique(), [col_pal[0], col_pal[1]]))
+    samples_colors = df_design[args.SUBGROUP].map(samples_palette)
     samples_colors = dict(zip(df_design["sample"], samples_colors.get_values()))
     samples_colors = pd.Series(df.columns, index=df.columns).map(samples_colors)
 
@@ -361,38 +362,40 @@ def display_cluster(args, df, df_design, prefix_file_out, method, metric, top, m
     if args.SCALED:
         figsize=(len(df.columns)/4, len(df.index)/4)
         display_label = True
-        prefix_file_out += "_scaled"
 
     sns_plot = sns.clustermap(
         df, figsize=figsize, linewidths=0, metric=metric,
         col_colors=samples_colors, #row_colors=mcc_colors, #cmap="viridis_r",
         xticklabels=display_label, yticklabels=False,
-        vmin=0, vmax=max_exp#, cmap="Blues"
+        vmin=0, vmax=max_exp, cmap="Greys"
     )
     sns_plot.fig.suptitle(method)
     # plt.plot(sns_plot)
-    file_out = prefix_file_out + "_" + method + "_" + str(top) + "_heatmap.pdf"
+    fig_dir = os.path.join(path_out, method)#, str(num_cluster))
+    if not os.path.exists(fig_dir):
+        os.makedirs(fig_dir)
+    file_out = os.path.join(fig_dir, str(top) + "_heatmap.pdf")
     sns_plot.savefig(file_out)
     plt.close()
 
 def get_dist_by_group(df, df_design, samples_dist, method, top, metric):
-    num_sample = len(df_design["group"])
+    num_sample = len(df_design[args.SUBGROUP])
 
     dict_dist = defaultdict(list) #pd.DataFrame(columns=['group', 'dist', 'metric'])
     dist_diff = []
     dist_diff_sample = []
     for i in range(0,num_sample):
         if i != num_sample - 1:
-            group_i = df_design["group"].loc[df_design["sample"] == df.columns.values[i] ].values[0]
+            group_i = df_design[args.SUBGROUP].loc[df_design["sample"] == df.columns.values[i] ].values[0]
             for j in range(i + 1,num_sample):
-                group_j = df_design["group"].loc[df_design["sample"] == df.columns.values[j] ].values[0]
+                group_j = df_design[args.SUBGROUP].loc[df_design["sample"] == df.columns.values[j] ].values[0]
                 if group_i == group_j:
                     if group_i == 1:
-                        dict_dist['group'].append("Query")
+                        dict_dist[args.SUBGROUP].append("Query")
                     else:
-                        dict_dist['group'].append("Ref")
+                        dict_dist[args.SUBGROUP].append("Ref")
                 else:
-                    dict_dist['group'].append("diff")
+                    dict_dist[args.SUBGROUP].append("diff")
                     dist_diff.append(samples_dist[i, j])
                     dist_diff_sample.append([df.columns.values[i], df.columns.values[j]])
                 dict_dist['dist'].append(samples_dist[i, j])
@@ -403,7 +406,7 @@ def get_dist_by_group(df, df_design, samples_dist, method, top, metric):
 
 
 def run_kmeans(XTEST, YTEST, design, method, dataset, top):
-    silh_score, n_clusters_, labels = get_silhouette_kmeans(XTEST, "euclidean")
+    silh_score, labels = get_silhouette_kmeans(XTEST, "euclidean", 2)
     YTEST = np.array(YTEST)
     labels = np.array(labels)
     pred = [labels[i] == YTEST[i] for i in range(len(YTEST))]
@@ -423,7 +426,7 @@ def run_kmeans(XTEST, YTEST, design, method, dataset, top):
 
     return(dict_kmean)
 
-def run_rand_forest(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top):
+def run_rand_forest(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top, pvalue):
     rf = RandomForestClassifier(n_estimators=100, class_weight="balanced_subsample")
     rf.fit(XTRAIN.T, YTRAIN)
 
@@ -443,13 +446,14 @@ def run_rand_forest(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top):
     dict_rf['dataset'].append(id_dataset)
     dict_rf['design'].append(design)
     dict_rf['learn'].append("R-Forest")
+    dict_LR['pvalue'].append(pvalue)
 
     return(dict_rf)
 
 
-def run_LR(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top):
+def run_LR(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top, pvalue):
     ### large C ==> no regularization
-    LR = linear_model.LogisticRegression(solver="liblinear", C = 1e10, penalty = 'l2', max_iter=1000)
+    LR = linear_model.LogisticRegression(solver="liblinear", C = 1e10, penalty = 'l2', max_iter=1000, class_weight='balanced')
     LR.fit(XTRAIN.T, YTRAIN)
 
 
@@ -470,17 +474,18 @@ def run_LR(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top):
     dict_LR['dataset'].append(id_dataset)
     dict_LR['design'].append(design)
     dict_LR['learn'].append("L-Reg")
+    dict_LR['pvalue'].append(pvalue)
 
     return(dict_LR)
 
-def get_exp_cluster(args, df_exp, df_design, df_diff, prefix_file_out, method, design, top, max_exp, metric='euclidean'):
+def get_exp_cluster(args, df_exp, df_design, df_diff, path_out, method, design, top, num_cluster, max_exp, metric='euclidean'):
     df_exp = df_exp.loc[df_exp.index.isin(df_diff["ID"][:top])]
-    return(get_cluster(args, df_exp, df_design, prefix_file_out, method, design, top, max_exp, metric=metric))
+    return(get_cluster(args, df_exp, df_design, path_out, method, design, top, num_cluster, max_exp, metric=metric))
 
-def get_cluster(args, df, df_design, prefix_file_out, method, design, top, max_exp, metric='euclidean'):
-    display_cluster(args, df, df_design, prefix_file_out, method, metric, top, max_exp)
-    (silh_score, num_cluster, labels) = get_silhouette_kmeans(df, metric)
-    get_silhouette_graph(df, labels, metric, prefix_file_out, method, top, silh_score, num_cluster)
+def get_cluster(args, df, df_design, path_out, method, design, top, num_cluster, max_exp, metric='euclidean'):
+    display_cluster(args, df, df_design, path_out, method, metric, top, num_cluster, max_exp)
+    (silh_score, labels) = get_silhouette_kmeans(df, metric, num_cluster)
+    get_silhouette_graph(df, labels, metric, path_out, method, top, silh_score, num_cluster)
 
     #pred = [labels[i] == df_design["group"][i] for i in range(len(df_design["group"]))]
     #pred = np.sum(pred) / len(df_design["group"])

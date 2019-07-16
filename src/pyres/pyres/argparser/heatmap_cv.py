@@ -13,6 +13,18 @@ def get_argparser_heatmap_cv(parser):
                         help="path to data folder ",
                         type=lambda x: is_valid_path(parser, x))
 
+    parser.add_argument("-q",
+                        dest="QUANT",
+                        help="Software used for quantification (STAR, htseq). (Default: STAR)",
+                        type=str,
+                        default='STAR')
+
+    parser.add_argument("-t",
+                        dest="TYPE_QUANT",
+                        help="Type of quantification (readcounts, tpm). (Default: readcounts)",
+                        type=str,
+                        default='readcounts')
+
     parser.add_argument("--biotype",
                         dest="BIOTYPE",
                         help="List of filtred biotype (ex: protein_coding,antisense,pseudogene).",
