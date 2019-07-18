@@ -1,20 +1,20 @@
 
 =====================================================================
-EPCY paper: framework which regroup all analyses done to publish EPCY
+EPCY paper: framework use to compare EPCY 
 =====================================================================
 
 -------------
 Introduction:
 -------------
 
-This framework was developed to analyse `_EPCY <https://github.com/iric-soft/epcy>` ouput with other main DEG tools.
+This framework was developed to analyse `EPCY <https://github.com/iric-soft/epcy>`_ ouput with other main DEG tools.
 
 -------------
 Requirements:
 -------------
 
-* python3
-* R and dependency (see `_lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>)`
+* python3 and dependency (coming soon)
+* R and dependency (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
 * A cluster with a scheduler is highly recommended to run full analysis. Using a workstation/laptop run the small version.
 
   - scheduler implemented: torque, slurm(soon)
