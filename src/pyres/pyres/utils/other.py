@@ -349,7 +349,7 @@ def display_cluster(args, df, df_design, path_out, method, metric, top, num_clus
         mpl.colors.hex2color('#E62528'),
         mpl.colors.hex2color('#0D6BAC')
     ]
-    max_exp=12
+    max_exp = max_exp * 3/4
     samples_palette = dict(zip(df_design[args.SUBGROUP].unique(), [col_pal[0], col_pal[1]]))
     samples_colors = df_design[args.SUBGROUP].map(samples_palette)
     samples_colors = dict(zip(df_design["sample"], samples_colors.get_values()))
