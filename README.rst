@@ -15,9 +15,11 @@ Requirements:
 
 * python3 and dependency (coming soon)
 * R and dependency (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
-* A cluster with a scheduler is highly recommended to run full analysis. Using a workstation/laptop run the small version.
+* To run full analysis it's recomanded to use a cluster with a scheduler. 
 
   - scheduler implemented: torque, slurm(soon)
+  
+* Using a workstation/laptop check the small version. (coming soon)
 
 -------------
 Usage:
