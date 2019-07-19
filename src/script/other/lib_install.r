@@ -10,7 +10,8 @@ BiocManager::install("DESeq2", ask=F)
 BiocManager::install("edgeR", ask=F)
 BiocManager::install("limma", ask=F)
 BiocManager::install("biomaRt", ask=F)
-BiocManager::install("EnsDb.Hsapiens.v86", ask=F)
+#For genes length 2nd solution 
+#BiocManager::install("EnsDb.Hsapiens.v86", ask=F)
 
 ##Other
 
