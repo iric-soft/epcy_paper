@@ -4,12 +4,12 @@
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-BiocManager::install("GenomicDataCommons")
-BiocManager::install("SummarizedExperiment")
-BiocManager::install("DESeq2")
-BiocManager::install("edgeR")
-BiocManager::install("limma")
-BiocManager::install("biomaRt")
+BiocManager::install("GenomicDataCommons", ask=F)
+BiocManager::install("SummarizedExperiment", ask=F)
+BiocManager::install("DESeq2", ask=F)
+BiocManager::install("edgeR", ask=F)
+BiocManager::install("limma", ask=F)
+BiocManager::install("biomaRt", ask=F)
 
 ##Other
 
