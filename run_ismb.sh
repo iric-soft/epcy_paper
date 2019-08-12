@@ -66,7 +66,7 @@ cd ../..
 # RUN DEG and PEG analysis
 ######################################
 
-working_dir="/u/eaudemard/project/epcy_paper/"
+working_dir="./"
 data_project="leucegene"
 for src_data in STAR #kallisto
 do

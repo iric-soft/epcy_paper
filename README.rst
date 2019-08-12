@@ -1,6 +1,6 @@
 
 =====================================================================
-EPCY paper: framework used to evaluate EPCY 
+EPCY paper: framework used to evaluate EPCY
 =====================================================================
 
 -------------
@@ -16,7 +16,9 @@ Small analysis:
 Requirements:
 -------------
 
-* python3 and dependency (coming soon)
+* python3 and dependency
+
+  - pip install statsmodels
 * R and dependency (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
 * 4 multicore and 8Go
 
@@ -31,18 +33,20 @@ Full analysis:
 Requirements:
 -------------
 
-* python3 and dependency (coming soon)
+* python3 and dependency
+
+  - pip install statsmodels
 * R and dependency (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
-* To run full analysis it's recomanded to use a cluster with a scheduler. Without check the small version. 
-* 8 multicore and 
+* To run full analysis it's recomanded to use a cluster with a scheduler. Without check the small version.
+* 8 multicore and
 
   - 80Go to run Deseq2 in parallel on 400 samples and more.
   - 4Go is enough for Limma, EdgeR and EPCY.
 
-scheduler: 
-----------  
-* We have implemented: 
-  
+scheduler:
+----------
+* We have implemented:
+
   - torque
   - slurm(coming soon)
 
@@ -55,9 +59,9 @@ Usage:
   bash run_init.sh
   # Create all cross-validated datasets and run DEG and EPCY analysis
   bash run_ismb.sh
-  #run_ismb.sh have a smart restart mechanism. 
+  #run_ismb.sh have a smart restart mechanism.
   #Juste rerun it, until all jobs finish their execution correctly
   #############
-  # After all job are completed run 
+  # After all job are completed run
   bash run_res_ismb.sh
   # To analyse DEG and EPCY outputs and create graphes
