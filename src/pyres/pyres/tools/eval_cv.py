@@ -166,7 +166,7 @@ def main_eval_cv(args, argparser):
     plt_fig.savefig(fig_out)
     plt.close()
 
-    plt_fig = sns.catplot(data=df_res, x="top", y="auc", hue="method", col="design", row = "pvalue", kind="point", facet_kws=dict(subplot_kws=dict(ylim=[-0.05,1.05])))
-    fig_out =  os.path.join(fig_dir, "pred_auc.pdf")
-    plt_fig.savefig(fig_out)
-    plt.close()
+    #plt_fig = sns.catplot(data=df_res, x="top", y="auc", hue="method", col="design", row = "pvalue", kind="point", facet_kws=dict(subplot_kws=dict(ylim=[-0.05,1.05])))
+    #fig_out =  os.path.join(fig_dir, "pred_auc.pdf")
+    #plt_fig.savefig(fig_out)
+    #plt.close()

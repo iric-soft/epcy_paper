@@ -7,24 +7,37 @@ EPCY paper: framework used to evaluate EPCY
 Introduction:
 -------------
 
-This framework was developed to analyse `EPCY <https://github.com/iric-soft/epcy>`_ ouput with other main DEG tools.
+This framework was developed to compare `EPCY <https://github.com/iric-soft/epcy>`_ ouput with other main DEG tools.
 
 --------------
 Small analysis:
 --------------
-
+This analysis is limited to analyse the smalles design (28_inv16_vs_28), to be run on an single workstation.
+To run the full analysis go to
 Requirements:
 -------------
 
 * python3 and dependency
 
-  - pip install statsmodels
+  - pip3 install -r Requirements.txt
 * R and dependency (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
-* 4 multicore and 8Go
+* 4 multicore and 2Go
+* Take 8 hours on 2GHz intel Core i5 (MacBook Pro)
 
 Usage:
 ------
-(coming soon)
+.. code:: shell
+
+  cd [your_epcy_paper_folder]
+  # Step 1: Create some files used as input in next script
+  bash run_init.sh
+  # Step 2: Create all cross-validated datasets and run DEG and EPCY analysis
+  bash run_ismb_small.sh
+  #Note that run_ismb_small.sh have a smart restart mechanism.
+  #Rerun it, until all jobs finish their execution correctly
+  # Step 3: When all job are completed run
+  # Analyse DEG and EPCY outputs and create graphes
+  bash run_res_ismb_small.sh
 
 --------------
 Full analysis:
@@ -35,7 +48,7 @@ Requirements:
 
 * python3 and dependency
 
-  - pip install statsmodels
+  - pip3 install -r Requirements.txt
 * R and dependency (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
 * To run full analysis it's recomanded to use a cluster with a scheduler. Without check the small version.
 * 8 multicore and
@@ -48,20 +61,20 @@ scheduler:
 * We have implemented:
 
   - torque
-  - slurm(coming soon)
+
+Create an issue if you need slurm, or add it in DEG_analysis.sh (see exec_cmd function).
 
 Usage:
 ------
 .. code:: shell
 
-  cd [your_epcy_paper folder_folder]
-  # will create some files used used as input in next script
+  cd [your_epcy_paper_folder]
+  # Step 1: Create some files used as input in next script
   bash run_init.sh
-  # Create all cross-validated datasets and run DEG and EPCY analysis
+  # Step 2: Create all cross-validated datasets and run DEG and EPCY analysis
   bash run_ismb.sh
-  #run_ismb.sh have a smart restart mechanism.
-  #Juste rerun it, until all jobs finish their execution correctly
-  #############
-  # After all job are completed run
+  #Note that run_ismb.sh have a smart restart mechanism.
+  #Rerun it, until all jobs finish their execution correctly
+  # Step 3: When all job are completed run
+  # Analyse DEG and EPCY outputs and create graphes
   bash run_res_ismb.sh
-  # To analyse DEG and EPCY outputs and create graphes

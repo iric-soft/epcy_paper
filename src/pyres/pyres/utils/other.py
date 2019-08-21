@@ -485,7 +485,7 @@ def get_exp_cluster(args, df_exp, df_design, df_diff, path_out, method, design, 
 def get_cluster(args, df, df_design, path_out, method, design, top, num_cluster, max_exp, metric='euclidean'):
     display_cluster(args, df, df_design, path_out, method, metric, top, num_cluster, max_exp)
     (silh_score, labels) = get_silhouette_kmeans(df, metric, num_cluster)
-    get_silhouette_graph(df, labels, metric, path_out, method, top, silh_score, num_cluster)
+    # get_silhouette_graph(df, labels, metric, path_out, method, top, silh_score, num_cluster)
 
     #pred = [labels[i] == df_design["group"][i] for i in range(len(df_design["group"]))]
     #pred = np.sum(pred) / len(df_design["group"])
