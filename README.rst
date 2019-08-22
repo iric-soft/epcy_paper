@@ -12,7 +12,7 @@ This framework was developed to compare `EPCY <https://github.com/iric-soft/epcy
 --------------
 Small analysis:
 --------------
-This analysis is limited to analyse the smalles design (28_inv16_vs_28), to be run on an single workstation.
+This analysis is limited to analyse the smallest design (28_inv16_vs_28), to be run on an single workstation.
 To run the full analysis go to
 
 Requirements:
