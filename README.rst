@@ -13,7 +13,7 @@ This framework was developed to compare `EPCY <https://github.com/iric-soft/epcy
 Small analysis:
 --------------
 This analysis is limited to analyse the smallest design (28_inv16_vs_28), to be run on an single workstation.
-To run the full analysis go to
+Full analysis follow bellow.
 
 Requirements:
 -------------
@@ -51,7 +51,7 @@ Requirements:
 
   - pip3 install -r Requirements.txt
 * R and dependency (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
-* To run full analysis it's recomanded to use a cluster with a scheduler. Without check the small version.
+* To run full analysis it's recomanded to use a cluster with a scheduler.
 * 8 multicore and
 
   - 80Go to run Deseq2 in parallel on 400 samples and more.
