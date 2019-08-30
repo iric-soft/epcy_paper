@@ -75,7 +75,7 @@ exec_cmd()
 
 }
 
-epcy()
+epcy_sh()
 {
   eval type_run="$1"
   eval input_design="$2"
@@ -91,7 +91,7 @@ epcy()
 			cmd=$(bash ${path_cmd}/epcy.sh ${input_design} ${path_matrix} ${path_output_epcy} ${num_proc})
 			exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_epcy} ${walltime_epcy} ${job_name} ${path_jobout}
 		else
-			echo "epcy ${subgroup} done!"
+			echo "epcy tpm ${subgroup} ${input_design} ${path_output} done!"
 		fi
 	fi
 
@@ -104,7 +104,7 @@ epcy()
 			cmd=$(bash ${path_cmd}/epcy_count.sh ${input_design} ${path_matrix} ${path_output_epcy} ${num_proc})
 			exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_epcy} ${walltime_epcy} ${job_name} ${path_jobout}
 		else
-			echo "epcy count ${subgroup} done!"
+			echo "epcy count ${subgroup} ${input_design} ${path_output} done!"
 		fi
 	fi
 }
@@ -123,7 +123,7 @@ deseq()
 	  cmd=$(bash ${path_cmd}/deseq2.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_deseq2} ${num_proc})
 		exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_LDE} ${walltime_LDE} ${job_name} ${path_jobout}
 	else
-		echo "deseq2 ${subgroup} done!"
+		echo "deseq2 ${subgroup} ${input_design} ${path_output} done!"
 	fi
 }
 
@@ -141,7 +141,7 @@ edger()
 	  cmd=$(bash ${path_cmd}/edger.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_edger})
 		exec_cmd ${type_exec} "\${cmd}" 1 ${mem_edger} ${walltime_edger} ${job_name} ${path_jobout}
 	else
-		echo "edger ${subgroup} done!"
+		echo "edger ${subgroup} ${input_design} ${path_output} done!"
 	fi
 }
 
@@ -159,7 +159,7 @@ limma()
 	  cmd=$(bash ${path_cmd}/limma.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_limma})
 		exec_cmd ${type_exec} "\${cmd}" 1 ${mem_limma} ${walltime_limma} ${job_name} ${path_jobout}
 	else
-		echo "limma ${subgroup} done!"
+		echo "limma ${subgroup} ${input_design} ${path_output} done!"
 	fi
 }
 
@@ -182,14 +182,14 @@ LDE()
 		then
 			limma ${input_design} ${path_output} ${path_jobout}
 		else
-			echo "limma ${subgroup} done!"
+			echo "limma ${subgroup} ${input_design} ${path_output} done!"
 		fi
 
 		if [ ! -f ${path_output}/readcounts/deseq2_genes.xls ]
 		then
 			deseq ${input_design} ${path_output} ${path_jobout}
 		else
-			echo "deseq2 ${subgroup} done!"
+			echo "deseq2 ${subgroup} ${input_design} ${path_output} done!"
 		fi
 
 
@@ -197,7 +197,7 @@ LDE()
 		then
 			edger ${input_design} ${path_output} ${path_jobout}
 		else
-			echo "edger ${subgroup} done!"
+			echo "edger ${subgroup} ${input_design} ${path_output} done!"
 		fi
 	fi
 
@@ -210,8 +210,13 @@ path_design="${path_data}/design/${data_project}/${subgroup}"
 path_output="${path_design}/${src_data}"
 path_jobout_subgroup="${path_jobout}/${data_project}/${src_data}/${subgroup}/"
 
+<<<<<<< HEAD
 epcy "tpm" ${path_design} ${path_output} ${path_jobout_subgroup}
 epcy "count" ${path_design} ${path_output} ${path_jobout_subgroup}
+=======
+#epcy_sh "tpm" ${path_design} ${path_output} ${path_jobout_subgroup}
+epcy_sh "count" ${path_design} ${path_output} ${path_jobout_subgroup}
+>>>>>>> bf3475624a4d0dd73eea7ab5fb63abbb1cfc2333
 LDE ${path_design} ${path_output} ${path_jobout_subgroup}
 
 if [ ! $num_fold == "0" ]
@@ -223,8 +228,8 @@ then
 		path_output_cv="${path_design_cv}/${src_data}"
 		path_jobout_subgroup_cv="${path_jobout_subgroup}/cv/${num_fold}/${num_cv_dir}"
 
-		#epcy "tpm" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
-		epcy "count" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
+		#epcy_sh "tpm" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
+		epcy_sh "count" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
 		LDE ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
 	done
 fi

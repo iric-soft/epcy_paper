@@ -1,15 +1,15 @@
 
 
-type_exec="torque" # "slurm" "bash" "torque"
-num_proc="8"
+type_exec="bash" # "slurm" "bash" "torque"
+num_proc="4"
 
 num_fold_leucegene="loo" # "loo" "10" "0"() ...
 path_design_leucegene="../../data/design/leucegene"
-designs_leucegene="28_inv16_vs_28 28_inv16 33_MLL 132_FLT3-ITD 139_NPM1_mut"
+designs_leucegene="28_inv16_vs_28"
 
-num_fold_brca="200" # "loo" "10" "0"() ...
-path_design_brca="../../data/design/TCGA_BRCA"
-designs_brca="104_triple_neg"
+#num_fold_brca="10" # "loo" "10" "0"() ...
+#path_design_brca="../../data/design/TCGA_BRCA"
+#designs_brca="104_triple_neg"
 
 ######################################
 # Generate cross-validation folder
@@ -55,10 +55,10 @@ designs=${designs_leucegene}
 create_all_cv
 
 ################### For TCGA BRCA #############################################
-num_fold=${num_fold_brca}
-path_design=${path_design_brca}
-designs=${designs_brca}
-create_all_cv
+#num_fold=${num_fold_brca}
+#path_design=${path_design_brca}
+#designs=${designs_brca}
+#create_all_cv
 
 cd ../..
 
@@ -76,11 +76,11 @@ do
   done
 done
 
-data_project="TCGA_BRCA"
-for src_data in htseq
-do
-  for design in ${designs_brca}
-  do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${data_project} ${src_data} ${type_exec} ${num_fold_brca} ${num_proc}
-  done
-done
+#data_project="TCGA_BRCA"
+#for src_data in htseq
+#do
+#  for design in ${designs_brca}
+#  do
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${data_project} ${src_data} ${type_exec} ${num_fold_brca} ${num_proc}
+#  done
+#done

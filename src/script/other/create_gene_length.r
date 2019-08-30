@@ -37,6 +37,6 @@ dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
 file_out = file.path(dir_out, "GRCh38_84_genes_length.tsv")
 write.table(genes_length, file_out, quote=FALSE, row.names=FALSE, sep="\t")
 
-library(EnsDb.Hsapiens.v86)
-edb <- EnsDb.Hsapiens.v86
-gene.lengths <- as.data.frame(lengthOf(edb, of = "gene"))
+#library(EnsDb.Hsapiens.v86)
+#edb <- EnsDb.Hsapiens.v86
+#gene.lengths <- as.data.frame(lengthOf(edb, of = "gene"))
