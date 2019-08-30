@@ -1,6 +1,7 @@
 import argparse
 
 from .argparser.clust_exp import *
+from .argparser.clust_exp_umap import *
 from .argparser.gen_cv import *
 from .argparser.eval_cv import *
 from .argparser.heatmap_cv import *
@@ -8,6 +9,7 @@ from .argparser.density import *
 from .argparser.log_reg import *
 
 from .tools.clust_exp import main_clust_exp
+from .tools.clust_exp_umap import main_clust_exp_umap
 from .tools.gen_cv import main_gen_cv
 from .tools.eval_cv import main_eval_cv
 from .tools.heatmap_cv import main_heatmap_cv
@@ -47,6 +49,14 @@ def main():
     )
     clust_exp.set_defaults(func=main_clust_exp)
     get_argparser_clust_exp(clust_exp)
+
+    # create the argparser for the "clust_exp_umap" command
+    clust_exp_umap = subparsers.add_parser(
+        'clust_exp_umap',
+        help='UMAP clustring compute on expression data.'
+    )
+    clust_exp_umap.set_defaults(func=main_clust_exp_umap)
+    get_argparser_clust_exp_umap(clust_exp_umap)
 
     # create the argparser for the "gen_cv" command
     gen_cv = subparsers.add_parser(

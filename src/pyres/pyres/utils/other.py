@@ -2,6 +2,8 @@ import os
 import sys
 import re
 import math
+import umap
+import hdbscan
 
 from collections import defaultdict
 
@@ -22,6 +24,7 @@ from sklearn.metrics import silhouette_score, silhouette_samples
 from sklearn.cluster import AffinityPropagation, KMeans
 from sklearn import linear_model
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
 
 mpl.rcParams['font.family'] = 'sans-serif'
 mpl.rcParams['font.sans-serif'] = 'DejaVu Sans'
@@ -493,3 +496,72 @@ def get_cluster(args, df, df_design, path_out, method, design, top, num_cluster,
     #    pred = 1 - pred
 
     return(silh_score)
+
+def cluster_umap(args, df_exp, df_design, df_diff, path_out, method, design, top, metric='euclidean'):
+
+    filled_markers = ('o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd', 'P', 'X')
+
+    nneighbors = 10
+
+    df_exp = df_exp.loc[df_exp.index.isin(df_diff["ID"][:top])]
+    num_query = len(np.where(df_design[args.SUBGROUP] == 1)[0])
+
+    ##### STEP1: display UMAP with subgroup
+    reducer = umap.UMAP(
+      n_neighbors=nneighbors,
+      metric=metric,
+      n_components=2,
+      random_state=42
+    )
+    sample_embedding = reducer.fit_transform(df_exp.T)
+    df_design["x"] = sample_embedding[:, 0]
+    df_design["y"] = sample_embedding[:, 1]
+
+    ##### STEP2: Find cluster
+    clusterable_embedding = umap.UMAP(
+        n_neighbors=nneighbors,
+        min_dist=0.0,
+        metric=metric,
+        n_components=2,
+        random_state=42,
+    ).fit_transform(df_exp.T)
+
+    labels = hdbscan.HDBSCAN(
+        min_samples=int(math.floor(num_query/3)),
+        min_cluster_size=int(math.floor(num_query/2)),
+    ).fit_predict(clusterable_embedding)
+    clustered = (labels >= 0)
+
+    ##### STEP3: display cluster
+    df_design["cluster"] = [str(x) for x in labels]
+    sns_plot = sns.scatterplot(
+        x="x",
+        y="y",
+        style=args.SUBGROUP,
+        hue="cluster",
+        palette=sns.color_palette("Set1", df_design["cluster"].nunique()),
+        markers=filled_markers,
+        data=df_design
+    )
+    sns_plot.set_title(method)
+    fig_dir = os.path.join(path_out, method)
+    if not os.path.exists(fig_dir):
+        os.makedirs(fig_dir)
+    file_out = os.path.join(fig_dir, str(top) + "_umap.pdf")
+    sns_plot = sns_plot.get_figure()
+    sns_plot.savefig(file_out)
+    plt.close()
+
+    ##### STEP4: compute metric
+
+    dict_umap = defaultdict(list)
+    dict_umap['full_ARS'].append(adjusted_rand_score(df_design[args.SUBGROUP], labels))
+    dict_umap['full_MIS'].append(adjusted_mutual_info_score(df_design[args.SUBGROUP], labels))
+    dict_umap['ARS'].append(adjusted_rand_score(df_design[args.SUBGROUP][clustered], labels[clustered]))
+    dict_umap['MIS'].append(adjusted_mutual_info_score(df_design[args.SUBGROUP][clustered], labels[clustered]))
+    dict_umap['clustered'].append(np.sum(clustered) / df_exp.shape[1])
+    dict_umap['top'].append(top)
+    dict_umap['method'].append(method)
+    dict_umap['design'].append(design)
+
+    return(dict_umap)
