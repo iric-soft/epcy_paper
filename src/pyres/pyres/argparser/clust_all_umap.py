@@ -1,16 +1,16 @@
 from .common import *
 
-def get_argparser_density(parser):
+def get_argparser_clust_all_umap(parser):
 
     parser.add_argument("-m",
                         dest="MATRIX",
-                        help="Directoy path to matrix file.",
+                        help="path to matrix file.",
                         type=str,
                         default=None)
 
     parser.add_argument("-p",
                         dest="PATH",
-                        help="path to data folder ",
+                        help="Folder path of all input files",
                         type=lambda x: is_valid_path(parser, x))
 
     parser.add_argument("-q",
@@ -25,9 +25,14 @@ def get_argparser_density(parser):
                         type=str,
                         default='readcounts')
 
+    parser.add_argument("--cpm",
+                        dest="CPM",
+                        help="To normalize the matrix, as Count Par Million (CPM)",
+                        action='store_true')
+
     parser.add_argument("--biotype",
                         dest="BIOTYPE",
-                        help="(Not available for density tools)",
+                        help="List of filtred biotype (ex: protein_coding,antisense,pseudogene).",
                         type=str,
                         default=None)
 
@@ -36,16 +41,18 @@ def get_argparser_density(parser):
                         help="path to biotype annotation file.",
                         type=str)
 
-    parser.add_argument("--cpm",
-                        dest="CPM",
-                        help="To normalize the matrix, as Count Par Million (CPM)",
-                        action='store_true')
-
     parser.add_argument("--design",
                         dest="DESIGN",
-                        help="Name of design used",
+                        help="Name of designs to evaluate",
+                        nargs='+' ,
                         type=str,
                         default=None)
+
+    parser.add_argument("--ext",
+                        dest="EXT",
+                        help="Extension to select output format.",
+                        type=str,
+                        default='pdf')
 
     parser.add_argument("--lfc",
                         dest="LOG_FC",
@@ -74,7 +81,7 @@ def get_argparser_density(parser):
 
     parser.add_argument("--pvalue",
                         dest="PVALUE",
-                        help="PValue filter value(Default: 0.05).",
+                        help="pValue filter value(Default: 0.05).",
                         type=float,
                         default=0.05)
 
@@ -90,10 +97,9 @@ def get_argparser_density(parser):
                         type=str,
                         default="subgroup")
 
-    parser.add_argument("--top",
-                        dest = "TOP",
-                        type = int,
-                        help = 'Top x for each methods',
-                        default = 3)
+    parser.add_argument("--scaled",
+                        dest="SCALED",
+                        help="Scale the fig, to read each samples and 'features'.",
+                        action='store_true')
 
-    parser.set_defaults(BIOTYPE=None)
+    parser.set_defaults(SCALED=False)

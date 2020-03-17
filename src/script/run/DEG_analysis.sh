@@ -1,5 +1,6 @@
-#DEG_analysis.sh [working_dir] [subgroup] [data_project] [src_data] [type_exec] [num_fold] [num_proc]
+#DEG_analysis.sh [working_dir] [subgroup] [dir_design] [data_project] [src_data] [type_exec] [num_fold] [num_proc]
 #[subgroup]: 28_inv16 33_MLL ...
+#[dir_design]: leucegene leucegene_v2 TCGA_BRCA ...
 #[data_project]: leucegene ...
 #[src_data]: STAR ...
 #[type_exec]: bash torque ...
@@ -7,19 +8,20 @@
 
 working_dir=$1
 subgroup=$2
-data_project=$3
-src_data=$4
-type_exec=$5
-num_fold=$6
-num_proc=$7
+dir_design=$3
+data_project=$4
+src_data=$5
+type_exec=$6
+num_fold=$7
+num_proc=$8
 path_data="${working_dir}/data"
 path_jobout="${working_dir}/tmp"
 
 ###############################################################################
 # wall time and memory usage for num_proc="4"
 ###############################################################################
-walltime_epcy="4:00:00"
-mem_epcy="4Gb"
+walltime_epcy="72:00:00"
+mem_epcy="10Gb"
 
 walltime_edger="3:00:00"
 mem_edger="3Gb"
@@ -35,6 +37,7 @@ echo "##################### $subgroup #########################"
 
 path_cmd="${working_dir}/src/script/cmd"
 path_matrix="${path_data}/${data_project}/${src_data}/"
+path_anno="${path_data}/other/Homo_sapiens.GRCh38.84.gff3"
 
 send2torque()
 {
@@ -75,36 +78,49 @@ exec_cmd()
 
 }
 
-epcy_sh()
+epcy()
 {
   eval type_run="$1"
   eval input_design="$2"
 	eval path_output="$3"
 	eval path_jobout="$4"
 
-	if [ $type_run == "tpm" ]
+	if [ $type_run == "quant" ] && [ -f ${path_matrix}/quant.xls ]
 	then
-		if [ ! -f ${path_output}/tpm/prediction_capability.xls ]
+		if [ ! -f ${path_output}/quant/predictive_capability.xls ]
 		then
 			job_name="epcy_${subgroup}"
-			path_output_epcy="${path_output}/tpm"
+			path_output_epcy="${path_output}/quant"
 			cmd=$(bash ${path_cmd}/epcy.sh ${input_design} ${path_matrix} ${path_output_epcy} ${num_proc})
 			exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_epcy} ${walltime_epcy} ${job_name} ${path_jobout}
 		else
-			echo "epcy tpm ${subgroup} ${input_design} ${path_output} done!"
+			echo "epcy ${subgroup} done!"
 		fi
 	fi
 
-	if [ $type_run == "count" ]
+	if [ $type_run == "count" ] && [ -f ${path_matrix}/readcounts.xls ]
 	then
-		if [ ! -f ${path_output}/readcounts/prediction_capability.xls ]
+		if [ ! -f ${path_output}/readcounts/predictive_capability.xls ]
 		then
 			job_name="epcy_count_${subgroup}"
 			path_output_epcy="${path_output}/readcounts"
 			cmd=$(bash ${path_cmd}/epcy_count.sh ${input_design} ${path_matrix} ${path_output_epcy} ${num_proc})
 			exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_epcy} ${walltime_epcy} ${job_name} ${path_jobout}
 		else
-			echo "epcy count ${subgroup} ${input_design} ${path_output} done!"
+			echo "epcy count ${subgroup} done!"
+		fi
+	fi
+
+	if [ $type_run == "bagging" ] && [ -f ${path_matrix}/readcounts.xls ]
+	then
+		if [ ! -f ${path_output}/readcounts_bagging/predictive_capability.xls ]
+		then
+			job_name="epcy_bagging_${subgroup}"
+			path_output_epcy="${path_output}/readcounts_bagging"
+			cmd=$(bash ${path_cmd}/epcy_bagging.sh ${input_design} ${path_matrix} ${path_output_epcy} ${num_proc})
+			exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_epcy} ${walltime_epcy} ${job_name} ${path_jobout}
+		else
+			echo "epcy bagging ${subgroup} done!"
 		fi
 	fi
 }
@@ -114,16 +130,18 @@ deseq()
   eval input_design="$1"
 	eval path_output="$2"
 	eval path_jobout="$3"
-
-	if [ ! -f ${path_output}/readcounts/deseq2_genes.xls ]
+	if [ -f ${path_matrix}/readcounts.xls ]
 	then
-	  job_name="DESEQ2_${subgroup}"
-		path_output_deseq2="${path_output}/readcounts"
-	  path_exec="${working_dir}/src/script/exec/deseq2.r"
-	  cmd=$(bash ${path_cmd}/deseq2.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_deseq2} ${num_proc})
-		exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_LDE} ${walltime_LDE} ${job_name} ${path_jobout}
-	else
-		echo "deseq2 ${subgroup} ${input_design} ${path_output} done!"
+		if [ ! -f ${path_output}/readcounts/deseq2_genes.xls ]
+		then
+		  job_name="DESEQ2_${subgroup}"
+			path_output_deseq2="${path_output}/readcounts"
+		  path_exec="${working_dir}/src/script/exec/deseq2.r"
+		  cmd=$(bash ${path_cmd}/deseq2.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_deseq2} ${num_proc})
+			exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_LDE} ${walltime_LDE} ${job_name} ${path_jobout}
+		else
+			echo "deseq2 ${subgroup} done!"
+		fi
 	fi
 }
 
@@ -133,15 +151,18 @@ edger()
 	eval path_output="$2"
 	eval path_jobout="$3"
 
-	if [ ! -f ${path_output}/readcounts/edger_genes.xls ]
+	if [ -f ${path_matrix}/readcounts.xls ]
 	then
-	  job_name="EDGER_${subgroup}"
-		path_output_edger="${path_output}/readcounts"
-	  path_exec="${working_dir}/src/script/exec/edger.r"
-	  cmd=$(bash ${path_cmd}/edger.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_edger})
-		exec_cmd ${type_exec} "\${cmd}" 1 ${mem_edger} ${walltime_edger} ${job_name} ${path_jobout}
-	else
-		echo "edger ${subgroup} ${input_design} ${path_output} done!"
+		if [ ! -f ${path_output}/readcounts/edger_genes.xls ]
+		then
+		  job_name="EDGER_${subgroup}"
+			path_output_edger="${path_output}/readcounts"
+		  path_exec="${working_dir}/src/script/exec/edger.r"
+		  cmd=$(bash ${path_cmd}/edger.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_edger})
+			exec_cmd ${type_exec} "\${cmd}" 1 ${mem_edger} ${walltime_edger} ${job_name} ${path_jobout}
+		else
+			echo "edger ${subgroup} done!"
+		fi
 	fi
 }
 
@@ -151,15 +172,18 @@ limma()
 	eval path_output="$2"
 	eval path_jobout="$3"
 
-	if [ ! -f ${path_output}/readcounts/limma_voom_genes.xls ]
+	if [ -f ${path_matrix}/readcounts.xls ]
 	then
-	  job_name="limma_${subgroup}"
-		path_output_limma="${path_output}/readcounts"
-	  path_exec="${working_dir}/src/script/exec/limma.r"
-	  cmd=$(bash ${path_cmd}/limma.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_limma})
-		exec_cmd ${type_exec} "\${cmd}" 1 ${mem_limma} ${walltime_limma} ${job_name} ${path_jobout}
-	else
-		echo "limma ${subgroup} ${input_design} ${path_output} done!"
+		if [ ! -f ${path_output}/readcounts/limma_voom_genes.xls ]
+		then
+		  job_name="limma_${subgroup}"
+			path_output_limma="${path_output}/readcounts"
+		  path_exec="${working_dir}/src/script/exec/limma.r"
+		  cmd=$(bash ${path_cmd}/limma.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_limma})
+			exec_cmd ${type_exec} "\${cmd}" 1 ${mem_limma} ${walltime_limma} ${job_name} ${path_jobout}
+		else
+			echo "limma ${subgroup} done!"
+		fi
 	fi
 }
 
@@ -170,53 +194,48 @@ LDE()
 	eval path_output="$2"
 	eval path_jobout="$3"
 
-	if [ ! -f ${path_output}/readcounts/deseq2_genes.xls ] && [ ! -f ${path_output}/readcounts/limma_voom_genes.xls ] && [ ! -f ${path_output}/readcounts/edger_genes.xls ]
+	if [ -f ${path_matrix}/readcounts.xls ]
 	then
-	  job_name="LDE_${subgroup}"
-		path_output_lde="${path_output}/readcounts"
-	  path_exec="${working_dir}/src/script/exec/LDE.r"
-	  cmd=$(bash ${path_cmd}/LDE.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_lde} ${num_proc})
-		exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_LDE} ${walltime_LDE} ${job_name} ${path_jobout}
-	else
-		if [ ! -f ${path_output}/readcounts/limma_voom_genes.xls ]
+		if [ ! -f ${path_output}/readcounts/deseq2_genes.xls ] && [ ! -f ${path_output}/readcounts/limma_voom_genes.xls ] && [ ! -f ${path_output}/readcounts/edger_genes.xls ]
 		then
-			limma ${input_design} ${path_output} ${path_jobout}
+		  job_name="LDE_${subgroup}"
+			path_output_lde="${path_output}/readcounts"
+		  path_exec="${working_dir}/src/script/exec/LDE.r"
+		  cmd=$(bash ${path_cmd}/LDE.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_lde} ${num_proc})
+			exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_LDE} ${walltime_LDE} ${job_name} ${path_jobout}
 		else
-			echo "limma ${subgroup} ${input_design} ${path_output} done!"
-		fi
+			if [ ! -f ${path_output}/readcounts/limma_voom_genes.xls ]
+			then
+				limma ${input_design} ${path_output} ${path_jobout}
+			else
+				echo "limma ${subgroup} done!"
+			fi
 
-		if [ ! -f ${path_output}/readcounts/deseq2_genes.xls ]
-		then
-			deseq ${input_design} ${path_output} ${path_jobout}
-		else
-			echo "deseq2 ${subgroup} ${input_design} ${path_output} done!"
-		fi
+			if [ ! -f ${path_output}/readcounts/deseq2_genes.xls ]
+			then
+				deseq ${input_design} ${path_output} ${path_jobout}
+			else
+				echo "deseq2 ${subgroup} done!"
+			fi
 
 
-		if [ ! -f ${path_output}/readcounts/edger_genes.xls ]
-		then
-			edger ${input_design} ${path_output} ${path_jobout}
-		else
-			echo "edger ${subgroup} ${input_design} ${path_output} done!"
+			if [ ! -f ${path_output}/readcounts/edger_genes.xls ]
+			then
+				edger ${input_design} ${path_output} ${path_jobout}
+			else
+				echo "edger ${subgroup} done!"
+			fi
 		fi
 	fi
-
-
-
-
 }
 
-path_design="${path_data}/design/${data_project}/${subgroup}"
+path_design="${path_data}/design/${dir_design}/${subgroup}"
 path_output="${path_design}/${src_data}"
 path_jobout_subgroup="${path_jobout}/${data_project}/${src_data}/${subgroup}/"
 
-<<<<<<< HEAD
-epcy "tpm" ${path_design} ${path_output} ${path_jobout_subgroup}
+#epcy "quant" ${path_design} ${path_output} ${path_jobout_subgroup}
 epcy "count" ${path_design} ${path_output} ${path_jobout_subgroup}
-=======
-#epcy_sh "tpm" ${path_design} ${path_output} ${path_jobout_subgroup}
-epcy_sh "count" ${path_design} ${path_output} ${path_jobout_subgroup}
->>>>>>> bf3475624a4d0dd73eea7ab5fb63abbb1cfc2333
+epcy "bagging" ${path_design} ${path_output} ${path_jobout_subgroup}
 LDE ${path_design} ${path_output} ${path_jobout_subgroup}
 
 if [ ! $num_fold == "0" ]
@@ -228,8 +247,8 @@ then
 		path_output_cv="${path_design_cv}/${src_data}"
 		path_jobout_subgroup_cv="${path_jobout_subgroup}/cv/${num_fold}/${num_cv_dir}"
 
-		#epcy_sh "tpm" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
-		epcy_sh "count" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
+		epcy "count" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
+		epcy "bagging" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
 		LDE ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
 	done
 fi

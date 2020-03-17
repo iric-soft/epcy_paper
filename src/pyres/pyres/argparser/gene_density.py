@@ -1,6 +1,6 @@
 from .common import *
 
-def get_argparser_density(parser):
+def get_argparser_gene_density(parser):
 
     parser.add_argument("-m",
                         dest="MATRIX",
@@ -25,17 +25,6 @@ def get_argparser_density(parser):
                         type=str,
                         default='readcounts')
 
-    parser.add_argument("--biotype",
-                        dest="BIOTYPE",
-                        help="(Not available for density tools)",
-                        type=str,
-                        default=None)
-
-    parser.add_argument("--bf",
-                        dest="BF",
-                        help="path to biotype annotation file.",
-                        type=str)
-
     parser.add_argument("--cpm",
                         dest="CPM",
                         help="To normalize the matrix, as Count Par Million (CPM)",
@@ -47,36 +36,11 @@ def get_argparser_density(parser):
                         type=str,
                         default=None)
 
-    parser.add_argument("--lfc",
-                        dest="LOG_FC",
-                        help="abs(LOG_FC) filter value (Default: 0.3).",
-                        type=float,
-                        default=0.3)
-
-    parser.add_argument("--mcc",
-                        dest="MCC",
-                        help="MCC filter value(Default: 0).",
-                        type=float,
-                        default=0.0)
-
-    parser.add_argument("--methods",
-                        dest = "METHODS",
-                        help = 'methods to be tested',
-                        type = str,
-                        nargs = '+',
-                        default = ['deseq2', 'edger', 'limma', 'epcy'])
-
     parser.add_argument("--outdir",
                         dest="OUTDIR",
                         help="Output directory for evaluation metrics tables and log file",
                         type=str,
                         default='OUT')
-
-    parser.add_argument("--pvalue",
-                        dest="PVALUE",
-                        help="PValue filter value(Default: 0.05).",
-                        type=float,
-                        default=0.05)
 
     parser.add_argument("--query",
                         dest="QUERY",
@@ -90,10 +54,9 @@ def get_argparser_density(parser):
                         type=str,
                         default="subgroup")
 
-    parser.add_argument("--top",
-                        dest = "TOP",
-                        type = int,
-                        help = 'Top x for each methods',
-                        default = 3)
+    parser.add_argument("--gene_id",
+                        dest = "GENE_ID",
+                        type = str,
+                        help = 'Ensemble gene id')
 
     parser.set_defaults(BIOTYPE=None)

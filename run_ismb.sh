@@ -1,7 +1,7 @@
 
 
 type_exec="torque" # "slurm" "bash" "torque"
-num_proc="8"
+num_proc="4"
 
 num_fold_leucegene="loo" # "loo" "10" "0"() ...
 path_design_leucegene="../../data/design/leucegene"
@@ -52,13 +52,21 @@ create_all_cv()
 num_fold=${num_fold_leucegene}
 path_design=${path_design_leucegene}
 designs=${designs_leucegene}
-create_all_cv
+if [ $num_fold_leucegene != "0" ]
+then
+  create_all_cv
+fi
 
 ################### For TCGA BRCA #############################################
 num_fold=${num_fold_brca}
 path_design=${path_design_brca}
 designs=${designs_brca}
-create_all_cv
+
+
+if [ $num_fold_brca != "0" ]
+then
+  create_all_cv
+fi
 
 cd ../..
 
@@ -66,21 +74,23 @@ cd ../..
 # RUN DEG and PEG analysis
 ######################################
 
-working_dir="./"
+working_dir="/u/eaudemard/project/epcy_paper/"
+path_design_leucegene="leucegene"
 data_project="leucegene"
 for src_data in STAR #kallisto
 do
   for design in ${designs_leucegene}
   do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${data_project} ${src_data} ${type_exec} ${num_fold_leucegene} ${num_proc}
+    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_fold_leucegene} ${num_proc}
   done
 done
 
+path_design_TCGA="TCGA_BRCA"
 data_project="TCGA_BRCA"
 for src_data in htseq
 do
   for design in ${designs_brca}
   do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${data_project} ${src_data} ${type_exec} ${num_fold_brca} ${num_proc}
+    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_fold_brca} ${num_proc}
   done
 done

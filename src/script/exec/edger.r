@@ -15,7 +15,7 @@ dir.create(path_output, recursive = TRUE, showWarnings = FALSE)
 
 
 design_file = file.path(path_design, "design.tsv")
-design = read.table(design_file, header = TRUE, stringsAsFactors=FALSE)
+design = read.table(design_file, header = TRUE, stringsAsFactors=FALSE, sep="\t")
 sampleTable = data.frame(condition = design$subgroup)
 
 

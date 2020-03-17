@@ -2,7 +2,6 @@ import os
 import sys
 import re
 import math
-import umap
 import hdbscan
 
 from collections import defaultdict
@@ -10,6 +9,9 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 import seaborn as sns
+
+np.random.seed(42)
+import umap
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -21,10 +23,17 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.stats import mannwhitneyu
 
 from sklearn.metrics import silhouette_score, silhouette_samples
+from sklearn.metrics import f1_score, precision_score, make_scorer
 from sklearn.cluster import AffinityPropagation, KMeans
 from sklearn import linear_model
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import adjusted_rand_score, adjusted_mutual_info_score
+from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.model_selection import learning_curve
+from sklearn.model_selection import ShuffleSplit
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+
 
 mpl.rcParams['font.family'] = 'sans-serif'
 mpl.rcParams['font.sans-serif'] = 'DejaVu Sans'
@@ -46,14 +55,15 @@ def select_epcy(args, df_diff, exp_genes, method, df_ext):
 
     if exp_genes is not None:
         df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
+
     df_diff = df_diff.loc[df_diff["KERNEL_MCC"] >= args.MCC]
     df_diff = df_diff.loc[abs(df_diff["L2FC"]) >= args.LOG_FC]
+
     if df_ext is not None:
         df_diff = df_diff.merge(df_ext, on="ID")
         df_diff.L2FC = df_diff.L2FC_ext
 
     df_diff["abs_L2FC"] = df_diff.L2FC.abs()
-
 
     if method == "epcy" or method == "epcy_bs" or method == "epcy_kernel":
         df_diff = df_diff.sort_values(["KERNEL_MCC", "abs_L2FC"], ascending=False)
@@ -115,6 +125,7 @@ def read_diff_table(args, file_name, method, path_dir, pvalue, exp_genes=None, d
     df_diff = pd.read_csv(path_file, sep="\t")
 
     if "epcy" in method:
+        df_diff.rename(str.upper, axis='columns', inplace=True)
         df_diff = select_epcy(args, df_diff, exp_genes, method, df_ext)
     if method == "deseq2":
         df_diff = select_deseq(args, df_diff, exp_genes, pvalue)
@@ -149,7 +160,7 @@ def read_sample_pred_table(args, file_name, df_diff, dataset=None):
 
     return(df_pred)
 
-def get_design(args, path=None, dataset=None, file_name="design.tsv"):
+def get_design(args, subg_query,  path=None, dataset=None, file_name="design.tsv", replace=True):
     design = path
     if path is None:
         design = os.path.join(args.PATH)
@@ -158,7 +169,9 @@ def get_design(args, path=None, dataset=None, file_name="design.tsv"):
 
     design = os.path.join(design, file_name)
     design = pd.read_csv(design, sep="\t")
-    design[args.SUBGROUP] = [1 if condition == args.QUERY else 0 for condition in design[args.SUBGROUP]]
+    design["subgroup_str"] = design[args.SUBGROUP]
+    if replace:
+        design[args.SUBGROUP] = [1 if condition == subg_query else 0 for condition in design[args.SUBGROUP]]
     design = design.sort_values(by=[args.SUBGROUP, 'sample'], ascending=[False, True])
 
     return(design)
@@ -294,7 +307,43 @@ def get_silhouette(df, df_design, metric):
 
     return(silh_score)
 
+
+def get_ct_closest(query_xy, query_label, ref_xy, ref_label, n_neighbors):
+    all_dist = euclidean_distances(xy1, xy2)
+
+    # ct = [tp, fp, fn, tn]
+    ct = [0,0,0,0]
+    for i in range(0,len(known_label)):
+        closest_xy2 = ref_label[np.argpartition(all_dist[i,:], n_neighbors)[:n_neighbors]]
+        closest_xy2 = closest_xy2.tolist()
+
+        label_pred = max(closest_xy2,key=closest_xy2.count)
+        if query_label[i] == 1 and label_pred == 1:
+            ct[0] += 1
+        if query_label[i] == 0 and label_pred == 1:
+            ct[1] += 1
+        if query_label[i] == 1 and label_pred == 0:
+            ct[2] += 1
+        if query_label[i] == 0 and label_pred == 0:
+            ct[3] += 1
+
+    return(ct)
+def get_ct_probas(probas, labels):
+    # ct = [tp, fp, fn, tn]
+    ct = [0,0,0,0]
+    ids_query = np.where(labels == 1)
+    ids_ref = np.where(labels == 0)
+
+    # compute mcc
+    ct[0] = np.sum(probas[ids_query] > 0.5)
+    ct[1] = np.sum(probas[ids_query] <= 0.5)
+    ct[3] = np.sum(probas[ids_ref] <= 0.5)
+    ct[2] = np.sum(probas[ids_ref] > 0.5)
+
+    return(ct)
+
 def get_mcc(ct):
+    # ct = [tp, fp, fn, tn]
     d1 = ct[0] + ct[1]
     d2 = ct[0] + ct[2]
     d3 = ct[3] + ct[1]
@@ -429,12 +478,38 @@ def run_kmeans(XTEST, YTEST, design, method, dataset, top):
 
     return(dict_kmean)
 
-def run_rand_forest(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top, pvalue):
-    rf = RandomForestClassifier(n_estimators=100, class_weight="balanced_subsample")
+
+def run_model_by_feature(model, XTRAIN, YTRAIN, XTEST, YTEST, id_dataset, param, learn_meth=""):
+    for ids, (feature_name, feature_data) in enumerate(XTRAIN.T.iteritems()):
+        model.fit(XTEST.T[:,[ids]], YTRAIN)
+
+        proba_test = model.predict_proba(XTEST.T[:,[ids]])
+        proba_train = model.predict_proba(XTRAIN.T[:,[ids]])
+
+        ct_test = get_ct_probas(proba_test)
+        mcc_test = get_mcc(ct_test)
+
+        ct_train = get_ct_probas(proba_train)
+        mcc_train = get_mcc(ct_train)
+
+    dict_res = defaultdict(list)
+    dict_res['ct_train'].append(ct_train)
+    dict_res['mcc_train'].append(mcc_train)
+    dict_res['ct_test'].append(ct_test)
+    dict_res['mcc_test'].append(mcc_test)
+    dict_res['id_dataset'].append(id_dataset)
+    dict_res['learn_meth'].append(learn_meth)
+    for key in param.keys():
+        dict_res[key] = dict_res[key] + param[key]
+
+    return(dict_res)
+
+def run_rand_forest(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top, pvalue,
+                    n_estimators=100, class_weight="balanced_subsample"):
+    rf = RandomForestClassifier(n_estimators=n_estimators, class_weight=class_weight)
     rf.fit(XTRAIN.T, YTRAIN)
 
     proba_test = rf.predict_proba(XTEST.T)
-    proba_train = rf.predict_proba(XTRAIN.T)
 
     id_dataset = re.findall(r'\d+', dataset)[0]
     id_dataset = int(id_dataset)
@@ -444,8 +519,6 @@ def run_rand_forest(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top, 
     dict_rf['top'].append(top)
     dict_rf['label'].append(YTEST.values)
     dict_rf['proba'].append(proba_test)
-    dict_rf['label_train'].append(YTRAIN.values)
-    dict_rf['proba_train'].append(proba_train)
     dict_rf['dataset'].append(id_dataset)
     dict_rf['design'].append(design)
     dict_rf['learn'].append("R-Forest")
@@ -454,7 +527,10 @@ def run_rand_forest(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top, 
     return(dict_rf)
 
 
-def run_LR(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top, pvalue):
+def run_LR(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top, pvalue,
+           solver="liblinear", C = 1e10, penalty = 'l2',
+           max_iter=100, class_weight='balanced'):
+
     ### large C ==> no regularization
     LR = linear_model.LogisticRegression(solver="liblinear", C = 1e10, penalty = 'l2', max_iter=1000, class_weight='balanced')
     LR.fit(XTRAIN.T, YTRAIN)
@@ -481,37 +557,83 @@ def run_LR(XTRAIN, YTRAIN, XTEST, YTEST, design, method, dataset, top, pvalue):
 
     return(dict_LR)
 
-def get_exp_cluster(args, df_exp, df_design, df_diff, path_out, method, design, top, num_cluster, max_exp, metric='euclidean'):
+def run_umap(XTRAIN, YTRAIN, XTEST, YTEST, id_dataset, param,
+             n_neighbors=15, n_epochs=1000, random_state=42):
+
+    mapper = umap.UMAP(
+        n_neighbors=n_neighbors,
+        min_dist=0.2,
+        n_components=2,
+        random_state=random_state,
+        n_epochs = n_epochs
+    ).fit(XTRAIN.T, YTRAIN)
+
+    train_embedding = mapper.transform(XTRAIN.T)
+    test_embedding = mapper.transform(XTEST.T)
+
+    test_labels["x"] = test_embedding[:, 0]
+    test_labels["y"] = test_embedding[:, 1]
+
+    # ct = [tp, fp, fn, tn]
+    ct_test = get_ct_closest(test_embedding, YTEST, train_embedding, YTRAIN, n_neighbors)
+    mcc_test = get_mcc(ct_test)
+
+    ct_train = get_ct_closest(train_embedding, YTRAIN, train_embedding, YTRAIN, n_neighbors)
+    mcc_train = get_mcc(ct_train)
+
+    dict_res = defaultdict(list)
+    dict_res['ct_train'].append(ct_train)
+    dict_res['mcc_train'].append(mcc_train)
+    dict_res['ct_test'].append(ct_test)
+    dict_res['mcc_test'].append(mcc_test)
+    dict_res['id_dataset'].append(id_dataset)
+    dict_res['learn_meth'].append("UMAP")
+    for key in param.keys():
+        dict_res[key] = dict_res[key] + param[key]
+
+    return(dict_res)
+
+def get_exp_cluster(args, df_exp, df_design, df_diff, path_out, method, design, top, num_cluster=2, max_exp=20, metric='euclidean', type='heatmap'):
     df_exp = df_exp.loc[df_exp.index.isin(df_diff["ID"][:top])]
-    return(get_cluster(args, df_exp, df_design, path_out, method, design, top, num_cluster, max_exp, metric=metric))
+    return(get_cluster(args, df_exp, df_design, path_out, method, design, top, num_cluster, max_exp, metric=metric, type=type))
 
-def get_cluster(args, df, df_design, path_out, method, design, top, num_cluster, max_exp, metric='euclidean'):
-    display_cluster(args, df, df_design, path_out, method, metric, top, num_cluster, max_exp)
-    (silh_score, labels) = get_silhouette_kmeans(df, metric, num_cluster)
-    # get_silhouette_graph(df, labels, metric, path_out, method, top, silh_score, num_cluster)
+def get_cluster(args, df_exp, df_design, path_out, method, design, top, num_cluster, max_exp, metric='euclidean', type='heatmap'):
 
-    #pred = [labels[i] == df_design["group"][i] for i in range(len(df_design["group"]))]
-    #pred = np.sum(pred) / len(df_design["group"])
-    #if pred < 0.5:
-    #    pred = 1 - pred
+    if type == "heatmap":
+        display_cluster(args, df_exp, df_design, path_out, method, metric, top, num_cluster, max_exp)
+        (silh_score, labels) = get_silhouette_kmeans(df, metric, num_cluster)
+        # get_silhouette_graph(df, labels, metric, path_out, method, top, silh_score, num_cluster)
 
-    return(silh_score)
+        #pred = [labels[i] == df_design["group"][i] for i in range(len(df_design["group"]))]
+        #pred = np.sum(pred) / len(df_design["group"])
+        #if pred < 0.5:
+        #    pred = 1 - pred
 
-def cluster_umap(args, df_exp, df_design, df_diff, path_out, method, design, top, metric='euclidean'):
+        return(silh_score)
+
+    if type == "umap":
+        return(cluster_umap(args, df_exp, df_design, path_out, method, design, top, metric='euclidean'))
+
+def cluster_umap(args, df_exp, df_design, path_out, method, design, top,
+                 metric='euclidean', r_state=42, num_epochs=2000, num_neighbors=15):
 
     filled_markers = ('o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd', 'P', 'X')
 
-    nneighbors = 10
-
-    df_exp = df_exp.loc[df_exp.index.isin(df_diff["ID"][:top])]
+    #df_exp = df_exp.loc[df_exp.index.isin(df_diff["ID"][:top])]
     num_query = len(np.where(df_design[args.SUBGROUP] == 1)[0])
+    num_ref = len(np.where(df_design[args.SUBGROUP] == 0)[0])
+    num_small = min(num_query, num_ref)
+    if num_small == 0:
+        num_small = 20
 
     ##### STEP1: display UMAP with subgroup
     reducer = umap.UMAP(
-      n_neighbors=nneighbors,
+      n_neighbors=num_neighbors,
+      min_dist=0.2,
       metric=metric,
       n_components=2,
-      random_state=42
+      random_state=r_state,
+      n_epochs = num_epochs
     )
     sample_embedding = reducer.fit_transform(df_exp.T)
     df_design["x"] = sample_embedding[:, 0]
@@ -519,49 +641,319 @@ def cluster_umap(args, df_exp, df_design, df_diff, path_out, method, design, top
 
     ##### STEP2: Find cluster
     clusterable_embedding = umap.UMAP(
-        n_neighbors=nneighbors,
+        n_neighbors=num_neighbors,
         min_dist=0.0,
         metric=metric,
         n_components=2,
-        random_state=42,
+        random_state=r_state,
+        n_epochs = num_epochs
     ).fit_transform(df_exp.T)
 
     labels = hdbscan.HDBSCAN(
-        min_samples=int(math.floor(num_query/3)),
-        min_cluster_size=int(math.floor(num_query/2)),
+        min_samples=int(math.floor(num_small/4)),
+        min_cluster_size=int(math.floor(num_small/2))
     ).fit_predict(clusterable_embedding)
     clustered = (labels >= 0)
 
-    ##### STEP3: display cluster
-    df_design["cluster"] = [str(x) for x in labels]
-    sns_plot = sns.scatterplot(
-        x="x",
-        y="y",
-        style=args.SUBGROUP,
-        hue="cluster",
-        palette=sns.color_palette("Set1", df_design["cluster"].nunique()),
-        markers=filled_markers,
-        data=df_design
-    )
-    sns_plot.set_title(method)
-    fig_dir = os.path.join(path_out, method)
-    if not os.path.exists(fig_dir):
-        os.makedirs(fig_dir)
-    file_out = os.path.join(fig_dir, str(top) + "_umap.pdf")
-    sns_plot = sns_plot.get_figure()
-    sns_plot.savefig(file_out)
-    plt.close()
+    ##### STEP3: compute metric
+    p_clustered = round(np.sum(clustered) / df_exp.shape[1], 2)
+    if p_clustered == 0:
+        full_ARS = 0
+        full_MIS = 0
+        ARS = 0
+        MIS = 0
+    else:
+        full_ARS = round(adjusted_rand_score(df_design[args.SUBGROUP], labels), 2)
+        full_MIS = round(adjusted_mutual_info_score(df_design[args.SUBGROUP], labels, average_method='arithmetic'), 2)
+        ARS = round(adjusted_rand_score(df_design[args.SUBGROUP][clustered], labels[clustered]), 2)
+        MIS = round(adjusted_mutual_info_score(df_design[args.SUBGROUP][clustered], labels[clustered], average_method='arithmetic'), 2)
 
-    ##### STEP4: compute metric
 
     dict_umap = defaultdict(list)
-    dict_umap['full_ARS'].append(adjusted_rand_score(df_design[args.SUBGROUP], labels))
-    dict_umap['full_MIS'].append(adjusted_mutual_info_score(df_design[args.SUBGROUP], labels))
-    dict_umap['ARS'].append(adjusted_rand_score(df_design[args.SUBGROUP][clustered], labels[clustered]))
-    dict_umap['MIS'].append(adjusted_mutual_info_score(df_design[args.SUBGROUP][clustered], labels[clustered]))
-    dict_umap['clustered'].append(np.sum(clustered) / df_exp.shape[1])
+    dict_umap['full_ARS'].append(full_ARS)
+    dict_umap['full_MIS'].append(full_MIS)
+    dict_umap['ARS'].append(ARS)
+    dict_umap['MIS'].append(MIS)
+    dict_umap['p_clustered'].append(p_clustered)
     dict_umap['top'].append(top)
     dict_umap['method'].append(method)
     dict_umap['design'].append(design)
 
+    ##### STEP3: display cluster
+
+
+    sns.set(rc={'figure.figsize':(11.7,8.27)})
+    df_design["cluster"] = [str(x) for x in labels]
+
+    for hue in ["cluster", "subgroup_str", "stranded", "project", "tissue", "blasts"]:
+
+        if hue == "blasts":
+            sns_plot = sns.scatterplot(
+                x="x",
+                y="y",
+                style="subgroup_str",
+                hue=hue,
+                markers=filled_markers,
+                data=df_design
+            )
+        else:
+            sns_plot = sns.scatterplot(
+                x="x",
+                y="y",
+                style="subgroup_str",
+                hue=hue,
+                palette=sns.color_palette("Paired", df_design[hue].nunique()),
+                markers=filled_markers,
+                data=df_design
+            )
+        # resize figure box to -> put the legend out of the figure
+        box = sns_plot.get_position() # get position of figure
+        sns_plot.set_position([box.x0, box.y0, box.width * 0.75, box.height]) # resize position
+
+        # Put a legend to the right side
+        sns_plot.legend(loc='center right', bbox_to_anchor=(1.45, 0.5), ncol=2)
+
+        sns_plot.set_title(method + ": " + str(full_ARS) + ", " + str(full_MIS) + ", " + str(p_clustered))
+        fig_dir = os.path.join(path_out, method)
+        if not os.path.exists(fig_dir):
+            os.makedirs(fig_dir)
+        file_out = os.path.join(fig_dir, str(top) + "_" + hue + "_umap." + args.EXT)
+        sns_plot = sns_plot.get_figure()
+        sns_plot.savefig(file_out)
+        plt.close()
+
+
+    file_out = os.path.join(fig_dir, str(top) + "_count_by_subg." + args.EXT)
+    sns_plot = sns.countplot(
+        x="subgroup_str",
+        hue="cluster",
+        data=df_design,
+        palette=sns.color_palette("Paired", df_design["subgroup_str"].nunique())
+    )
+    sns_plot.legend(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0.)
+    sns_plot = sns_plot.get_figure()
+    sns_plot.savefig(file_out)
+    plt.close()
+
+
+    file_out = os.path.join(fig_dir, str(top) + "_count_by_cluster." + args.EXT)
+    sns_plot = sns.countplot(
+        x="cluster",
+        hue="subgroup_str",
+        data=df_design,
+        palette=sns.color_palette("Paired", df_design["subgroup_str"].nunique())
+    )
+    sns_plot.legend(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0.)
+    sns_plot = sns_plot.get_figure()
+    sns_plot.savefig(file_out)
+    plt.close()
+
+    csv_out = os.path.join(fig_dir, str(top) + "_design.csv")
+    df_design.to_csv(csv_out, index=False, sep="\t")
+    df_design
+
+    csv_out = os.path.join(fig_dir, str(top) + "_exp.csv")
+    df_exp.to_csv(csv_out, index=True, sep="\t")
+
     return(dict_umap)
+
+def run_train_label(args, method, train, train_labels, test, test_labels, top,
+                    pvalue, p_train,
+                    features_ids_keep=None, nneighbors=15, num_epochs=500):
+
+    if features_ids_keep is None:
+        dir_out = os.path.join(args.OUTDIR, "all")
+    else:
+        if top is not None:
+            dir_out = os.path.join(args.OUTDIR, method, "top"+str(top), "ptrain"+str(p_train))
+            train = train.loc[features_ids_keep]
+            test = test.loc[features_ids_keep]
+
+    if not os.path.exists(dir_out):
+        os.makedirs(dir_out)
+
+    train_embedding = umap.UMAP(
+        n_neighbors=nneighbors,
+        min_dist=0.2,
+        n_components=2,
+        random_state=42,
+        n_epochs = num_epochs
+    ).fit_transform(train.T, y=train_labels["subgroup"])
+
+    train_labels["x"] = train_embedding[:, 0]
+    train_labels["y"] = train_embedding[:, 1]
+    train_labels["type"] = "train"
+
+    labels = hdbscan.HDBSCAN(
+        min_samples=int(math.floor(20/4)),
+        min_cluster_size=int(math.floor(20/2))
+    ).fit_predict(train_embedding)
+    clustered = (labels >= 0)
+    p_clustered = round(np.sum(clustered) / train_labels.shape[0], 2)
+    full_ARS = round(adjusted_rand_score(train_labels["subgroup"], labels), 2)
+    full_MIS = round(adjusted_mutual_info_score(train_labels["subgroup"], labels, average_method='arithmetic'), 2)
+    ARS = round(adjusted_rand_score(train_labels["subgroup"][clustered], labels[clustered]), 2)
+    MIS = round(adjusted_mutual_info_score(train_labels["subgroup"][clustered], labels[clustered], average_method='arithmetic'), 2)
+
+    sns.set(rc={'figure.figsize':(11.7,8.27)})
+    filled_markers = ('o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd', 'P', 'X')
+    color_palette=sns.color_palette("Paired", train_labels["subgroup_str"].nunique())
+
+    sns_plot = sns.scatterplot(
+        x="x",
+        y="y",
+        style="subgroup_str",
+        hue="subgroup_str",
+        palette=color_palette,
+        markers=filled_markers,
+        data=train_labels
+    )
+    box = sns_plot.get_position() # get position of figure
+    sns_plot.set_position([box.x0, box.y0, box.width * 0.75, box.height]) # resize position
+    sns_plot.legend(loc='center right', bbox_to_anchor=(1.45, 0.5), ncol=2)
+    sns_plot.set_title("ARS=" + str(full_ARS) + ", MIS=" + str(full_MIS) + ", p=" + str(p_clustered) + ", n=" + str(train.shape[0]))
+
+    file_out = os.path.join(dir_out, "train.pdf")
+    sns_plot = sns_plot.get_figure()
+    sns_plot.savefig(file_out)
+    plt.close()
+
+    mapper = umap.UMAP(
+        n_neighbors=nneighbors,
+        min_dist=0.2,
+        n_components=2,
+        random_state=42,
+        n_epochs = num_epochs
+    ).fit(train.T, np.array(train_labels["subgroup"]))
+
+    test_embedding = mapper.transform(test.T)
+
+    test_labels["x"] = test_embedding[:, 0]
+    test_labels["y"] = test_embedding[:, 1]
+    test_labels["pred"] = test_embedding[:, 0]
+    test_labels["type"] = "test"
+
+    #both_labels = pd.concat([train_labels, test_labels])
+
+    labels = hdbscan.HDBSCAN(
+        min_samples=int(math.floor(10/4)),
+        min_cluster_size=int(math.floor(10/2))
+    ).fit_predict(test_embedding)
+    clustered = (labels >= 0)
+    p_clustered = round(np.sum(clustered) / test_labels.shape[0], 2)
+    full_ARS = round(adjusted_rand_score(test_labels["subgroup"], labels), 2)
+    full_MIS = round(adjusted_mutual_info_score(test_labels["subgroup"], labels, average_method='arithmetic'), 2)
+    ARS = round(adjusted_rand_score(test_labels["subgroup"][clustered], labels[clustered]), 2)
+    MIS = round(adjusted_mutual_info_score(test_labels["subgroup"][clustered], labels[clustered], average_method='arithmetic'), 2)
+
+    all_dist = euclidean_distances(test_embedding, train_embedding)
+    for i in range(0,len(test_labels["pred"])):
+        selected_subg = train_labels["subgroup_str"].iloc[np.argpartition(all_dist[i,:], nneighbors)[:nneighbors]]
+        selected_subg = selected_subg.tolist()
+        test_labels.loc[test_labels.iloc[i].name, "pred"] = max(selected_subg,key=selected_subg.count)
+
+
+    dict_res_subg = defaultdict(list)
+    dict_res_all = defaultdict(list)
+    sub_title = ""
+    all_tp = 0
+    all_tn = 0
+    all_fn = 0
+    all_fp = 0
+    all_sum = 0
+    cpt = 0
+    for subg in set(test_labels["subgroup_str"]):
+        tp = sum(test_labels["pred"][test_labels["subgroup_str"] == subg] == subg)
+        fp = sum(test_labels["pred"][test_labels["subgroup_str"] != subg] == subg)
+        tn = sum(test_labels["pred"][test_labels["subgroup_str"] != subg] != subg)
+        fn = sum(test_labels["pred"][test_labels["subgroup_str"] == subg] != subg)
+
+        acc = (tp + tn) / len(test_labels["pred"])
+
+        d1 = tp + fp
+        d2 = tp + fn
+        d3 = tn + fp
+        d4 = tn + fn
+        n1 = tp * tn
+        n2 = fp * fn
+        mcc = ((n1 - n2) / math.sqrt(d1 * d2 * d3 * d4) if d1!=0 and d2!=0 and d3!=0 and d4!=0 else 0)
+
+        all_tp += tp
+        all_tn += tn
+        all_fn += fn
+        all_fp += fp
+        all_sum += len(test_labels["pred"])
+
+        dict_res_subg['tp'].append(tp)
+        dict_res_subg['tn'].append(tn)
+        dict_res_subg['fn'].append(fn)
+        dict_res_subg['fp'].append(fp)
+        dict_res_subg['acc'].append(acc)
+        dict_res_subg['mcc'].append(mcc)
+        dict_res_subg['subg'].append(subg)
+        dict_res_subg['top'].append(top)
+        dict_res_subg['method'].append(method)
+        dict_res_subg['pvalue'].append(pvalue)
+        dict_res_subg['p_train'].append(p_train)
+
+        if cpt % 4 == 0:
+            sub_title += "\n"
+        sub_title += subg + ": " + str(round(mcc, 2)) + ", "
+
+        cpt += 1
+
+    all_acc = round((all_tp + all_tn) / all_sum, 2)
+    d1 = all_tp + all_fp
+    d2 = all_tp + all_fn
+    d3 = all_tn + all_fp
+    d4 = all_tn + all_fn
+    n1 = all_tp * all_tn
+    n2 = all_fp * all_fn
+    all_mcc = ((n1 - n2) / math.sqrt(d1 * d2 * d3 * d4) if d1!=0 and d2!=0 and d3!=0 and d4!=0 else 0)
+    all_mcc = round(all_mcc, 2)
+
+    dict_res_all['tp'].append(all_tp)
+    dict_res_all['tn'].append(all_tn)
+    dict_res_all['fp'].append(all_fp)
+    dict_res_all['fn'].append(all_fn)
+    dict_res_all['acc'].append(all_acc)
+    dict_res_all['mcc'].append(all_mcc)
+    dict_res_all['full_ARS'].append(full_ARS)
+    dict_res_all['full_MIS'].append(full_MIS)
+    dict_res_all['p_clustered'].append(p_clustered)
+    dict_res_all['num_feature'].append(test.shape[0])
+    dict_res_all['top'].append(top)
+    dict_res_all['method'].append(method)
+    dict_res_all['pvalue'].append(pvalue)
+    dict_res_all['p_train'].append(p_train)
+
+    color_palette=sns.color_palette("Paired", test_labels["subgroup_str"].nunique())
+    sns_plot = sns.scatterplot(
+        x="x",
+        y="y",
+        style="subgroup_str",
+        hue="subgroup_str",
+        palette=color_palette,
+        markers=filled_markers,
+        data=test_labels
+    )
+    box = sns_plot.get_position() # get position of figure
+    sns_plot.set_position([box.x0, box.y0, box.width * 0.75, box.height]) # resize position
+    sns_plot.legend(loc='center right', bbox_to_anchor=(1.45, 0.5), ncol=2)
+    sns_plot.set_title(
+        method +
+        " ACC=" + str(all_acc) +
+        ", MCC=" + str(all_mcc) +
+        ", ARS=" + str(full_ARS) +
+        ", MIS=" + str(full_MIS) +
+        ", p=" + str(p_clustered) +
+        ", n=" + str(test.shape[0]) +
+        "\n" + sub_title
+    )
+
+    file_out = os.path.join(dir_out, "test.pdf")
+    sns_plot = sns_plot.get_figure()
+    sns_plot.savefig(file_out)
+    plt.close()
+
+    return(dict_res_subg, dict_res_all)

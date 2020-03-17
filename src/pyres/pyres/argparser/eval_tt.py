@@ -1,10 +1,10 @@
 from .common import *
 
-def get_argparser_density(parser):
+def get_argparser_eval_tt(parser):
 
     parser.add_argument("-m",
                         dest="MATRIX",
-                        help="Directoy path to matrix file.",
+                        help="path to matrix file.",
                         type=str,
                         default=None)
 
@@ -27,7 +27,7 @@ def get_argparser_density(parser):
 
     parser.add_argument("--biotype",
                         dest="BIOTYPE",
-                        help="(Not available for density tools)",
+                        help="List of filtred biotype (ex: protein_coding,antisense,pseudogene).",
                         type=str,
                         default=None)
 
@@ -36,22 +36,11 @@ def get_argparser_density(parser):
                         help="path to biotype annotation file.",
                         type=str)
 
-    parser.add_argument("--cpm",
-                        dest="CPM",
-                        help="To normalize the matrix, as Count Par Million (CPM)",
-                        action='store_true')
-
-    parser.add_argument("--design",
-                        dest="DESIGN",
-                        help="Name of design used",
-                        type=str,
-                        default=None)
-
     parser.add_argument("--lfc",
                         dest="LOG_FC",
-                        help="abs(LOG_FC) filter value (Default: 0.3).",
+                        help="abs(LOG_FC) filter value (Default: 0).",
                         type=float,
-                        default=0.3)
+                        default=0)
 
     parser.add_argument("--mcc",
                         dest="MCC",
@@ -72,11 +61,12 @@ def get_argparser_density(parser):
                         type=str,
                         default='OUT')
 
-    parser.add_argument("--pvalue",
-                        dest="PVALUE",
-                        help="PValue filter value(Default: 0.05).",
+    parser.add_argument("--pvalues",
+                        dest="PVALUES",
+                        help="PValues cutt-off used for LDE method (Default: [0.05]).",
                         type=float,
-                        default=0.05)
+                        nargs= '+',
+                        default=[0.05])
 
     parser.add_argument("--query",
                         dest="QUERY",
@@ -90,10 +80,11 @@ def get_argparser_density(parser):
                         type=str,
                         default="subgroup")
 
-    parser.add_argument("--top",
-                        dest = "TOP",
+    parser.add_argument("--top_values",
+                        dest = "TOP_VALUES",
                         type = int,
-                        help = 'Top x for each methods',
-                        default = 3)
+                        help = 'Explicitly set values of top to search',
+                        nargs= '+',
+                        default = [2, 3, 5, 10, 50, 100, 200])
 
-    parser.set_defaults(BIOTYPE=None)
+    parser.set_defaults(USE_LR=False)

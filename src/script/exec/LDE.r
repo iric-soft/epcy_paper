@@ -2,6 +2,7 @@
 #ex:
 # - [path to design]
 # - [path to count]
+#Rscript --vanilla /u/eaudemard/project/epcy_paper//src/script/exec/LDE.r /u/eaudemard/project/epcy_paper//data/design/leucegene/28_inv16_vs_28/cv/foldloo/dataset_0/train /u/eaudemard/project/epcy_paper//data/leucegene/STAR/ /u/eaudemard/project/epcy_paper//data/design/leucegene/28_inv16_vs_28/cv/foldloo/dataset_0/train/STAR/readcounts 4
 
 library(limma)
 library(edgeR)
@@ -17,7 +18,7 @@ dir.create(path_output, recursive = TRUE, showWarnings = FALSE)
 
 
 design_file = file.path(path_design, "design.tsv")
-design = read.table(design_file, header = TRUE, stringsAsFactors=FALSE)
+design = read.table(design_file, header = TRUE, stringsAsFactors=FALSE, sep="\t")
 sampleTable = data.frame(condition = design$subgroup)
 
 

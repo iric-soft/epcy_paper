@@ -44,3 +44,43 @@ all_tpm = count2tpm(all_count, genes_length)
 
 file_out = file.path(dir_data_leucegene, "tpm.xls")
 write.table(all_tpm, file_out, quote=FALSE, row.names=FALSE, sep="\t")
+
+
+
+dir_data_tcga_laml= file.path(script_dir, "data", "TCGA_LAML", "htseq")
+file_count = file.path(dir_data_tcga_laml, "readcounts.xls")
+all_count = fread(file_count, header=TRUE, stringsAsFactors=FALSE,
+                     sep="\t", quote = "")
+setDF(all_count)
+
+all_tpm = count2tpm(all_count, genes_length)
+
+file_out = file.path(dir_data_tcga_laml, "tpm.xls")
+write.table(all_tpm, file_out, quote=FALSE, row.names=FALSE, sep="\t")
+
+
+
+dir_data_tcga_laml= file.path(script_dir, "data", "TARGET_AML", "htseq")
+file_count = file.path(dir_data_tcga_laml, "readcounts.xls")
+all_count = fread(file_count, header=TRUE, stringsAsFactors=FALSE,
+                     sep="\t", quote = "")
+setDF(all_count)
+
+all_tpm = count2tpm(all_count, genes_length)
+
+file_out = file.path(dir_data_tcga_laml, "tpm.xls")
+write.table(all_tpm, file_out, quote=FALSE, row.names=FALSE, sep="\t")
+
+
+
+
+dir_data_tcga_brca= file.path(script_dir, "data", "TCGA_BRCA", "htseq")
+file_count = file.path(dir_data_tcga_brca, "readcounts.xls")
+all_count = fread(file_count, header=TRUE, stringsAsFactors=FALSE,
+                     sep="\t", quote = "")
+setDF(all_count)
+
+all_tpm = count2tpm(all_count, genes_length)
+
+file_out = file.path(dir_data_tcga_brca, "tpm.xls")
+write.table(all_tpm, file_out, quote=FALSE, row.names=FALSE, sep="\t")

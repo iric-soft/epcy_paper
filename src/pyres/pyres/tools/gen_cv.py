@@ -13,7 +13,7 @@ def format_design(df, args):
 
 def main_gen_cv(args, argparser):
 
-    df_design = uo.get_design(args)
+    df_design = uo.get_design(args, "Query")
     num_sample = len(df_design.index)
 
     fold = args.FOLD

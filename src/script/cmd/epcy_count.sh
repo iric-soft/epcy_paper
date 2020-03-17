@@ -6,4 +6,4 @@ path_tpm=$2
 path_output=$3
 num_proc=$4
 
-echo "epcy pred --cpm -l 0 -e 0 -t ${num_proc} -d ${path_design}/design.tsv -m ${path_tpm}/readcounts.xls -o ${path_output}/"
+echo "epcy pred_rna --full --auc --cpm --log -l 0 -e 0 -t ${num_proc} -d ${path_design}/design.tsv -m ${path_tpm}/readcounts.xls -o ${path_output}/ --randomseed 42 && epcy qc -p ${path_output}/predictive_capability.xls -o ${path_output}/"

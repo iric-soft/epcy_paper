@@ -1,165 +1,89 @@
 
-#To build data/other
+## To build data/other
 #Rscript --vanilla ./src/script/other/biotype.r
 #Rscript --vanilla ./src/script/other/create_gene_length.r
 
-# read count to tpm
+## Read count to tpm
 #Rscript --vanilla ./src/script/other/create_matrix_tpm.r
 
-#To build data/TCGA_BRCA
+## To build data/TCGA_BRCA
 #Rscript --vanilla ./src/script/other/brca_matrix_readcounts.r
 
+## To build data/TCGA_LAML
+#Rscript --vanilla ./src/script/other/tcga_aml_matrix_readcounts.r
 
-design="62_CK"
-cp ./data/design/leucegene/all/design.tsv ./data/design/leucegene/${design}/
-sed -i -e 's/CK/Query/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/EVI1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Inter/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/inv16/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/MLL/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Mono5/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Normal/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/NUP98NSD1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t15_17/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t8_21/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Tri8/Ref/g' ./data/design/leucegene/${design}/design.tsv
+## To build data/TARGET_AML
+#Rscript --vanilla ./src/script/other/target_aml_matrix_readcounts.r
 
-design="9_EVI1"
-cp ./data/design/leucegene/all/design.tsv ./data/design/leucegene/${design}/
-sed -i -e 's/CK/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/EVI1/Query/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Inter/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/inv16/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/MLL/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Mono5/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Normal/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/NUP98NSD1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t15_17/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t8_21/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Tri8/Ref/g' ./data/design/leucegene/${design}/design.tsv
+## To create all design for all cohorts
+#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene/ subgroup
+#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_v2/ subgroup
+#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_jf/ JF
+#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/TARGET_AML/ subgroup
 
-design="62_Inter"
-cp ./data/design/leucegene/all/design.tsv ./data/design/leucegene/${design}/
-sed -i -e 's/CK/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/EVI1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Inter/Query/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/inv16/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/MLL/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Mono5/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Normal/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/NUP98NSD1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t15_17/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t8_21/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Tri8/Ref/g' ./data/design/leucegene/${design}/design.tsv
+## Create leucegene_random
+#Rscript --vanilla ./src/script/other/gen_leucegene_random.r
 
-design="inv16"
-cp ./data/design/leucegene/all/design.tsv ./data/design/leucegene/${design}/
-sed -i -e 's/CK/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/EVI1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Inter/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/inv16/Query/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/MLL/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Mono5/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Normal/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/NUP98NSD1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t15_17/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t8_21/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Tri8/Ref/g' ./data/design/leucegene/${design}/design.tsv
+## Build leucegene_test and leucegene_train
+#Rscript --vanilla ./src/script/other/gen_leucegene_tt.r
+#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_train/ subgroup
 
-design="33_MLL"
-cp ./data/design/leucegene/all/design.tsv ./data/design/leucegene/${design}/
-sed -i -e 's/CK/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/EVI1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Inter/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/inv16/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/MLL/Query/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Mono5/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Normal/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/NUP98NSD1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t15_17/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t8_21/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Tri8/Ref/g' ./data/design/leucegene/${design}/design.tsv
+## MNNIST fashion
+#git clone git@github.com:zalandoresearch/fashion-mnist.git
+#python ./src/script/other/mnist_fashion.py
+#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/mnist_fashion_train/ subgroup
+##Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/mnist_fashion_test/ subgroup
 
-design="13_Mono5"
-cp ./data/design/leucegene/all/design.tsv ./data/design/leucegene/${design}/
-sed -i -e 's/CK/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/EVI1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Inter/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/inv16/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/MLL/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Mono5/Query/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Normal/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/NUP98NSD1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t15_17/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t8_21/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Tri8/Ref/g' ./data/design/leucegene/${design}/design.tsv
+## Build leucegene_test and leucegene_learning_curve
+#Rscript --vanilla ./src/script/other/gen_leucegene_learning_curve.r
+#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_learning_curve/comp subgroup
 
-design="126_Normal"
-cp ./data/design/leucegene/all/design.tsv ./data/design/leucegene/${design}/
-sed -i -e 's/CK/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/EVI1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Inter/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/inv16/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/MLL/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Mono5/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Normal/Query/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/NUP98NSD1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t15_17/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t8_21/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Tri8/Ref/g' ./data/design/leucegene/${design}/design.tsv
 
-design="5_NUP98NSD1"
-cp ./data/design/leucegene/all/design.tsv ./data/design/leucegene/${design}/
-sed -i -e 's/CK/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/EVI1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Inter/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/inv16/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/MLL/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Mono5/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Normal/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/NUP98NSD1/Query/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t15_17/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t8_21/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Tri8/Ref/g' ./data/design/leucegene/${design}/design.tsv
+## Build leucegene_test and leucegene_comp_tt
+#Rscript --vanilla ./src/script/other/gen_leucegene_comp_tt.r
+#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt/comp subgroup FALSE
+#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt/test_train subgroup FALSE
 
-design="30_t15_17"
-cp ./data/design/leucegene/all/design.tsv ./data/design/leucegene/${design}/
-sed -i -e 's/CK/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/EVI1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Inter/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/inv16/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/MLL/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Mono5/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Normal/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/NUP98NSD1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t15_17/Query/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t8_21/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Tri8/Ref/g' ./data/design/leucegene/${design}/design.tsv
 
-design="18_t8_21"
-cp ./data/design/leucegene/all/design.tsv ./data/design/leucegene/${design}/
-sed -i -e 's/CK/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/EVI1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Inter/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/inv16/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/MLL/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Mono5/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Normal/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/NUP98NSD1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t15_17/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t8_21/Query/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Tri8/Ref/g' ./data/design/leucegene/${design}/design.tsv
-
-design="13_Tri8"
-cp ./data/design/leucegene/all/design.tsv ./data/design/leucegene/${design}/
-sed -i -e 's/CK/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/EVI1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Inter/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/inv16/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/MLL/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Mono5/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Normal/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/NUP98NSD1/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t15_17/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/t8_21/Ref/g' ./data/design/leucegene/${design}/design.tsv
-sed -i -e 's/Tri8/Query/g' ./data/design/leucegene/${design}/design.tsv
+## Build leucegene_test and leucegene_comp_tt
+Rscript --vanilla ./src/script/other/gen_leucegene_comp_tt.r
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/1/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/1/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/2/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/2/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/3/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/3/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/4/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/4/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/5/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/5/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/6/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/6/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/7/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/7/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/8/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/8/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/9/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/9/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/10/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/10/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/11/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/11/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/12/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/12/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/13/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/13/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/14/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/14/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/15/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/15/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/16/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/16/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/17/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/17/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/18/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/18/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/19/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/19/test_train subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/20/comp subgroup FALSE
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt_v2/20/test_train subgroup FALSE
