@@ -30,7 +30,7 @@ sub_sampling <- function(p, design, name_design) {
     )
   }
   
-  design_ss = design[which(design$sample %in% sample_test), ]
+  design_ss = design[which(design$sample %in% selected_sample), ]
   
   dir_ss = file.path(script_dir, "data", "design", "leucegene_ss", name_design, p)
   file_ss = file.path(dir_ss, "design.tsv")
