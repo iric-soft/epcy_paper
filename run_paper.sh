@@ -33,8 +33,8 @@ do
   do
     for p in ${p_subs}
     do
-      path_design_leucegene_ss="${path_design_leucegene}/${p}"
-      bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design_leucegene_ss} ${data_project} ${src_data} ${type_exec} ${num_fold_leucegene} ${num_proc}
+      design_ss="${design}/${p}"
+      bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design_ss} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_fold_leucegene} ${num_proc}
     done
   done
 done
