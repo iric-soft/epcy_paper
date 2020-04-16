@@ -87,51 +87,66 @@ def select_epcy(args, df_diff, exp_genes, method, df_ext):
     return(df_diff)
 
 
-def select_deseq(args, df_diff, exp_genes, pvalue):
+def select_deseq(args, df_diff, exp_genes, padj, by_pvalue=False):
     # print("Read deseq")
     if exp_genes is not None:
         df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
-    df_diff = df_diff.loc[df_diff["pvalue"] <= pvalue]
+    df_diff = df_diff.loc[df_diff["padj"] <= padj]
     df_diff = df_diff.loc[abs(df_diff["log2FoldChange"]) >= args.LOG_FC]
-    df_diff = df_diff.reindex(
-        df_diff.log2FoldChange.abs().sort_values(ascending=False).index
-    )
+    if by_pvalue:
+        df_diff = df_diff.reindex(
+            df_diff.padj.sort_values(ascending=True).index
+        )
+    else:
+        df_diff = df_diff.reindex(
+            df_diff.log2FoldChange.abs().sort_values(ascending=False).index
+        )
 
     # df_diff = select_top(args, df_diff, top)
 
     return(df_diff)
 
 
-def select_edger(args, df_diff, exp_genes, pvalue):
+def select_edger(args, df_diff, exp_genes, fdr, by_pvalue=False):
     # print("Read edger")
     if exp_genes is not None:
         df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
-    df_diff = df_diff.loc[df_diff["PValue"] <= pvalue]
+    df_diff = df_diff.loc[df_diff["FDR"] <= fdr]
     df_diff = df_diff.loc[abs(df_diff["logFC"]) >= args.LOG_FC]
-    df_diff = df_diff.reindex(
-        df_diff.logFC.abs().sort_values(ascending=False).index
-    )
+    if by_pvalue:
+        df_diff = df_diff.reindex(
+            df_diff.FDR.sort_values(ascending=True).index
+        )
+    else:
+        df_diff = df_diff.reindex(
+            df_diff.logFC.abs().sort_values(ascending=False).index
+        )
 
     # df_diff = select_top(args, df_diff, top)
 
     return(df_diff)
 
 
-def select_limma(args, df_diff, exp_genes, pvalue):
+def select_limma(args, df_diff, exp_genes, padj, by_pvalue=False):
     # print("Read limma")
     if exp_genes is not None:
         df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
-    df_diff = df_diff.loc[df_diff["P.Value"] <= pvalue]
+    df_diff = df_diff.loc[df_diff["adj.P.Val"] <= padj]
     df_diff = df_diff.loc[abs(df_diff["logFC"]) >= args.LOG_FC]
-    df_diff = df_diff.reindex(
-        df_diff.logFC.abs().sort_values(ascending=False).index
-    )
+    if by_pvalue:
+        df_diff = df_diff.reindex(
+            df_diff["adj.P.Val"].sort_values(ascending=True).index
+        )
+    else:
+        df_diff = df_diff.reindex(
+            df_diff.logFC.abs().sort_values(ascending=False).index
+        )
 
     # df_diff = select_top(args, df_diff, top)
     return(df_diff)
 
 
-def read_diff_table(args, file_name, method, path_dir, pvalue,
+def read_diff_table(args, file_name, method, path_dir, padj,
                     exp_genes=None, df_ext=None):
 
     path_file = path_dir
@@ -145,11 +160,17 @@ def read_diff_table(args, file_name, method, path_dir, pvalue,
         df_diff.rename(str.upper, axis='columns', inplace=True)
         df_diff = select_epcy(args, df_diff, exp_genes, method, df_ext)
     if method == "deseq2":
-        df_diff = select_deseq(args, df_diff, exp_genes, pvalue)
+        df_diff = select_deseq(args, df_diff, exp_genes, padj)
+    if method == "deseq2_pvalue":
+        df_diff = select_deseq(args, df_diff, exp_genes, padj, by_pvalue=True)
     if method == "edger":
-        df_diff = select_edger(args, df_diff, exp_genes, pvalue)
+        df_diff = select_edger(args, df_diff, exp_genes, padj)
+    if method == "edger_pvalue":
+        df_diff = select_edger(args, df_diff, exp_genes, padj, by_pvalue=True)
     if method == "limma":
-        df_diff = select_limma(args, df_diff, exp_genes, pvalue)
+        df_diff = select_limma(args, df_diff, exp_genes, padj)
+    if method == "limma_pvalue":
+        df_diff = select_limma(args, df_diff, exp_genes, padj, by_pvalue=True)
 
     return(df_diff)
 

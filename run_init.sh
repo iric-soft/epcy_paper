@@ -24,6 +24,9 @@
 ## Create leucegene_random
 #Rscript --vanilla ./src/script/other/gen_leucegene_random.r
 
+## Create leucegene_ss
+Rscript --vanilla ./src/script/other/gen_leucegene_subsampling.r
+
 ## Build leucegene_test and leucegene_train
 #Rscript --vanilla ./src/script/other/gen_leucegene_tt.r
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_train/ subgroup

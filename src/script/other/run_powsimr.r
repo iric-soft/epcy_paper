@@ -1,4 +1,4 @@
-.libPaths("/u/gendrop/R/x86_64-pc-linux-gnu-library/3.6.2")
+#.libPaths("/u/gendrop/R/x86_64-pc-linux-gnu-library/3.6.2")
 library("powsimR")
 
 source("./src/script/other/update_powsimr2.r")

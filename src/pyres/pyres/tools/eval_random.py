@@ -131,8 +131,8 @@ def main_eval_random(args, argparser):
     # plot results pvalue adj
     plt_fig = sns.swarmplot(x="METHOD", y="VALUE", data=df_all_res.loc[df_all_res["TYPE"] == "PADJ"])
     plt_fig.set(ylabel="-log10(p_adjusted)")
-    plt_fig.axhline(y=-np.log10(0.01), color='r', linestyle='--')
-    fig_out =  os.path.join(fig_dir, "dis_padj.pdf")
+    plt_fig.axhline(y=-np.log10(0.1), color='r', linestyle='--')
+    fig_out = os.path.join(fig_dir, "dis_padj.pdf")
     plt_fig.figure.savefig(fig_out)
     plt.close()
 
@@ -140,7 +140,7 @@ def main_eval_random(args, argparser):
     plt_fig = sns.swarmplot(x="METHOD", y="VALUE", data=df_all_res.loc[df_all_res["TYPE"] == "MCC"])
     plt_fig.set(ylabel="MCC")
     plt_fig.set(ylim=(-0.05,1))
-    plt_fig.axhline(y=0.4, color='r', linestyle='--')
+    plt_fig.axhline(y=0.2, color='r', linestyle='--')
     fig_out =  os.path.join(fig_dir, "dis_mcc.pdf")
     plt_fig.figure.savefig(fig_out)
     plt.close()

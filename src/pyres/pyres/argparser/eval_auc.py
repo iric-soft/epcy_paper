@@ -33,7 +33,7 @@ def get_argparser_eval_auc(parser):
     parser.add_argument("--design",
                         dest="DESIGN",
                         help="Name of designs to evaluate",
-                        nargs='+' ,
+                        nargs='+',
                         type=str,
                         default=None)
 
@@ -62,12 +62,12 @@ def get_argparser_eval_auc(parser):
                         type=str,
                         default='OUT')
 
-    parser.add_argument("--pvalues",
-                        dest="PVALUES",
-                        help="PValues cutt-off used for LDE method (Default: [0.05]).",
+    parser.add_argument("--padj",
+                        dest="PADJ",
+                        help="PValues adj cutt-off used for LDE method (Default: [0.05]).",
                         type=float,
                         nargs= '+',
-                        default=[0.05])
+                        default=[0.1])
 
     parser.add_argument("--query",
                         dest="QUERY",

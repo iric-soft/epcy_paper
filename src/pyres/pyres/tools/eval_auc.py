@@ -30,6 +30,9 @@ def main_eval_auc(args, argparser):
         'deseq2' : "deseq2_genes.xls",
         'edger' : "edger_genes.xls",
         'limma' : "limma_voom_genes.xls",
+        'deseq2_pvalue': "deseq2_genes.xls",
+        'edger_pvalue': "edger_genes.xls",
+        'limma_pvalue': "limma_voom_genes.xls",
     }
 
     # create dict with search params
@@ -37,7 +40,7 @@ def main_eval_auc(args, argparser):
         'tops' : args.TOP_VALUES,
         'methods' : args.METHODS,
         'designs' : args.DESIGN,
-        'pvalues' : args.PVALUES
+        'padj' : args.PADJ
     }
 
     df_biotype = None
@@ -54,11 +57,11 @@ def main_eval_auc(args, argparser):
         dir_design = os.path.join(args.PATH, design)
         df_design = uo.get_design(args, "Query", dir_design)
 
-        for pvalue in search_params_dict['pvalues']:
+        for padj in search_params_dict['padj']:
             for method in search_params_dict['methods']:
-                print('TRAINING/TESTING design: {}, method: {}, pvalue: {}'.format(design, method, pvalue))
+                print('TRAINING/TESTING design: {}, method: {}, padj: {}'.format(design, method, padj))
 
-                df_tmp = uo.read_diff_table(args, file_dict[method], method, dir_design, pvalue)
+                df_tmp = uo.read_diff_table(args, file_dict[method], method, dir_design, padj)
                 if df_biotype is not None:
                     dict_diff[method] = df_tmp.loc[df_tmp["ID"].isin(df_biotype["ensembl_gene_id"])]
                 else:
@@ -74,13 +77,13 @@ def main_eval_auc(args, argparser):
                     dict_res['mean_auc'].append(np.mean(df_top_auc["AUC"]))
                     dict_res['method'].append(method)
                     dict_res['top'].append(top)
-                    dict_res['pvalue'].append(pvalue)
+                    dict_res['padj'].append(padj)
                     dict_res['design'].append(design)
 
                 dict_res['mean_auc'].append(np.mean(df_auc["AUC"][:top]))
                 dict_res['method'].append("auc")
                 dict_res['top'].append(top)
-                dict_res['pvalue'].append(pvalue)
+                dict_res['padj'].append(padj)
                 dict_res['design'].append(design)
     # tranform dict of results to df
     df_auc = pd.DataFrame(dict_res)
@@ -95,7 +98,7 @@ def main_eval_auc(args, argparser):
     df_auc.to_csv(csv_out, index=False, sep="\t")
 
     # plot results
-    plt_fig = sns.catplot(data=df_auc, x="top", y="mean_auc", hue="method", col="design", row = "pvalue", kind="point", facet_kws=dict(subplot_kws=dict(ylim=[0.45,1.05])))
-    fig_out =  os.path.join(fig_dir, "pred_auc.pdf")
+    plt_fig = sns.catplot(data=df_auc, x="top", y="mean_auc", hue="method", col="design", row = "padj", kind="point", facet_kws=dict(subplot_kws=dict(ylim=[0.45,1.05])))
+    fig_out = os.path.join(fig_dir, "pred_auc.pdf")
     plt_fig.savefig(fig_out)
     plt.close()

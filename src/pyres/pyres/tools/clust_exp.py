@@ -24,6 +24,9 @@ def main_clust_exp(args, argparser):
         'deseq2': "deseq2_genes.xls",
         'edger': "edger_genes.xls",
         'limma': "limma_voom_genes.xls",
+        'deseq2_pvalue': "deseq2_genes.xls",
+        'edger_pvalue': "edger_genes.xls",
+        'limma_pvalue': "limma_voom_genes.xls",
     }
 
     # create dict with search params
@@ -83,12 +86,12 @@ def main_clust_exp(args, argparser):
         os.makedirs(fig_dir)
 
     # convert dict to df for analysis
-    # df_res = pd.DataFrame(dict_res)
-    # csv_out = os.path.join(fig_dir, "clust_table.csv")
-    # df_res.to_csv(csv_out, index=False, sep="\t")
+    df_res = pd.DataFrame(dict_res)
+    csv_out = os.path.join(fig_dir, "clust_table.csv")
+    df_res.to_csv(csv_out, index=False, sep="\t")
 
     # plot results
-    # plt_fig = sns.catplot(data=df_res, x="top", y="silh_score", hue="method", row="num_cluster", col="design", kind="point", facet_kws=dict(subplot_kws=dict(ylim=[-0.05,1.05])))
-    # fig_out =  os.path.join(fig_dir, "clust_silh.pdf")
-    # plt_fig.savefig(fig_out)
-    # plt.close()
+    plt_fig = sns.catplot(data=df_res, x="top", y="silh_score", hue="method", row="num_cluster", col="design", kind="point", facet_kws=dict(subplot_kws=dict(ylim=[-0.05,1.05])))
+    fig_out = os.path.join(fig_dir, "clust_silh.pdf")
+    plt_fig.savefig(fig_out)
+    plt.close()
