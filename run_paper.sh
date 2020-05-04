@@ -52,19 +52,19 @@ data_project="leucegene"
 #done
 
 
-data_type="sc"
-path_design="10X"
-data_project="10X"
-designs_10X="1046_2 1079_1 216_11 246_10 307_9 311_8 316_7 361_6 387_5 413_4 565_3"
-for src_data in cellranger
-do
-  for design in ${designs_10X}
-  do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
-  done
-done
+#data_type="sc"
+#path_design="10X"
+#data_project="10X"
+#designs_10X="1046_2 1079_1 216_11 246_10 307_9 311_8 316_7 361_6 387_5 413_4 565_3"
+#for src_data in cellranger
+#do
+#  for design in ${designs_10X}
+#  do
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+#  done
+#done
 
-designs_leucegene="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+designs_10X="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
 path_design="10X_random"
 data_project="10X"
 for src_data in cellranger
