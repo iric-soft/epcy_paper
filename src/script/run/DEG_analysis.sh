@@ -12,9 +12,8 @@ dir_design=$3
 data_project=$4
 src_data=$5
 type_exec=$6
-num_fold=$7
-num_proc=$8
-type=$9
+num_proc=$7
+data_type=$8
 path_data="${working_dir}/data"
 path_jobout="${working_dir}/tmp"
 
@@ -111,7 +110,6 @@ epcy()
 			echo "epcy count ${subgroup} done!"
 		fi
 	fi
-
 
 	if [ $type_run == "count_sc" ] && [ -f ${path_matrix}/readcounts.xls ]
 	then
@@ -248,30 +246,16 @@ path_design="${path_data}/design/${dir_design}/${subgroup}"
 path_output="${path_design}/${src_data}"
 path_jobout_subgroup="${path_jobout}/${data_project}/${src_data}/${subgroup}/"
 
-if [ $type == "bulk" ]
+if [ $data_type == "bulk" ]
 then
 	#epcy "quant" ${path_design} ${path_output} ${path_jobout_subgroup}
 	epcy "count" ${path_design} ${path_output} ${path_jobout_subgroup}
 	epcy "bagging" ${path_design} ${path_output} ${path_jobout_subgroup}
 	LDE ${path_design} ${path_output} ${path_jobout_subgroup}
 
-	if [ ! $num_fold == "0" ]
-	then
-		cv_dir="${path_design}/cv/fold${num_fold}"
-		for num_cv_dir in `ls -C1 ${cv_dir}/`
-		do
-			path_design_cv="${cv_dir}/${num_cv_dir}/train"
-			path_output_cv="${path_design_cv}/${src_data}"
-			path_jobout_subgroup_cv="${path_jobout_subgroup}/cv/${num_fold}/${num_cv_dir}"
-
-			epcy "count" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
-			epcy "bagging" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
-			LDE ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
-		done
-	fi
 fi
 
-if [ $type == "sc" ]
+if [ $data_type == "sc" ]
 then
   epcy "count_sc" ${path_design} ${path_output} ${path_jobout_subgroup}
 fi
