@@ -11,6 +11,7 @@ designs_leucegene="28_inv16_vs_28 28_inv16 33_MLL 132_FLT3-ITD 139_NPM1_mut 5_NU
 # RUN DEG and PEG analysis
 ######################################
 
+data_type="bulk"
 #working_dir="/u/eaudemard/project/epcy_paper/"
 #path_design_leucegene="leucegene"
 #data_project="leucegene"
@@ -37,12 +38,11 @@ do
       for num in ${nums}
       do
         design_ss="${design}/${p}/${num}"
-        bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design_ss} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_fold_leucegene} ${num_proc}
+        bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design_ss} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_fold_leucegene} ${num_proc} ${data_type}
       done
     done
   done
 done
-
 
 #designs_leucegene="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
 #working_dir="/u/eaudemard/project/epcy_paper/"
@@ -52,6 +52,32 @@ done
 #do
 #  for design in ${designs_leucegene}
 #  do
-#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_fold_leucegene} ${num_proc}
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_fold_leucegene} ${num_proc} ${data_type}
 #  done
 #done
+
+
+data_type="sc"
+working_dir="/u/eaudemard/project/epcy_paper/"
+path_design_leucegene="10X"
+data_project="10X"
+
+for src_data in cellranger
+do
+  for design in ${designs_leucegene}
+  do
+    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_fold_leucegene} ${num_proc} ${data_type}
+  done
+done
+
+designs_leucegene="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+working_dir="/u/eaudemard/project/epcy_paper/"
+path_design_leucegene="10X_random"
+data_project="10X"
+for src_data in cellranger
+do
+  for design in ${designs_leucegene}
+  do
+    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_fold_leucegene} ${num_proc} ${data_type}
+  done
+done

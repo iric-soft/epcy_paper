@@ -4,6 +4,7 @@ devtools::install_github("ericloud/powsimR", build_vignettes = FALSE, dependenci
 setwd("~/dev/epcy_paper/")
 
 library("powsimR")
+library(matrixStats)
 #source("./src/script/other/update_powsimr_epcy.r")
 
 InputData <- readRDS(file = "/Users/ricou/dev/scRNA-seq-pipelines/simulation/SCRBseq.rds")
@@ -24,7 +25,7 @@ n2 = 200
 
 lfc.gamma.narrow.asym = function(x) sample(c(-1,1), size=x, prob = c(0.25,0.75),replace=T)*rgamma(x, shape = 1, rate = 2)
 setup <- Setup(ngenes = ngenes, nsims = 1, 
-               p.DE = 0.2, pLFC = lfc.gamma.narrow.asym,
+               p.DE = 1, pLFC = lfc.gamma.narrow.asym,
                n1 = c(n1), n2 = c(n2), 
                LibSize = 'equal', DropGenes = TRUE, 
                estParamRes = estparam.gene, estSpikeRes = estparam.spike)

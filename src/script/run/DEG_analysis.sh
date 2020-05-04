@@ -14,6 +14,7 @@ src_data=$5
 type_exec=$6
 num_fold=$7
 num_proc=$8
+type=$9
 path_data="${working_dir}/data"
 path_jobout="${working_dir}/tmp"
 
@@ -108,6 +109,20 @@ epcy()
 			exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_epcy} ${walltime_epcy} ${job_name} ${path_jobout}
 		else
 			echo "epcy count ${subgroup} done!"
+		fi
+	fi
+
+
+	if [ $type_run == "count_sc" ] && [ -f ${path_matrix}/readcounts.xls ]
+	then
+		if [ ! -f ${path_output}/readcounts/predictive_capability.xls ]
+		then
+			job_name="epcy_sc_count_${subgroup}"
+			path_output_epcy="${path_output}/readcounts"
+			cmd=$(bash ${path_cmd}/epcy_sc_count.sh ${input_design} ${path_matrix} ${path_output_epcy} ${num_proc})
+			exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_epcy} ${walltime_epcy} ${job_name} ${path_jobout}
+		else
+			echo "epcy sc count ${subgroup} done!"
 		fi
 	fi
 
@@ -233,22 +248,30 @@ path_design="${path_data}/design/${dir_design}/${subgroup}"
 path_output="${path_design}/${src_data}"
 path_jobout_subgroup="${path_jobout}/${data_project}/${src_data}/${subgroup}/"
 
-#epcy "quant" ${path_design} ${path_output} ${path_jobout_subgroup}
-epcy "count" ${path_design} ${path_output} ${path_jobout_subgroup}
-epcy "bagging" ${path_design} ${path_output} ${path_jobout_subgroup}
-LDE ${path_design} ${path_output} ${path_jobout_subgroup}
-
-if [ ! $num_fold == "0" ]
+if [ $type == "bulk" ]
 then
-	cv_dir="${path_design}/cv/fold${num_fold}"
-	for num_cv_dir in `ls -C1 ${cv_dir}/`
-	do
-		path_design_cv="${cv_dir}/${num_cv_dir}/train"
-		path_output_cv="${path_design_cv}/${src_data}"
-		path_jobout_subgroup_cv="${path_jobout_subgroup}/cv/${num_fold}/${num_cv_dir}"
+	#epcy "quant" ${path_design} ${path_output} ${path_jobout_subgroup}
+	epcy "count" ${path_design} ${path_output} ${path_jobout_subgroup}
+	epcy "bagging" ${path_design} ${path_output} ${path_jobout_subgroup}
+	LDE ${path_design} ${path_output} ${path_jobout_subgroup}
 
-		epcy "count" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
-		epcy "bagging" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
-		LDE ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
-	done
+	if [ ! $num_fold == "0" ]
+	then
+		cv_dir="${path_design}/cv/fold${num_fold}"
+		for num_cv_dir in `ls -C1 ${cv_dir}/`
+		do
+			path_design_cv="${cv_dir}/${num_cv_dir}/train"
+			path_output_cv="${path_design_cv}/${src_data}"
+			path_jobout_subgroup_cv="${path_jobout_subgroup}/cv/${num_fold}/${num_cv_dir}"
+
+			epcy "count" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
+			epcy "bagging" ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
+			LDE ${path_design_cv} ${path_output_cv} ${path_jobout_subgroup_cv}
+		done
+	fi
+fi
+
+if [ $type == "sc" ]
+then
+  epcy "count_sc" ${path_design} ${path_output} ${path_jobout_subgroup}
 fi

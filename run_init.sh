@@ -20,12 +20,13 @@
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_v2/ subgroup
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_jf/ JF
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/TARGET_AML/ subgroup
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/10X/ subgroup
 
 ## Create leucegene_random
 #Rscript --vanilla ./src/script/other/gen_leucegene_random.r
 
 ## Create leucegene_ss
-Rscript --vanilla ./src/script/other/gen_leucegene_subsampling.R
+#Rscript --vanilla ./src/script/other/gen_leucegene_subsampling.R
 
 ## Build leucegene_test and leucegene_train
 #Rscript --vanilla ./src/script/other/gen_leucegene_tt.r
