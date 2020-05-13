@@ -30,11 +30,13 @@ def main_eval_random(args, argparser):
         'deseq2' : "deseq2_genes.xls",
         'edger' : "edger_genes.xls",
         'limma' : "limma_voom_genes.xls",
+        'trend' : "limma_trend_genes.xls",
     }
 
     # create dict with search params
     search_params_dict = {
         'methods' : args.METHODS,
+        'designs_random' : args.DESIGN_RANDOM,
         'designs' : args.DESIGN
     }
 
@@ -43,6 +45,7 @@ def main_eval_random(args, argparser):
         'deseq2' : "log2FoldChange",
         'edger' : "logFC",
         'limma' : "logFC",
+        'trend' : "logFC",
     }
 
     strvalue_dict = {
@@ -50,6 +53,7 @@ def main_eval_random(args, argparser):
         'deseq2' : "pvalue",
         'edger' : "PValue",
         'limma' : "P.Value",
+        'trend' : "P.Value",
     }
 
     strvalueadj_dict = {
@@ -57,6 +61,7 @@ def main_eval_random(args, argparser):
         'deseq2' : "padj",
         'edger' : "FDR",
         'limma' : "adj.P.Val",
+        'trend' : "adj.P.Val",
     }
 
     top = 10
@@ -68,6 +73,43 @@ def main_eval_random(args, argparser):
         df_biotype = df_biotype.loc[df_biotype["gene_biotype"].isin(selected_biotype)]
 
     df_all_res = []
+    for design in search_params_dict['designs_random']:
+        dir_design = os.path.join(args.RANDOM_PATH, design)
+        df_design = uo.get_design(args, "Query", dir_design)
+
+        for method in search_params_dict['methods']:
+            print('RANDOM design: {}, method: {}'.format(design, method))
+
+            df_tmp = uo.read_diff_table(args, file_dict[method], method, dir_design, 1)
+
+            if method != "epcy":
+                df_tmp = df_tmp.reindex(df_tmp[strvalue_dict[method]].abs().sort_values(ascending=True).index)
+
+            df_all_res.append(
+                pd.DataFrame({
+                    "ID": df_tmp["ID"][:top],
+                    "METHOD": method,
+                    "DESIGN": design,
+                    "TYPE": "MCC" if method == "epcy" else "PVALUE",
+                    "VALUE": df_tmp[strvalue_dict[method]][:top] if method == "epcy" else -np.log10(df_tmp[strvalue_dict[method]][:top]),
+                    "L2FC": df_tmp[strl2fc_dict[method]][:top]
+                })
+            )
+
+            if method != "epcy":
+                df_tmp = df_tmp.reindex(df_tmp[strvalueadj_dict[method]].abs().sort_values(ascending=True).index)
+
+                df_all_res.append(
+                    pd.DataFrame({
+                        "ID": df_tmp["ID"][:top],
+                        "METHOD": method,
+                        "DESIGN": design,
+                        "TYPE": "PADJ",
+                        "VALUE": -np.log10(df_tmp[strvalueadj_dict[method]][:top]),
+                        "L2FC": df_tmp[strl2fc_dict[method]][:top]
+                    })
+                )
+
     for design in search_params_dict['designs']:
         dir_design = os.path.join(args.PATH, design)
         df_design = uo.get_design(args, "Query", dir_design)
@@ -93,19 +135,17 @@ def main_eval_random(args, argparser):
 
             if method != "epcy":
                 df_tmp = df_tmp.reindex(df_tmp[strvalueadj_dict[method]].abs().sort_values(ascending=True).index)
-            else:
-                df_tmp = df_tmp.reindex(df_tmp.AUC.abs().sort_values(ascending=False).index)
 
-            df_all_res.append(
-                pd.DataFrame({
-                    "ID": df_tmp["ID"][:top],
-                    "METHOD": method,
-                    "DESIGN": design,
-                    "TYPE": "AUC" if method == "epcy" else "PADJ",
-                    "VALUE": df_tmp[strvalueadj_dict[method]][:top] if method == "epcy" else -np.log10(df_tmp[strvalueadj_dict[method]][:top]),
-                    "L2FC": df_tmp[strl2fc_dict[method]][:top]
-                })
-            )
+                df_all_res.append(
+                    pd.DataFrame({
+                        "ID": df_tmp["ID"][:top],
+                        "METHOD": method,
+                        "DESIGN": design,
+                        "TYPE": "PADJ",
+                        "VALUE": -np.log10(df_tmp[strvalueadj_dict[method]][:top]),
+                        "L2FC": df_tmp[strl2fc_dict[method]][:top]
+                    })
+                )
 
     print('MERGE ALL DATA')
     df_all_res = pd.concat(df_all_res)
@@ -120,36 +160,36 @@ def main_eval_random(args, argparser):
     df_all_res.to_csv(csv_out, index=False, sep="\t")
 
     print('PLOT FIG')
-    # plot results pvalue
-    plt_fig = sns.swarmplot(x="METHOD", y="VALUE", data=df_all_res.loc[df_all_res["TYPE"] == "PVALUE"])
-    plt_fig.set(ylabel="-log10(pvalue)")
-    plt_fig.axhline(y=-np.log10(0.05), color='r', linestyle='--')
-    fig_out =  os.path.join(fig_dir, "dis_pvalue.pdf")
-    plt_fig.figure.savefig(fig_out)
-    plt.close()
 
-    # plot results pvalue adj
-    plt_fig = sns.swarmplot(x="METHOD", y="VALUE", data=df_all_res.loc[df_all_res["TYPE"] == "PADJ"])
-    plt_fig.set(ylabel="-log10(p_adjusted)")
-    plt_fig.axhline(y=-np.log10(0.1), color='r', linestyle='--')
-    fig_out = os.path.join(fig_dir, "dis_padj.pdf")
-    plt_fig.figure.savefig(fig_out)
-    plt.close()
+    for method in search_params_dict['methods']:
+        df_tmp = df_all_res.loc[df_all_res["METHOD"] == method]
+        if method != "epcy":
+            # plot results pvalue
+            df_tmp2 = df_tmp.loc[df_tmp["TYPE"] == "PVALUE"]
+            plt_fig = sns.swarmplot(x="DESIGN", y="VALUE", data=df_tmp2, hue="METHOD")
+            plt_fig.set(ylabel="-log10(pvalue)")
+            plt_fig.axhline(y=-np.log10(0.05), color='r', linestyle='--')
+            plt_fig.set_xticklabels(plt_fig.get_xticklabels(), rotation=90)
+            fig_out = os.path.join(fig_dir, method + "_pvalue.pdf")
+            plt_fig.figure.savefig(fig_out)
+            plt.close()
 
-    # plot results MCC
-    plt_fig = sns.swarmplot(x="METHOD", y="VALUE", data=df_all_res.loc[df_all_res["TYPE"] == "MCC"])
-    plt_fig.set(ylabel="MCC")
-    plt_fig.set(ylim=(-0.05,1))
-    plt_fig.axhline(y=0.2, color='r', linestyle='--')
-    fig_out =  os.path.join(fig_dir, "dis_mcc.pdf")
-    plt_fig.figure.savefig(fig_out)
-    plt.close()
-
-    # plot results AUC
-    plt_fig = sns.swarmplot(x="METHOD", y="VALUE", data=df_all_res.loc[df_all_res["TYPE"] == "AUC"])
-    plt_fig.set(ylabel="AUC")
-    plt_fig.set(ylim=(0.45,1))
-    plt_fig.axhline(y=0.7, color='r', linestyle='--')
-    fig_out =  os.path.join(fig_dir, "dis_auc.pdf")
-    plt_fig.figure.savefig(fig_out)
-    plt.close()
+            # plot results pvalue adj
+            df_tmp2 = df_tmp.loc[df_tmp["TYPE"] == "PADJ"]
+            plt_fig = sns.swarmplot(x="DESIGN", y="VALUE", data=df_tmp2, hue="METHOD")
+            plt_fig.set(ylabel="-log10(p_adjusted)")
+            plt_fig.axhline(y=-np.log10(0.05), color='r', linestyle='--')
+            plt_fig.set_xticklabels(plt_fig.get_xticklabels(), rotation=90)
+            fig_out = os.path.join(fig_dir, method + "_padj.pdf")
+            plt_fig.figure.savefig(fig_out)
+            plt.close()
+        else:
+            # plot results pvalue
+            df_tmp2 = df_tmp.loc[df_tmp["TYPE"] == "MCC"]
+            plt_fig = sns.swarmplot(x="DESIGN", y="VALUE", data=df_tmp2, hue="METHOD")
+            plt_fig.set(ylabel="MCC")
+            plt_fig.axhline(y=0.2, color='r', linestyle='--')
+            plt_fig.set_xticklabels(plt_fig.get_xticklabels(), rotation=90)
+            fig_out = os.path.join(fig_dir, method + "_mcc.pdf")
+            plt_fig.figure.savefig(fig_out)
+            plt.close()

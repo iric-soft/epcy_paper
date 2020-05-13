@@ -7,6 +7,11 @@ def get_argparser_eval_random(parser):
                         help="path to data folder ",
                         type=lambda x: is_valid_path(parser, x))
 
+    parser.add_argument("-r",
+                        dest="RANDOM_PATH",
+                        help="path to data random folder ",
+                        type=lambda x: is_valid_path(parser, x))
+
     parser.add_argument("-q",
                         dest="QUANT",
                         help="Software used for quantification (STAR, htseq). (Default: STAR)",
@@ -32,6 +37,13 @@ def get_argparser_eval_random(parser):
 
     parser.add_argument("--design",
                         dest="DESIGN",
+                        help="Name of designs to evaluate",
+                        nargs='+' ,
+                        type=str,
+                        default=None)
+
+    parser.add_argument("--design_random",
+                        dest="DESIGN_RANDOM",
                         help="Name of designs to evaluate",
                         nargs='+' ,
                         type=str,

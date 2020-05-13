@@ -6,7 +6,7 @@ script_dir = here()
 
 set.seed(42)
 
-dir_design = file.path(script_dir, "data", "design", "leucegene", "all")
+dir_design = file.path(script_dir, "data", "design", "leucegene3", "all")
 file_design = file.path(dir_design, "design.tsv")
 
 design = fread(file_design, header = TRUE, stringsAsFactors=FALSE, sep="\t", quote = "")
@@ -28,7 +28,7 @@ for (i in c(1:20)) {
   design_rand$subgroup[which(design$sample %in% samples_query)] = "Query"
   design_rand$subgroup[which(!design$sample %in% samples_query)] = "Ref"
 
-  dir_rand = file.path(script_dir, "data", "design", "leucegene_random", i)
+  dir_rand = file.path(script_dir, "data", "design", "leucegene3_random", i)
   file_rand = file.path(dir_rand, "design.tsv")
   dir.create(dir_rand, recursive = TRUE, showWarnings = FALSE)
   write.table(design_rand, file_rand, quote=FALSE, row.names=FALSE, sep="\t")

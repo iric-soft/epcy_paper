@@ -16,34 +16,19 @@
 #Rscript --vanilla ./src/script/other/target_aml_matrix_readcounts.r
 
 ## To create all design for all cohorts
-#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene/ subgroup
-#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_v2/ subgroup
-#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_jf/ JF
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/TARGET_AML/ subgroup
-Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/10X/ subgroup
+#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/10X/ subgroup
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene3/ subgroup
 
 ## Create leucegene_random
-#Rscript --vanilla ./src/script/other/gen_leucegene_random.r
+Rscript --vanilla ./src/script/other/gen_leucegene_random.r
 
 ## Create leucegene_ss
-#Rscript --vanilla ./src/script/other/gen_leucegene_subsampling.R
+Rscript --vanilla ./src/script/other/gen_leucegene_subsampling.R
 
-## Build leucegene_test and leucegene_train
-#Rscript --vanilla ./src/script/other/gen_leucegene_tt.r
-#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_train/ subgroup
 
 ## MNNIST fashion
 #git clone git@github.com:zalandoresearch/fashion-mnist.git
 #python ./src/script/other/mnist_fashion.py
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/mnist_fashion_train/ subgroup
 ##Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/mnist_fashion_test/ subgroup
-
-## Build leucegene_test and leucegene_learning_curve
-#Rscript --vanilla ./src/script/other/gen_leucegene_learning_curve.r
-#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_learning_curve/comp subgroup
-
-
-## Build leucegene_test and leucegene_comp_tt
-#Rscript --vanilla ./src/script/other/gen_leucegene_comp_tt.r
-#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt/comp subgroup FALSE
-#Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene_comp_tt/test_train subgroup FALSE

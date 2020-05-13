@@ -7,15 +7,15 @@ script_dir = here()
 set.seed(42)
 
 nums = c(1:10)
-designs = c("30_t15_17", "28_inv16", "33_MLL", "132_FLT3-ITD", "139_NPM1_mut")
-p_subs = c(0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)
+designs = c("30_t15_17", "30_inv16")
+p_subs = c(0, 0.01, 0.02, 0.04, 0.06, 0.08, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 
 
 sub_sampling <- function(p, design, name_design, num, script_dir) {
-  
+
   num_subg = as.data.frame(table(design$subgroup), stringsAsFactors=FALSE)
   num_subg$Freq = 3 + round((num_subg$Freq - 3) * p)
-  
+
   selected_sample = NULL
   for (subg in num_subg$Var1) {
     tmp = design[which(design$subgroup == subg),]
@@ -29,27 +29,26 @@ sub_sampling <- function(p, design, name_design, num, script_dir) {
       ]
     )
   }
-  
+
   design_ss = design[which(design$sample %in% selected_sample), ]
-  
-  dir_ss = file.path(script_dir, "data", "design", "leucegene_ss", name_design, p, num)
+
+  dir_ss = file.path(script_dir, "data", "design", "leucegene3_ss", name_design, p, num)
   file_ss = file.path(dir_ss, "design.tsv")
   dir.create(dir_ss, recursive = TRUE, showWarnings = FALSE)
   write.table(design_ss, file_ss, quote=FALSE, row.names=FALSE, sep="\t")
 }
 
 foreach_num <- function(num, design, name_design, p_subs, script_dir) {
-  
+
   lapply(p_subs, function(x) sub_sampling(x, design, name_design, num, script_dir))
 }
 
 foreach_design <- function(name_design, p_subs, script_dir, nums) {
-  dir_design = file.path(script_dir, "data", "design", "leucegene", designs[1])
+  dir_design = file.path(script_dir, "data", "design", "leucegene3", designs[1])
   file_design = file.path(dir_design, "design.tsv")
   design = fread(file_design, header = TRUE, stringsAsFactors=FALSE, sep="\t", quote = "")
-  
+
   lapply(nums, function(x) foreach_num(x, design, name_design, p_subs, script_dir))
 }
 
 lapply(designs, function(x) foreach_design(x, p_subs, script_dir, nums))
-
