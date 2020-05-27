@@ -12,6 +12,8 @@ from .argparser.log_reg import *
 from .argparser.eval_tt import *
 from .argparser.eval_auc import *
 from .argparser.eval_random import *
+from .argparser.diff_pred import *
+from .argparser.eval_ss import *
 
 from .tools.clust_exp import main_clust_exp
 from .tools.clust_exp_umap import main_clust_exp_umap
@@ -25,6 +27,9 @@ from .tools.log_reg import main_log_reg
 from .tools.eval_tt import main_eval_tt
 from .tools.eval_auc import main_eval_auc
 from .tools.eval_random import main_eval_random
+from .tools.diff_pred import main_diff_pred
+from .tools.eval_ss import main_eval_ss
+
 
 
 # ###########################################################################
@@ -33,6 +38,22 @@ def main():
 
     argparser = argparse.ArgumentParser(prog='PROG')
     subparsers = argparser.add_subparsers(help='sub-command help')
+
+    # create the argparser for the "density" command
+    diff_pred = subparsers.add_parser(
+        'diff_pred',
+        help='Display plot to compare diff gene vs pred geme.'
+    )
+    diff_pred.set_defaults(func=main_diff_pred)
+    get_argparser_diff_pred(diff_pred)
+
+    # create the argparser for the "density" command
+    eval_ss = subparsers.add_parser(
+        'eval_ss',
+        help='Evaluate subsampling results.'
+    )
+    eval_ss.set_defaults(func=main_eval_ss)
+    get_argparser_eval_ss(eval_ss)
 
     # create the argparser for the "density" command
     density = subparsers.add_parser(

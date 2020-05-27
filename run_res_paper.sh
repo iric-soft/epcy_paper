@@ -1,4 +1,28 @@
 
+
+#epcy profile_rna -d ./data/design/leucegene3/30_t15_17/design.tsv \
+#                 -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#                 --log --cpm \
+#                 --ids ENSG00000255248.9 ENSG00000129682.16 ENSG00000259353.1 ENSG00000122824.11 ENSG00000229508.2 ENSG00000262831.1 ENSG00000183570.16 ENSG00000008853.16 ENSG00000113389.16 \
+#                 -o  ./data/res/leucegene3/t15_17/cross
+
+#epcy profile_rna -d ./data/design/leucegene3/30_t15_17/design.tsv \
+#                -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#                --log --cpm \
+#                --ids ENSG00000168004.9 ENSG00000162493.16 ENSG00000089820.15 \
+#                -o  ./data/res/leucegene3/t15_17/top
+
+
+
+#epcy profile_rna -d ./data/design/TCGA_LAML/all/design.tsv \
+#                -m ./data/TCGA_LAML/htseq/readcounts.xls \
+#                --log --cpm --subgroup sub_reduce --query t15_17 \
+#                --ids ENSG00000130707.16 ENSG00000172543.6 ENSG00000279536.1 ENSG00000106991.12 ENSG00000120093.10 ENSG00000245685.6 ENSG00000270182.1 \
+#                -o  ./data/res/TCGA_LAML/t15_17/
+
+
+
+
 cd src/pyres
 
 ###########################################################
@@ -14,41 +38,32 @@ cd src/pyres
 #  --outdir ../../data/res/leucegene \
 #  --top_values 1 3 5 10 50 100 200 500
 
-
-epcy profile_rna -d ./data/design/leucegene/30_t15_17/design.tsv \
-                 -m ./data/leucegene/STAR/readcounts.xls \
-                 --log --cpm \
-                 --ids ENSG00000130707.17 ENSG00000172543.7 ENSG00000279536.1 ENSG00000106991.13 ENSG00000120093.11 ENSG00000245685.6 ENSG00000270182.1 \
-                 -o  ./data/res/leucegene/t15_17/
-
-epcy profile_rna -d ./data/design/TCGA_LAML/all/design.tsv \
-                -m ./data/TCGA_LAML/htseq/readcounts.xls \
-                --log --cpm --subgroup sub_reduce --query t15_17 \
-                --ids ENSG00000130707.16 ENSG00000172543.6 ENSG00000279536.1 ENSG00000106991.12 ENSG00000120093.10 ENSG00000245685.6 ENSG00000270182.1 \
-                -o  ./data/res/TCGA_LAML/t15_17/
-
+python3 -m pyres diff_pred \
+  --outdir ../../data/res/ \
 
 
 ###########################################################
 # comparaison of performance on random design
 designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
-designs="28_inv16 30_t15_17 62_Inter"
+designs="30_inv16 30_t15_17 "
+method="deseq2 edger limma epcy"
 
 #python3 -m pyres eval_random \
-#  -p ../../data/design/leucegene/ -r ../../data/design/leucegene_random/ \
+#  -p ../../data/design/leucegene3/ -r ../../data/design/leucegene3_random/ \
 #  --biotype protein_coding --bf ../../data/other/GRCh38_84_genes_biotype.tsv \
+#  --methods ${method} -q "STAR_RSEM" \
 #  --design ${designs} \
 #  --design_random ${designs_random} \
-#  --outdir ../../data/res/leucegene \
+#  --outdir ../../data/res/leucegene3 \
 
 
 designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
 designs="1079_1 1046_2 216_11"
 method="trend epcy"
 
-  python3 -m pyres eval_random \
-    -p ../../data/design/10X/ -r ../../data/design/10X_random/ \
-    --methods ${method} -q "cellranger" \
-    --design ${designs} \
-    --design_random ${designs_random} \
-    --outdir ../../data/res/10X \
+#python3 -m pyres eval_random \
+#  -p ../../data/design/10X/ -r ../../data/design/10X_random/ \
+#  --methods ${method} -q "cellranger" \
+#  --design ${designs} \
+#  --design_random ${designs_random} \
+#  --outdir ../../data/res/10X \

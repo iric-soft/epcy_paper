@@ -21,7 +21,7 @@ do
   done
 done
 
-designs_leucegene="30_t15_17" #"30_inv16 33_MLL 132_FLT3-ITD 139_NPM1_mut"
+designs_leucegene="30_t15_17 30_inv16"
 p_subs="0 0.01 0.02 0.04 0.06 0.08 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
 nums="1 2 3 4 5 6 7 8 9 10"
 path_design_leucegene="leucegene3_ss"

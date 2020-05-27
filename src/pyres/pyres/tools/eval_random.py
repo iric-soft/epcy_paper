@@ -64,7 +64,7 @@ def main_eval_random(args, argparser):
         'trend' : "adj.P.Val",
     }
 
-    top = 10
+    top = 50
 
     df_biotype = None
     if args.BIOTYPE is not None:
@@ -168,7 +168,7 @@ def main_eval_random(args, argparser):
             df_tmp2 = df_tmp.loc[df_tmp["TYPE"] == "PVALUE"]
             plt_fig = sns.swarmplot(x="DESIGN", y="VALUE", data=df_tmp2, hue="METHOD")
             plt_fig.set(ylabel="-log10(pvalue)")
-            plt_fig.axhline(y=-np.log10(0.05), color='r', linestyle='--')
+            #plt_fig.axhline(y=-np.log10(0.05), color='r', linestyle='--')
             plt_fig.set_xticklabels(plt_fig.get_xticklabels(), rotation=90)
             fig_out = os.path.join(fig_dir, method + "_pvalue.pdf")
             plt_fig.figure.savefig(fig_out)
@@ -178,7 +178,7 @@ def main_eval_random(args, argparser):
             df_tmp2 = df_tmp.loc[df_tmp["TYPE"] == "PADJ"]
             plt_fig = sns.swarmplot(x="DESIGN", y="VALUE", data=df_tmp2, hue="METHOD")
             plt_fig.set(ylabel="-log10(p_adjusted)")
-            plt_fig.axhline(y=-np.log10(0.05), color='r', linestyle='--')
+            #plt_fig.axhline(y=-np.log10(0.05), color='r', linestyle='--')
             plt_fig.set_xticklabels(plt_fig.get_xticklabels(), rotation=90)
             fig_out = os.path.join(fig_dir, method + "_padj.pdf")
             plt_fig.figure.savefig(fig_out)
@@ -188,7 +188,7 @@ def main_eval_random(args, argparser):
             df_tmp2 = df_tmp.loc[df_tmp["TYPE"] == "MCC"]
             plt_fig = sns.swarmplot(x="DESIGN", y="VALUE", data=df_tmp2, hue="METHOD")
             plt_fig.set(ylabel="MCC")
-            plt_fig.axhline(y=0.2, color='r', linestyle='--')
+            #plt_fig.axhline(y=0.2, color='r', linestyle='--')
             plt_fig.set_xticklabels(plt_fig.get_xticklabels(), rotation=90)
             fig_out = os.path.join(fig_dir, method + "_mcc.pdf")
             plt_fig.figure.savefig(fig_out)
