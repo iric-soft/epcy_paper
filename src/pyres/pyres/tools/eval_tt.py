@@ -107,17 +107,17 @@ def main_eval_tt(args, argparser):
     fig_dir = os.path.join(args.OUTDIR)
 
     plt_fig = sns.catplot(data=df_subg, x="p_train", y="mcc", hue="method", row="subg", col = "top", kind="point", facet_kws=dict(subplot_kws=dict(ylim=[-0.05,1.05], xlim=[-0.05,1.05])))
-    fig_out =  os.path.join(fig_dir, "pred_by_subg_mcc.pdf")
+    fig_out = os.path.join(fig_dir, "pred_by_subg_mcc.pdf")
     plt_fig.savefig(fig_out)
     plt.close()
 
     plt_fig = sns.catplot(data=df_all, x="p_train", y="mcc", hue="method", row = "pvalue", col = "top", kind="point", facet_kws=dict(subplot_kws=dict(ylim=[-0.05,1.05], xlim=[-0.05,1.05])))
-    fig_out =  os.path.join(fig_dir, "pred_mcc.pdf")
+    fig_out = os.path.join(fig_dir, "pred_mcc.pdf")
     plt_fig.savefig(fig_out)
     plt.close()
 
     plt_fig = sns.catplot(data=df_all, x="p_train", y="full_ARS", hue="method", row = "pvalue", col = "top", kind="point", facet_kws=dict(subplot_kws=dict(ylim=[-0.05,1.05], xlim=[-0.05,1.05])))
-    fig_out =  os.path.join(fig_dir, "pred_ARS.pdf")
+    fig_out = os.path.join(fig_dir, "pred_ARS.pdf")
     plt_fig.savefig(fig_out)
     plt.close()
 
@@ -127,6 +127,6 @@ def main_eval_tt(args, argparser):
     plt.close()
 
     plt_fig = sns.catplot(data=df_all, x="p_train", y="num_feature", hue="method", row = "pvalue", col = "top", kind="point")
-    fig_out =  os.path.join(fig_dir, "pred_num_feature.pdf")
+    fig_out = os.path.join(fig_dir, "pred_num_feature.pdf")
     plt_fig.savefig(fig_out)
     plt.close()
