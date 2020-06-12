@@ -6,7 +6,7 @@ script_dir = here()
 
 set.seed(42)
 
-dir_design = file.path(script_dir, "data", "design", "STAG2", "ok_vs_wt")
+dir_design = file.path(script_dir, "data", "design", "STAG2", "ok")
 file_design = file.path(dir_design, "design.tsv")
 
 design = fread(file_design, header = TRUE, stringsAsFactors=FALSE, sep="\t", quote = "")
