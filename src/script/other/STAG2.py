@@ -28,7 +28,7 @@ df_selected.index = df_selected.index.droplevel(items_drop)
 
 df_design = df_selected.index.to_frame()
 df_design = df_design.reset_index(drop=True)
-df_design.columns = ["ID", "subgroup"]
+df_design.columns = ["sample", "subgroup"]
 df_design.to_csv(
     os.path.join(path_design, "design.tsv"),
     sep="\t",
