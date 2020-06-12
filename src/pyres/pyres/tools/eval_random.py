@@ -64,6 +64,8 @@ def main_eval_random(args, argparser):
         'trend' : "adj.P.Val",
     }
 
+    cohort_order = [*search_params_dict['designs_random'], *search_params_dict['designs']]
+    print(cohort_order)
     top = 50
 
     df_biotype = None
@@ -166,7 +168,14 @@ def main_eval_random(args, argparser):
         if method != "epcy":
             # plot results pvalue
             df_tmp2 = df_tmp.loc[df_tmp["TYPE"] == "PVALUE"]
-            plt_fig = sns.swarmplot(x="DESIGN", y="VALUE", data=df_tmp2, hue="METHOD")
+            print(df_tmp2[df_tmp2["DESIGN"] == "1079_1"])
+            df_tmp2 = df_tmp2.replace(np.inf, 350)
+            print(df_tmp2[df_tmp2["DESIGN"] == "1079_1"])
+            plt_fig = sns.swarmplot(
+                x="DESIGN", y="VALUE",
+                data=df_tmp2, hue="METHOD",
+                order=cohort_order
+            )
             plt_fig.set(ylabel="-log10(pvalue)")
             #plt_fig.axhline(y=-np.log10(0.05), color='r', linestyle='--')
             plt_fig.set_xticklabels(plt_fig.get_xticklabels(), rotation=90)
@@ -176,7 +185,12 @@ def main_eval_random(args, argparser):
 
             # plot results pvalue adj
             df_tmp2 = df_tmp.loc[df_tmp["TYPE"] == "PADJ"]
-            plt_fig = sns.swarmplot(x="DESIGN", y="VALUE", data=df_tmp2, hue="METHOD")
+            df_tmp2 = df_tmp2.replace(np.inf, 350)
+            plt_fig = sns.swarmplot(
+                x="DESIGN", y="VALUE",
+                data=df_tmp2, hue="METHOD",
+                order=cohort_order
+            )
             plt_fig.set(ylabel="-log10(p_adjusted)")
             #plt_fig.axhline(y=-np.log10(0.05), color='r', linestyle='--')
             plt_fig.set_xticklabels(plt_fig.get_xticklabels(), rotation=90)
@@ -186,7 +200,11 @@ def main_eval_random(args, argparser):
         else:
             # plot results pvalue
             df_tmp2 = df_tmp.loc[df_tmp["TYPE"] == "MCC"]
-            plt_fig = sns.swarmplot(x="DESIGN", y="VALUE", data=df_tmp2, hue="METHOD")
+            plt_fig = sns.swarmplot(
+                x="DESIGN", y="VALUE",
+                data=df_tmp2, hue="METHOD",
+                order=cohort_order
+            )
             plt_fig.set(ylabel="MCC")
             #plt_fig.axhline(y=0.2, color='r', linestyle='--')
             plt_fig.set_xticklabels(plt_fig.get_xticklabels(), rotation=90)

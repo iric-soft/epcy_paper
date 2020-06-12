@@ -15,6 +15,9 @@
 ## To build data/TARGET_AML
 #Rscript --vanilla ./src/script/other/target_aml_matrix_readcounts.r
 
+## Create STAG2 dataset
+#python ./src/script/other/STAG2.py
+
 ## To create all design for all cohorts
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/TARGET_AML/ subgroup
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/10X/ subgroup
@@ -22,11 +25,16 @@
 
 ## Create leucegene_random
 #Rscript --vanilla ./src/script/other/gen_leucegene_random.r
+#Rscript --vanilla ./src/script/other/gen_10X_random.R
+Rscript --vanilla ./src/script/other/gen_STAG2_random.r
 
 ## Create subsampling
 #Rscript --vanilla ./src/script/other/gen_leucegene_subsampling.R
-Rscript --vanilla ./src/script/other/gen_10X_subsampling.R
+#Rscript --vanilla ./src/script/other/gen_10X_subsampling.R
+Rscript --vanilla ./src/script/other/gen_STAG2_subsampling.R
 
+
+##
 
 ## MNNIST fashion
 #git clone git@github.com:zalandoresearch/fashion-mnist.git

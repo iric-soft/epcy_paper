@@ -32,7 +32,7 @@ def get_argparser_eval_ss(parser):
 
     parser.add_argument("--lfc",
                         dest="LOG_FC",
-                        help="abs(LOG_FC) filter value (Default: 0).",
+                        help="abs(LOG_FC) filter value (Default: 0 (disable)).",
                         type=float,
                         default=0)
 
@@ -44,9 +44,9 @@ def get_argparser_eval_ss(parser):
 
     parser.add_argument("--mcc",
                         dest="MCC",
-                        help="MCC filter value(Default: 0).",
+                        help="MCC filter value(Default: -2 (disable)).",
                         type=float,
-                        default=0.0)
+                        default=-2)
 
     parser.add_argument("--methods",
                         dest="METHODS",
@@ -55,18 +55,24 @@ def get_argparser_eval_ss(parser):
                         nargs='+',
                         default=['deseq2', 'edger', 'limma', 'epcy'])
 
+    parser.add_argument("--cohorts",
+                        dest="COHORTS",
+                        help='cohorts used for mean',
+                        type=str,
+                        nargs='+',
+                        default=['3_vs_3', '4_vs_28', '6_vs_65', '17_vs_314', '27_vs_563'])
+
     parser.add_argument("--outdir",
                         dest="OUTDIR",
                         help="Output directory for evaluation metrics tables and log file",
                         type=str,
                         default='OUT')
 
-    parser.add_argument("--designs",
-                        dest="DESIGNS",
-                        help="List of designs to analyse.",
+    parser.add_argument("--design",
+                        dest="DESIGN",
+                        help="Name of designs to analyse.",
                         type=str,
-                        nargs='+',
-                        default=["30_t15_17"])
+                        default="30_t15_17")
 
     parser.add_argument("--ids",
                         dest="IDS",

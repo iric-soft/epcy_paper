@@ -67,7 +67,7 @@ def select_epcy(args, df_diff, exp_genes, method, df_ext):
 
     df_diff["abs_L2FC"] = df_diff.L2FC.abs()
 
-    if method == "epcy" or method == "epcy_bs" or method == "epcy_kernel":
+    if method == "epcy" or method == "epcy_bs" or method == "epcy_kernel" or method == "epcy_bagging":
         df_diff = df_diff.sort_values(
             ["KERNEL_MCC", "abs_L2FC"], ascending=False
         )
@@ -91,6 +91,7 @@ def select_deseq(args, df_diff, exp_genes, padj, by_pvalue=False):
     # print("Read deseq")
     if exp_genes is not None:
         df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
+    df_diff["padj"] = df_diff["padj"].fillna(1)
     df_diff = df_diff.loc[df_diff["padj"] <= padj]
     df_diff = df_diff.loc[abs(df_diff["log2FoldChange"]) >= args.LOG_FC]
     if by_pvalue:
@@ -152,7 +153,10 @@ def read_diff_table(args, file_name, method, path_dir, padj,
     path_file = path_dir
 
     # TODO: add parameters for STAR and readcounts
-    path_file = os.path.join(path_file, args.QUANT, args.TYPE_QUANT, file_name)
+    if "bagging" in method:
+        path_file = os.path.join(path_file, args.QUANT, args.TYPE_QUANT + "_bagging", file_name)
+    else:
+        path_file = os.path.join(path_file, args.QUANT, args.TYPE_QUANT, file_name)
 
     df_diff = pd.read_csv(path_file, sep="\t")
 
