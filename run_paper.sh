@@ -104,7 +104,7 @@ data_project="10X"
 data_type="sc"
 path_design="STAG2"
 data_project="STAG2"
-designs_STAG2="ok_vs_wt"
+designs_STAG2="ok"
 for src_data in SEQC
 do
   for design in ${designs_STAG2}
@@ -116,7 +116,7 @@ done
 
 p_subs="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
 nums="1 2 3 4 5 6 7 8 9 10"
-designs_STAG2="ok_vs_wt"
+designs_STAG2="ok"
 path_design_leucegene="STAG2_ss"
 data_project="STAG2"
 for src_data in SEQC

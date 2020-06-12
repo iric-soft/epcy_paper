@@ -6,7 +6,7 @@ hdf = pd.HDFStore('./data/STAG2/SEQC/hdf_counts.h5', mode='r')
 counts = hdf.get('counts')
 hdf.close()
 
-path_design = os.path.join("./data/design/STAG2/ok_vs_wt")
+path_design = os.path.join("./data/design/STAG2/all")
 if not os.path.exists(path_design):
     os.makedirs(path_design)
 

@@ -22,6 +22,7 @@
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/TARGET_AML/ subgroup
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/10X/ subgroup
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/leucegene3/ subgroup
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/STAG2/ subgroup
 
 ## Create leucegene_random
 #Rscript --vanilla ./src/script/other/gen_leucegene_random.r
