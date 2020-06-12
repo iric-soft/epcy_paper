@@ -42,7 +42,7 @@ foreach_num <- function(num, design, p_subs, script_dir) {
   lapply(p_subs, function(x) sub_sampling(x, design, num, script_dir))
 }
 
-dir_design = file.path(script_dir, "data", "design", "STAG2", "4458_ko"
+dir_design = file.path(script_dir, "data", "design", "STAG2", "4458_ko")
 file_design = file.path(dir_design, "design.tsv")
 design = fread(file_design, header = TRUE, stringsAsFactors=FALSE, sep="\t", quote = "")
 
