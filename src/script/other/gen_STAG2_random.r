@@ -6,7 +6,7 @@ script_dir = here()
 
 set.seed(42)
 
-dir_design = file.path(script_dir, "data", "design", "STAG2", "4458_ko")
+dir_design = file.path(script_dir, "data", "design", "STAG2", "all")
 file_design = file.path(dir_design, "design.tsv")
 
 design = fread(file_design, header = TRUE, stringsAsFactors=FALSE, sep="\t", quote = "")
@@ -14,7 +14,7 @@ design = fread(file_design, header = TRUE, stringsAsFactors=FALSE, sep="\t", quo
 uniq_subg = unique(design$subgroup)
 
 for (i in c(1:20)) {
-  selected_subgroup = sample(1:length(uniq_subg), 4424, replace=T)
+  selected_subgroup = sample(1:length(uniq_subg), 4000, replace=T)
   tab_ss = as.matrix(table(selected_subgroup))
 
   samples_query = NULL
