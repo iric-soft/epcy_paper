@@ -278,6 +278,6 @@ fi
 
 if [ $data_type == "sc" ]
 then
-  #epcy "count_sc" ${path_design} ${path_output} ${path_jobout_subgroup}
+  epcy "count_sc" ${path_design} ${path_output} ${path_jobout_subgroup}
 	limma_trend ${path_design} ${path_output} ${path_jobout_subgroup}
 fi
