@@ -17,8 +17,12 @@ if not os.path.exists(path_matrix):
 
 counts.index.unique('sample_ID')
 
-items = ['XA1', 'XG3']
-df_selected = counts.query("sample_ID in @items")
+# First version
+# items = ['XA1', 'XG3']
+# df_selected = counts.query("sample_ID in @items")
+
+items = [2, 6, 7, 16, 19, 24, 25]
+df_selected = counts.query("community in @items")
 
 items_drop = [
     'sample_ID', 'community', 'tsne_x',

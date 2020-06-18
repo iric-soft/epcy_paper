@@ -16,7 +16,7 @@
 #Rscript --vanilla ./src/script/other/target_aml_matrix_readcounts.r
 
 ## Create STAG2 dataset
-python ./src/script/other/STAG2.py
+#python ./src/script/other/STAG2.py
 
 ## To create all design for all cohorts
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/TARGET_AML/ subgroup

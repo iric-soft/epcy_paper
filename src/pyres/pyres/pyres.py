@@ -42,7 +42,7 @@ def main():
     # create the argparser for the "density" command
     diff_pred = subparsers.add_parser(
         'diff_pred',
-        help='Display plot to compare diff gene vs pred geme.'
+        help='Display plot to compare diff gene vs pred gene.'
     )
     diff_pred.set_defaults(func=main_diff_pred)
     get_argparser_diff_pred(diff_pred)

@@ -14,7 +14,7 @@ design = fread(file_design, header = TRUE, stringsAsFactors=FALSE, sep="\t", quo
 uniq_subg = unique(design$subgroup)
 
 for (i in c(1:20)) {
-  selected_subgroup = sample(1:length(uniq_subg), 4000, replace=T)
+  selected_subgroup = sample(1:length(uniq_subg), 2600, replace=T)
   tab_ss = as.matrix(table(selected_subgroup))
 
   samples_query = NULL

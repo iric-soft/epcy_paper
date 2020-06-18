@@ -38,6 +38,14 @@ ids="ENSG00000086730 ENSG00000090382 ENSG00000204287 ENSG00000103313 ENSG0000023
 #  -o ./data/res/10x/1079_1/ \
 #  --ids ${ids}
 
+ids="HLA-DR ENSG00000197956 ENSG00000245532 ENSG00000136826 ENSG00000165092 CD28 ENSG00000143546 ENSG00000204472"
+epcy profile_rna \
+  -d ./data/design/10X/1079_1/design.tsv \
+  -m ./data/10X/cellranger/readcounts.xls \
+  --log --cpm --strip \
+  -o ./data/res/10x/1079_1/profile_v2/ \
+  --ids ${ids}
+
 ids="ENSG00000143546 ENSG00000163220 CD14 ENSG00000162444 ENSG00000160255 CD27 ENSG00000196924 ENSG00000078596 ENSG00000152518 CD4"
 #epcy profile_rna \
 #  -d ./data/design/10X/1079_1/design.tsv \
@@ -74,19 +82,19 @@ ids="ENSG00000143546 ENSG00000163220 CD14 ENSG00000162444 ENSG00000160255 CD27 E
 #  -o ./data/res/10X/eval_ss/387_5/ \
 #  --ids CD4
 
-epcy profile_rna \
-  -d ./data/design/10X/361_6/design.tsv \
-  -m ./data/10X/cellranger/readcounts.xls \
-  --log --cpm --strip \
-  -o ./data/res/10X/eval_ss/361_6/ \
-  --ids CD4
+#epcy profile_rna \
+#  -d ./data/design/10X/361_6/design.tsv \
+#  -m ./data/10X/cellranger/readcounts.xls \
+#  --log --cpm --strip \
+#  -o ./data/res/10X/eval_ss/361_6/ \
+#  --ids CD4
 
-epcy profile_rna \
-  -d ./data/design/10X/316_7/design.tsv \
-  -m ./data/10X/cellranger/readcounts.xls \
-  --log --cpm --strip \
-  -o ./data/res/10X/eval_ss/316_7/ \
-  --ids CD4
+#epcy profile_rna \
+#  -d ./data/design/10X/316_7/design.tsv \
+#  -m ./data/10X/cellranger/readcounts.xls \
+#  --log --cpm --strip \
+#  -o ./data/res/10X/eval_ss/316_7/ \
+#  --ids CD4
 
 #epcy profile_rna \
 #  -d ./data/design/10X/311_8/design.tsv \
@@ -109,12 +117,12 @@ epcy profile_rna \
 #  -o ./data/res/10X/eval_ss/246_10/ \
 #  --ids CD4
 
-epcy profile_rna \
-  -d ./data/design/10X/216_11/design.tsv \
-  -m ./data/10X/cellranger/readcounts.xls \
-  --log --cpm --strip \
-  -o ./data/res/10X/eval_ss/216_11/ \
-  --ids CD4
+#epcy profile_rna \
+#  -d ./data/design/10X/216_11/design.tsv \
+#  -m ./data/10X/cellranger/readcounts.xls \
+#  --log --cpm --strip \
+#  -o ./data/res/10X/eval_ss/216_11/ \
+#  --ids CD4
 
 
 ids="ENSG00000204472 ENSG00000204482 ENSG00000135047 ENSG00000211751 ENSG00000187514 ENSG00000109971"
@@ -200,6 +208,7 @@ ids="ENSG00000143546 ENSG00000163220 CD14 ENSG00000162444 ENSG00000160255 CD27 E
 #  --reps ${rep} \
 #  --ids ${ids} \
 
+
 design="216_11"
 ids="ENSG00000204472 ENSG00000204482 ENSG00000135047 ENSG00000211751 ENSG00000187514 ENSG00000109971"
 #python3 -m pyres eval_ss \
@@ -207,6 +216,34 @@ ids="ENSG00000204472 ENSG00000204482 ENSG00000135047 ENSG00000211751 ENSG0000018
 #  --methods ${method} -q "cellranger" \
 #  --design ${design} \
 #  --outdir ../../data/res/10X \
+#  --p_ss ${p_ss} \
+#  --reps ${rep} \
+#  --ids ${ids} \
+
+
+
+designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+designs="4458_ko"
+method="trend epcy"
+
+#python3 -m pyres eval_random \
+#  -p ../../data/design/STAG2/ -r ../../data/design/STAG2_random/ \
+#  --methods ${method} -q "cellranger" \
+#  --design ${designs} \
+#  --design_random ${designs_random} \
+#  --outdir ../../data/res/STAG2 \
+
+
+p_ss="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
+rep="1 2 3 4 5 6 7 8 9 10"
+method="trend epcy"
+design="4458_ko"
+#####ids=""
+#python3 -m pyres eval_ss \
+#  -p ../../data/design/STAG2_ss/ \
+#  --methods ${method} -q "cellranger" \
+#  --design ${design} \
+#  --outdir ../../data/res/STAG2 \
 #  --p_ss ${p_ss} \
 #  --reps ${rep} \
 #  --ids ${ids} \
