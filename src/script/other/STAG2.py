@@ -1,6 +1,10 @@
 import os
 import h5py as h5
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+#import umap
 
 hdf = pd.HDFStore('./data/STAG2/SEQC/hdf_counts.h5', mode='r')
 counts = hdf.get('counts')
@@ -23,6 +27,18 @@ counts.index.unique('sample_ID')
 
 items = [2, 6, 7, 16, 19, 24, 25]
 df_selected = counts.query("community in @items")
+
+
+df_tsne = df_selected.index.to_frame()
+df_tsne = df_tsne.reset_index(drop=True)
+sns_plot = sns.scatterplot(
+    x="tsne_x", y="tsne_y", data=df_tsne,
+    style="STAG2_del", hue="STAG2_del",
+    alpha=0.5)
+
+fig_file = os.path.join(path_matrix, "tsne.pdf")
+sns_plot.figure.savefig(fig_file)
+plt.close()
 
 items_drop = [
     'sample_ID', 'community', 'tsne_x',
@@ -50,3 +66,27 @@ df_matrix.to_csv(
     sep="\t",
     index=False
 )
+
+df_tsne_gene = df_selected.reset_index()
+
+fig = plt.figure(figsize=(14, 7), dpi=80, facecolor='w', edgecolor='k')
+
+area1 = np.ma.masked_where(r < r0, area)
+area2 = np.ma.masked_where(r >= r0, area)
+plt.scatter(x, y, s=area1, marker='^', c=c)
+plt.scatter(x, y, s=area2, marker='o', c=c)
+plt.scatter(
+    "tsne_x", "tsne_y", data=df_tsne_gene,
+    c="IFITM1", cmap='Reds', marker="STAG2_del")
+plt.colorbar()
+plt.show()
+
+
+sns_plot = sns.scatterplot(
+    x="tsne_x", y="tsne_y", data=df_tsne_gene,
+    style="STAG2_del", hue="IFITM1",
+)
+
+fig_file = os.path.join(path_matrix, "tsne_IFITM1.pdf")
+sns_plot.figure.savefig(fig_file)
+plt.close()

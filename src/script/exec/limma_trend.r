@@ -27,10 +27,6 @@ counts = counts[, match(design$sample, colnames(counts))]
 #rownames(counts) = unlist(lapply(rownames(counts), function(x) unlist(strsplit(x, "[.]"))[1]))
 
 dge <- DGEList(counts=counts, group=design$subgroup)
-
-#keep <- filterByExpr(dge)
-#dge <- dge[keep,,keep.lib.sizes=FALSE]
-#dge <- calcNormFactors(dge)
 logCPM <- cpm(dge, log=TRUE, prior.count=3)
 
 design = model.matrix(~condition, data = sampleTable)
@@ -38,9 +34,6 @@ fit <- lmFit(logCPM, design)
 fit <- eBayes(fit, trend=TRUE)
 topTable(fit, coef=ncol(design), n=Inf, sort.by="p")
 
-#To give more weight to FC in the ranking
-#fit <- treat(fit, lfc=log2(1.2))
-#topTreat(fit, coef=ncol(design))
 res = topTable(fit, n=Inf, sort.by="p")
 res = cbind(data.frame(ID=row.names(res), stringsAsFactors=FALSE), res)
 file_out = file.path(path_output, "limma_trend_genes.xls")

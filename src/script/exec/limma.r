@@ -23,7 +23,6 @@ sampleTable = data.frame(condition = design$subgroup)
 
 file_counts = file.path(path_counts, "readcounts.xls")
 counts = read.delim(file_counts, header=TRUE, row.names=1, check.names=FALSE)
-design$sample = gsub("-", ".", design$sample)
 counts = counts[, which(colnames(counts) %in% design$sample)]
 counts = counts[, match(design$sample, colnames(counts))]
 #rownames(counts) = unlist(lapply(rownames(counts), function(x) unlist(strsplit(x, "[.]"))[1]))

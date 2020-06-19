@@ -221,6 +221,27 @@ limma()
 	fi
 }
 
+mast()
+{
+  eval input_design="$1"
+	eval path_output="$2"
+	eval path_jobout="$3"
+
+	if [ -f ${path_matrix}/readcounts.xls ]
+	then
+		if [ ! -f ${path_output}/readcounts/mast_genes.xls ]
+		then
+		  job_name="trend_${subgroup}"
+			path_output_limma="${path_output}/readcounts"
+		  path_exec="${working_dir}/src/script/exec/mast.r"
+		  cmd=$(bash ${path_cmd}/mast.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_limma})
+			exec_cmd ${type_exec} "\${cmd}" 1 ${mem_limma} ${walltime_limma} ${job_name} ${path_jobout}
+		else
+			echo "mast ${subgroup} done!"
+		fi
+	fi
+}
+
 
 LDE()
 {
@@ -280,4 +301,5 @@ if [ $data_type == "sc" ]
 then
   epcy "count_sc" ${path_design} ${path_output} ${path_jobout_subgroup}
 	limma_trend ${path_design} ${path_output} ${path_jobout_subgroup}
+	mast ${path_design} ${path_output} ${path_jobout_subgroup}
 fi

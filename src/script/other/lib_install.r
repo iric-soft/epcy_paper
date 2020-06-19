@@ -16,6 +16,7 @@ BiocManager::install("scater", ask=F)
 BiocManager::install("BiocSingular", ask=F)
 BiocManager::install("scran", ask=F)
 BiocManager::install("SingleCellExperiment", ask=F)
+BiocManager::install("MAST", ask=F)
 
 #For genes length 2nd solution
 #BiocManager::install("EnsDb.Hsapiens.v86", ask=F)
