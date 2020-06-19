@@ -72,32 +72,32 @@ p_subs="0 0.01 0.02 0.04 0.06 0.08 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
 nums="1 2 3 4 5 6 7 8 9 10"
 path_design_leucegene="10X_ss"
 data_project="10X"
-#for src_data in cellranger
-#do
-#  for design in ${designs_leucegene}
-#  do
-#    for p in ${p_subs}
-#    do
-#      for num in ${nums}
-#      do
-#        design_ss="${design}/${p}/${num}"
-#        bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design_ss} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
-#      done
-#    done
-#  done
-#done
+for src_data in cellranger
+do
+  for design in ${designs_leucegene}
+  do
+    for p in ${p_subs}
+    do
+      for num in ${nums}
+      do
+        design_ss="${design}/${p}/${num}"
+        bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design_ss} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+      done
+    done
+  done
+done
 
 
 designs_10X="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
 path_design="10X_random"
 data_project="10X"
-#for src_data in cellranger
-#do
-#  for design in ${designs_10X}
-#  do
-#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
-#  done
-#done
+for src_data in cellranger
+do
+  for design in ${designs_10X}
+  do
+    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+  done
+done
 
 
 
