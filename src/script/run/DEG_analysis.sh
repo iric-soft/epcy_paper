@@ -231,7 +231,7 @@ mast()
 	then
 		if [ ! -f ${path_output}/readcounts/mast_genes.xls ]
 		then
-		  job_name="trend_${subgroup}"
+		  job_name="mast_${subgroup}"
 			path_output_limma="${path_output}/readcounts"
 		  path_exec="${working_dir}/src/script/exec/mast.r"
 		  cmd=$(bash ${path_cmd}/mast.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_limma})
