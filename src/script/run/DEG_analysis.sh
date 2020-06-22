@@ -30,7 +30,7 @@ walltime_limma="3:00:00"
 mem_limma="3Gb"
 
 walltime_mast="3:00:00"
-mem_mast="20Gb"
+mem_mast="16Gb"
 
 walltime_LDE="12:00:00"
 mem_LDE="80Gb" # 2 * num_proc

@@ -32,9 +32,8 @@ zlmdata = zlm(~grp, sca)
 mast = lrTest(zlmdata, "grp")
 
 df_res = data.frame(
-  ID = names(mast[, "hurdle", "Pr(>Chisq)"],
+  ID = names(mast[, "hurdle", "Pr(>Chisq)"]),
   pval = mast[, "hurdle", "Pr(>Chisq)"]
-  )
 )
 file_out = file.path(path_output, "mast_genes.xls")
 write.table(df_res, file_out, quote=FALSE, row.names=FALSE, sep="\t")
