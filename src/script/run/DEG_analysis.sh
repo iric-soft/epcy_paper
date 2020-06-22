@@ -29,6 +29,9 @@ mem_edger="3Gb"
 walltime_limma="3:00:00"
 mem_limma="3Gb"
 
+walltime_mast="3:00:00"
+mem_mast="20Gb"
+
 walltime_LDE="12:00:00"
 mem_LDE="80Gb" # 2 * num_proc
 
@@ -235,7 +238,7 @@ mast()
 			path_output_mast="${path_output}/readcounts"
 		  path_exec="${working_dir}/src/script/exec/mast.r"
 		  cmd=$(bash ${path_cmd}/mast.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_mast})
-			exec_cmd ${type_exec} "\${cmd}" 1 ${mem_limma} ${walltime_limma} ${job_name} ${path_jobout}
+			exec_cmd ${type_exec} "\${cmd}" 1 ${mem_mast} ${walltime_mast} ${job_name} ${path_jobout}
 		else
 			echo "mast ${subgroup} done!"
 		fi
