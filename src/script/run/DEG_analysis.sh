@@ -232,9 +232,9 @@ mast()
 		if [ ! -f ${path_output}/readcounts/mast_genes.xls ]
 		then
 		  job_name="mast_${subgroup}"
-			path_output_limma="${path_output}/readcounts"
+			path_output_mast="${path_output}/readcounts"
 		  path_exec="${working_dir}/src/script/exec/mast.r"
-		  cmd=$(bash ${path_cmd}/mast.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_limma})
+		  cmd=$(bash ${path_cmd}/mast.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_mast})
 			exec_cmd ${type_exec} "\${cmd}" 1 ${mem_limma} ${walltime_limma} ${job_name} ${path_jobout}
 		else
 			echo "mast ${subgroup} done!"

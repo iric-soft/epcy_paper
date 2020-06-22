@@ -57,13 +57,13 @@ data_type="sc"
 path_design="10X"
 data_project="10X"
 designs_10X="1046_2 1079_1 216_11 246_10 307_9 311_8 316_7 361_6 387_5 413_4 565_3"
-#for src_data in cellranger
-#do
-#  for design in ${designs_10X}
-#  do
-#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
-#  done
-#done
+for src_data in cellranger
+do
+  for design in ${designs_10X}
+  do
+    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+  done
+done
 
 
 

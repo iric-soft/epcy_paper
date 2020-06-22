@@ -39,7 +39,7 @@ def main():
     argparser = argparse.ArgumentParser(prog='PROG')
     subparsers = argparser.add_subparsers(help='sub-command help')
 
-    # create the argparser for the "density" command
+    # create the argparser for the "diff_pred" command
     diff_pred = subparsers.add_parser(
         'diff_pred',
         help='Display plot to compare diff gene vs pred gene.'
@@ -47,7 +47,7 @@ def main():
     diff_pred.set_defaults(func=main_diff_pred)
     get_argparser_diff_pred(diff_pred)
 
-    # create the argparser for the "density" command
+    # create the argparser for the "eval_ss" command
     eval_ss = subparsers.add_parser(
         'eval_ss',
         help='Evaluate subsampling results.'
