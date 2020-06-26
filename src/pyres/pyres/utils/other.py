@@ -87,6 +87,22 @@ def select_epcy(args, df_diff, exp_genes, method, df_ext):
     return(df_diff)
 
 
+def select_mast(args, df_diff, exp_genes, padj):
+    # print("Read deseq")
+    if exp_genes is not None:
+        df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
+    df_diff["pval"] = df_diff["pval"].fillna(1)
+    df_diff = df_diff.loc[df_diff["pval"] <= padj]
+
+    df_diff = df_diff.reindex(
+        df_diff.pval.sort_values(ascending=True).index
+    )
+
+    # df_diff = select_top(args, df_diff, top)
+
+    return(df_diff)
+
+
 def select_deseq(args, df_diff, exp_genes, padj, by_pvalue=False):
     # print("Read deseq")
     if exp_genes is not None:
@@ -175,6 +191,8 @@ def read_diff_table(args, file_name, method, path_dir, padj,
         df_diff = select_limma(args, df_diff, exp_genes, padj)
     if method == "limma_pvalue":
         df_diff = select_limma(args, df_diff, exp_genes, padj, by_pvalue=True)
+    if method == "mast":
+        df_diff = select_mast(args, df_diff, exp_genes, padj)
 
     return(df_diff)
 

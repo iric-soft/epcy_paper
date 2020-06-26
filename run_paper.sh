@@ -1,7 +1,7 @@
 
 
 type_exec="torque" # "slurm" "bash" "torque"
-num_proc="4"
+num_proc="8"
 working_dir="/u/eaudemard/project/epcy_paper/"
 #working_dir="./"
 
@@ -54,9 +54,9 @@ working_dir="/u/eaudemard/project/epcy_paper/"
 
 
 data_type="sc"
-path_design="10X"
-data_project="10X"
-designs_10X="1046_2 1079_1 216_11 246_10 307_9 311_8 316_7 361_6 387_5 413_4 565_3"
+path_design="10X_FACS"
+data_project="10X_FACS"
+designs_10X="10085_b_cells 10224_memory_t 10479_naive_t 11953_naive_cytotoxic 8385_cd56_nk 10209_cytotoxic_t 10263_regulatory_t	11213_cd4_t 2612_cd14 9232_cd34"
 for src_data in cellranger
 do
   for design in ${designs_10X}
@@ -64,6 +64,18 @@ do
     bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
   done
 done
+
+data_type="sc"
+path_design="10X"
+data_project="10X"
+designs_10X="1046_2 1079_1 216_11 246_10 307_9 311_8 316_7 361_6 387_5 413_4 565_3"
+#for src_data in cellranger
+#do
+#  for design in ${designs_10X}
+#  do
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+#  done
+#done
 
 
 
@@ -72,32 +84,32 @@ p_subs="0 0.01 0.02 0.04 0.06 0.08 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
 nums="1 2 3 4 5 6 7 8 9 10"
 path_design_leucegene="10X_ss"
 data_project="10X"
-for src_data in cellranger
-do
-  for design in ${designs_leucegene}
-  do
-    for p in ${p_subs}
-    do
-      for num in ${nums}
-      do
-        design_ss="${design}/${p}/${num}"
-        bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design_ss} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
-      done
-    done
-  done
-done
+#for src_data in cellranger
+#do
+#  for design in ${designs_leucegene}
+#  do
+#    for p in ${p_subs}
+#    do
+#      for num in ${nums}
+#      do
+#        design_ss="${design}/${p}/${num}"
+#        bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design_ss} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+#      done
+#    done
+#  done
+#done
 
 
 designs_10X="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
 path_design="10X_random"
 data_project="10X"
-for src_data in cellranger
-do
-  for design in ${designs_10X}
-  do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
-  done
-done
+#for src_data in cellranger
+#do
+#  for design in ${designs_10X}
+#  do
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+#  done
+#done
 
 
 
@@ -105,13 +117,13 @@ data_type="sc"
 path_design="STAG2"
 data_project="STAG2"
 designs_STAG2="2662_ko"
-for src_data in SEQC
-do
-  for design in ${designs_STAG2}
-  do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
-  done
-done
+#for src_data in SEQC
+#do
+#  for design in ${designs_STAG2}
+#  do
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+#  done
+#done
 
 
 p_subs="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
@@ -119,29 +131,29 @@ nums="1 2 3 4 5 6 7 8 9 10"
 designs_STAG2="2662_ko"
 path_design_leucegene="STAG2_ss"
 data_project="STAG2"
-for src_data in SEQC
-do
-  for design in ${designs_STAG2}
-  do
-    for p in ${p_subs}
-    do
-      for num in ${nums}
-      do
-        design_ss="${design}/${p}/${num}"
-        bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design_ss} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
-      done
-    done
-  done
-done
+#for src_data in SEQC
+#do
+#  for design in ${designs_STAG2}
+#  do
+#    for p in ${p_subs}
+#    do
+#      for num in ${nums}
+#      do
+#        design_ss="${design}/${p}/${num}"
+#        bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design_ss} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+#      done
+#    done
+#  done
+#done
 
 
 designs_STAG2="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
 path_design="STAG2_random"
 data_project="STAG2"
-for src_data in SEQC
-do
-  for design in ${designs_STAG2}
-  do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
-  done
-done
+#for src_data in SEQC
+#do
+#  for design in ${designs_STAG2}
+#  do
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+#  done
+#done

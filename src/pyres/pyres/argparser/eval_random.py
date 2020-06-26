@@ -49,6 +49,13 @@ def get_argparser_eval_random(parser):
                         type=str,
                         default=None)
 
+    parser.add_argument("--pfdr",
+                        dest="P_FDR",
+                        help="list of % of FDR (Default: [100, 200, 400, 1000]).",
+                        type=int,
+                        nargs='+',
+                        default=[100, 200, 400, 1000])
+
     parser.add_argument("--lfc",
                         dest="LOG_FC",
                         help="abs(LOG_FC) filter value (Default: 0).",
@@ -62,11 +69,11 @@ def get_argparser_eval_random(parser):
                         default=-1.0)
 
     parser.add_argument("--methods",
-                        dest = "METHODS",
-                        help = 'methods to be tested',
-                        type = str,
-                        nargs = '+',
-                        default = ['deseq2', 'edger', 'limma', 'epcy'])
+                        dest="METHODS",
+                        help='methods to be tested',
+                        type=str,
+                        nargs='+',
+                        default=['deseq2', 'edger', 'limma', 'epcy'])
 
     parser.add_argument("--outdir",
                         dest="OUTDIR",

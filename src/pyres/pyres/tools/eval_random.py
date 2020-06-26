@@ -31,6 +31,7 @@ def main_eval_random(args, argparser):
         'edger' : "edger_genes.xls",
         'limma' : "limma_voom_genes.xls",
         'trend' : "limma_trend_genes.xls",
+        'mast' : "mast_genes.xls",
     }
 
     # create dict with search params
@@ -54,6 +55,7 @@ def main_eval_random(args, argparser):
         'edger' : "PValue",
         'limma' : "P.Value",
         'trend' : "P.Value",
+        'mast' : "pval",
     }
 
     strvalueadj_dict = {
@@ -62,6 +64,7 @@ def main_eval_random(args, argparser):
         'edger' : "FDR",
         'limma' : "adj.P.Val",
         'trend' : "adj.P.Val",
+        'mast' : "pval",
     }
 
     cohort_order = [*search_params_dict['designs_random'], *search_params_dict['designs']]
@@ -89,12 +92,13 @@ def main_eval_random(args, argparser):
 
             df_all_res.append(
                 pd.DataFrame({
-                    "ID": df_tmp["ID"][:top],
+                    "ID": df_tmp["ID"],
                     "METHOD": method,
                     "DESIGN": design,
                     "TYPE": "MCC" if method == "epcy" else "PVALUE",
-                    "VALUE": df_tmp[strvalue_dict[method]][:top] if method == "epcy" else -np.log10(df_tmp[strvalue_dict[method]][:top]),
-                    "L2FC": df_tmp[strl2fc_dict[method]][:top]
+                    "VALUE": df_tmp[strvalue_dict[method]] if method == "epcy" else -np.log10(df_tmp[strvalue_dict[method]]),
+                    "L2FC": df_tmp[strl2fc_dict[method]],
+                    "TOP": [x for x in range(1, df_tmp.shape[0]+1, 1)]
                 })
             )
 
@@ -103,12 +107,13 @@ def main_eval_random(args, argparser):
 
                 df_all_res.append(
                     pd.DataFrame({
-                        "ID": df_tmp["ID"][:top],
+                        "ID": df_tmp["ID"],
                         "METHOD": method,
                         "DESIGN": design,
                         "TYPE": "PADJ",
-                        "VALUE": -np.log10(df_tmp[strvalueadj_dict[method]][:top]),
-                        "L2FC": df_tmp[strl2fc_dict[method]][:top]
+                        "VALUE": -np.log10(df_tmp[strvalueadj_dict[method]]),
+                        "L2FC": df_tmp[strl2fc_dict[method]],
+                        "TOP": [x for x in range(1, df_tmp.shape[0]+1, 1)]
                     })
                 )
 
@@ -126,12 +131,13 @@ def main_eval_random(args, argparser):
 
             df_all_res.append(
                 pd.DataFrame({
-                    "ID": df_tmp["ID"][:top],
+                    "ID": df_tmp["ID"],
                     "METHOD": method,
                     "DESIGN": design,
                     "TYPE": "MCC" if method == "epcy" else "PVALUE",
-                    "VALUE": df_tmp[strvalue_dict[method]][:top] if method == "epcy" else -np.log10(df_tmp[strvalue_dict[method]][:top]),
-                    "L2FC": df_tmp[strl2fc_dict[method]][:top]
+                    "VALUE": df_tmp[strvalue_dict[method]] if method == "epcy" else -np.log10(df_tmp[strvalue_dict[method]]),
+                    "L2FC": df_tmp[strl2fc_dict[method]],
+                    "TOP": [x for x in range(1, df_tmp.shape[0]+1, 1)]
                 })
             )
 
@@ -140,12 +146,13 @@ def main_eval_random(args, argparser):
 
                 df_all_res.append(
                     pd.DataFrame({
-                        "ID": df_tmp["ID"][:top],
+                        "ID": df_tmp["ID"],
                         "METHOD": method,
                         "DESIGN": design,
                         "TYPE": "PADJ",
-                        "VALUE": -np.log10(df_tmp[strvalueadj_dict[method]][:top]),
-                        "L2FC": df_tmp[strl2fc_dict[method]][:top]
+                        "VALUE": -np.log10(df_tmp[strvalueadj_dict[method]]),
+                        "L2FC": df_tmp[strl2fc_dict[method]],
+                        "TOP": [x for x in range(1, df_tmp.shape[0]+1, 1)]
                     })
                 )
 
@@ -162,15 +169,14 @@ def main_eval_random(args, argparser):
     df_all_res.to_csv(csv_out, index=False, sep="\t")
 
     print('PLOT FIG')
-
+    res_fdr = []
     for method in search_params_dict['methods']:
         df_tmp = df_all_res.loc[df_all_res["METHOD"] == method]
+        df_tmp = df_tmp.loc[df_tmp["TOP"] <= 150]
         if method != "epcy":
             # plot results pvalue
             df_tmp2 = df_tmp.loc[df_tmp["TYPE"] == "PVALUE"]
-            print(df_tmp2[df_tmp2["DESIGN"] == "1079_1"])
             df_tmp2 = df_tmp2.replace(np.inf, 350)
-            print(df_tmp2[df_tmp2["DESIGN"] == "1079_1"])
             plt_fig = sns.swarmplot(
                 x="DESIGN", y="VALUE",
                 data=df_tmp2, hue="METHOD",
@@ -211,3 +217,45 @@ def main_eval_random(args, argparser):
             fig_out = os.path.join(fig_dir, method + "_mcc.pdf")
             plt_fig.figure.savefig(fig_out)
             plt.close()
+
+        df_tmp_random = df_all_res.loc[df_all_res["METHOD"] == method]
+        df_tmp_random = df_tmp_random.loc[df_tmp_random["DESIGN"].isin(search_params_dict['designs_random'])]
+
+        df_tmp_random = df_tmp_random.sort_values(by='VALUE', ascending=False)
+
+        for n_fdr in args.P_FDR:
+            cutoff = df_tmp_random["VALUE"].iloc[n_fdr]
+            df_tmp_candidate = df_all_res.loc[df_all_res["METHOD"] == method]
+            df_tmp_candidate = df_tmp_candidate.loc[df_tmp_candidate["DESIGN"].isin(search_params_dict['designs'])]
+            df_tmp_candidate = df_tmp_candidate.loc[df_tmp_candidate["VALUE"] >= cutoff]
+
+            res = df_tmp_candidate["DESIGN"].value_counts().rename_axis('DESIGN').reset_index(name='counts')
+            res["pFDR"] = n_fdr
+            res["METHOD"] = method
+            res_fdr.append(res)
+
+    res_fdr = pd.concat(res_fdr)
+
+    for design in args.DESIGN:
+        res_fdr_tmp = res_fdr[res_fdr["DESIGN"] == design]
+        sns_plot = sns.pointplot(
+            x="pFDR", y="counts", hue="METHOD",
+            hue_order=args.METHODS, order=args.P_FDR, dodge=0.3,
+            linestyles=['-', '--', '-.', ':'], data=res_fdr_tmp,
+            markers=['o', 'v', 's', 'x']
+        )
+        sns_plot.set_title("Number of gene candidates\n function to % of FDR")
+        fig_out = os.path.join(fig_dir, design + "_num_gene_candidates_fdr.pdf")
+        sns_plot.figure.savefig(fig_out)
+        plt.close()
+
+    sns_plot = sns.catplot(
+        kind="point", col="DESIGN",
+        x="pFDR", y="counts", hue="METHOD",
+        hue_order=args.METHODS, order=args.P_FDR, dodge=0.3,
+        linestyles=['-', '--', '-.', ':'], data=res_fdr,
+        markers=['o', 'v', 's', 'x']
+    )
+    fig_out = os.path.join(fig_dir, "num_gene_candidates_fdr.pdf")
+    sns_plot.savefig(fig_out)
+    plt.close()

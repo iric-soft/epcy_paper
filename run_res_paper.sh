@@ -39,12 +39,12 @@ ids="ENSG00000086730 ENSG00000090382 ENSG00000204287 ENSG00000103313 ENSG0000023
 #  --ids ${ids}
 
 ids="HLA-DR ENSG00000197956 ENSG00000245532 ENSG00000136826 ENSG00000165092 CD28 ENSG00000143546 ENSG00000204472"
-epcy profile_rna \
-  -d ./data/design/10X/1079_1/design.tsv \
-  -m ./data/10X/cellranger/readcounts.xls \
-  --log --cpm --strip \
-  -o ./data/res/10x/1079_1/profile_v2/ \
-  --ids ${ids}
+#epcy profile_rna \
+#  -d ./data/design/10X/1079_1/design.tsv \
+#  -m ./data/10X/cellranger/readcounts.xls \
+#  --log --cpm --strip \
+#  -o ./data/res/10x/1079_1/profile_v2/ \
+#  --ids ${ids}
 
 ids="ENSG00000143546 ENSG00000163220 CD14 ENSG00000162444 ENSG00000160255 CD27 ENSG00000196924 ENSG00000078596 ENSG00000152518 CD4"
 #epcy profile_rna \
@@ -158,14 +158,16 @@ python3 -m pyres diff_pred \
 designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
 designs="30_inv16 30_t15_17"
 method="deseq2 edger limma epcy"
+p_fdr="100 200 400 1000"
 
-#python3 -m pyres eval_random \
-#  -p ../../data/design/leucegene3/ -r ../../data/design/leucegene3_random/ \
-#  --biotype protein_coding --bf ../../data/other/GRCh38_84_genes_biotype.tsv \
-#  --methods ${method} -q "STAR_RSEM" \
-#  --design ${designs} \
-#  --design_random ${designs_random} \
-#  --outdir ../../data/res/leucegene3 \
+python3 -m pyres eval_random \
+  -p ../../data/design/leucegene3/ -r ../../data/design/leucegene3_random/ \
+  --biotype protein_coding --bf ../../data/other/GRCh38_84_genes_biotype.tsv \
+  --methods ${method} -q "STAR_RSEM" \
+  --pfdr ${p_fdr} \
+  --design ${designs} \
+  --design_random ${designs_random} \
+  --outdir ../../data/res/leucegene3 \
 
 p_ss="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
 rep="1 2 3 4 5 6 7 8 9 10"
@@ -184,11 +186,13 @@ ids="ENSG00000117266.15 ENSG00000162493.16 ENSG00000230749.5 ENSG00000168004.9 E
 
 designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
 designs="1079_1 216_11"
-method="trend epcy"
+method="trend epcy mast"
+p_fdr="0.001 0.01 0.05 0.1"
 
 #python3 -m pyres eval_random \
 #  -p ../../data/design/10X/ -r ../../data/design/10X_random/ \
 #  --methods ${method} -q "cellranger" \
+#  --pfdr ${p_fdr} \
 #  --design ${designs} \
 #  --design_random ${designs_random} \
 #  --outdir ../../data/res/10X \
@@ -196,7 +200,7 @@ method="trend epcy"
 
 p_ss="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7" # 0.8 0.9"
 rep="1 2 3 4 5 6 7 8 9 10"
-method="trend epcy"
+method="trend epcy mast"
 design="1079_1"
 ids="ENSG00000143546 ENSG00000163220 CD14 ENSG00000162444 ENSG00000160255 CD27 ENSG00000196924 ENSG00000078596 ENSG00000152518 CD4"
 #python3 -m pyres eval_ss \

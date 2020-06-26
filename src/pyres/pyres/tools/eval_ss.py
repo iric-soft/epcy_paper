@@ -39,6 +39,7 @@ def main_eval_ss(args, argparser):
         'edger': "edger_genes.xls",
         'voom': "limma_voom_genes.xls",
         'trend': "limma_trend_genes.xls",
+        'mast': "mast_genes.xls",
     }
 
     # create dict with search params
@@ -95,6 +96,8 @@ def main_eval_ss(args, argparser):
                     dict_diff_tmp['value'] = (-np.log10(df_diff["adj.P.Val"] + log_c)).tolist()
                 elif method == "trend":
                     dict_diff_tmp['value'] = (-np.log10(df_diff["adj.P.Val"] + log_c)).tolist()
+                elif method == "mast":
+                    dict_diff_tmp['value'] = (-np.log10(df_diff["pval"] + log_c)).tolist()
 
                 for key in dict_diff_tmp.keys():
                     dict_diff[key] = dict_diff[key] + dict_diff_tmp[key]
