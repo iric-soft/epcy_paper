@@ -57,13 +57,13 @@ data_type="sc"
 path_design="10X_FACS"
 data_project="10X_FACS"
 designs_10X="10085_b_cells 10224_memory_t 10479_naive_t 11953_naive_cytotoxic 8385_cd56_nk 10209_cytotoxic_t 10263_regulatory_t	11213_cd4_t 2612_cd14 9232_cd34"
-for src_data in cellranger
-do
-  for design in ${designs_10X}
-  do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
-  done
-done
+#for src_data in cellranger
+#do
+#  for design in ${designs_10X}
+#  do
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+#  done
+#done
 
 data_type="sc"
 path_design="10X"
@@ -124,6 +124,31 @@ designs_STAG2="2662_ko"
 #    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
 #  done
 #done
+
+data_type="sc"
+path_design="STAG2_ko_all"
+data_project="STAG2_ko_all"
+designs_STAG2="10628_ko"
+for src_data in SEQC
+do
+  for design in ${designs_STAG2}
+  do
+    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+  done
+done
+
+data_type="sc"
+path_design="STAG2_ko"
+data_project="STAG2_ko"
+designs_STAG2="4458_ko"
+for src_data in SEQC
+do
+  for design in ${designs_STAG2}
+  do
+    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+  done
+done
+
 
 
 p_subs="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
