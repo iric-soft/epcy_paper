@@ -8,7 +8,7 @@ library(data.table)
 script_dir = here()
 
 
-load_mat_10X <- function(matrix_dir) {
+load_mat_10X <- function(matrix_dir, type) {
   barcode.path <- file.path(matrix_dir, "barcodes.tsv")
   features.path <- file.path(matrix_dir, "genes.tsv")
   matrix.path <- file.path(matrix_dir, "matrix.mtx")
@@ -19,7 +19,7 @@ load_mat_10X <- function(matrix_dir) {
   barcode.names = read.delim(barcode.path, 
                              header = FALSE,
                              stringsAsFactors = FALSE)
-  colnames(mat) = barcode.names$V1
+  colnames(mat) = paste(type, barcode.names$V1, sep="_")
   rownames(mat) = feature.names$V1
   #print("################")
   #print(length(colnames(mat)))
@@ -38,7 +38,7 @@ read_all <- function(type) {
     "hg19"
   )
   print(matrix_dir)
-  return(load_mat_10X(matrix_dir))
+  return(load_mat_10X(matrix_dir, type))
 }
 
 
@@ -67,7 +67,7 @@ load_design_10X <- function(matrix_dir, type) {
                              header = FALSE,
                              stringsAsFactors = FALSE)
   
-  df = data.frame(sample=barcode.names$V1, subgroup=type, stringsAsFactors=F )
+  df = data.frame(sample=paste(type, barcode.names$V1, sep="_"), subgroup=type, stringsAsFactors=F )
   
   return(df)
 }
