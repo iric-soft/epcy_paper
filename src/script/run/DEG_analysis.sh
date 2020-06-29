@@ -27,10 +27,10 @@ walltime_edger="3:00:00"
 mem_edger="3Gb"
 
 walltime_limma="12:00:00"
-mem_limma="48Gb"
+mem_limma="120Gb"
 
 walltime_mast="12:00:00"
-mem_mast="80Gb"
+mem_mast="212Gb"
 
 walltime_LDE="12:00:00"
 mem_LDE="80Gb" # 2 * num_proc
@@ -302,7 +302,7 @@ fi
 
 if [ $data_type == "sc" ]
 then
-  epcy "count_sc" ${path_design} ${path_output} ${path_jobout_subgroup}
+  #epcy "count_sc" ${path_design} ${path_output} ${path_jobout_subgroup}
 	limma_trend ${path_design} ${path_output} ${path_jobout_subgroup}
 	mast ${path_design} ${path_output} ${path_jobout_subgroup}
 fi
