@@ -26,11 +26,11 @@ mem_epcy="36Gb"
 walltime_edger="3:00:00"
 mem_edger="3Gb"
 
-walltime_limma="6:00:00"
-mem_limma="36Gb"
+walltime_limma="12:00:00"
+mem_limma="48Gb"
 
-walltime_mast="6:00:00"
-mem_mast="36Gb"
+walltime_mast="12:00:00"
+mem_mast="80Gb"
 
 walltime_LDE="12:00:00"
 mem_LDE="80Gb" # 2 * num_proc
