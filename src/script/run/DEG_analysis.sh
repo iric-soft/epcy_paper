@@ -21,7 +21,7 @@ path_jobout="${working_dir}/tmp"
 # wall time and memory usage for num_proc="4"
 ###############################################################################
 walltime_epcy="72:00:00"
-mem_epcy="20Gb"
+mem_epcy="36Gb"
 
 walltime_edger="3:00:00"
 mem_edger="3Gb"
