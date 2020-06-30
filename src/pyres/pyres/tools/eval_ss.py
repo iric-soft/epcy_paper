@@ -51,6 +51,7 @@ def main_eval_ss(args, argparser):
     design = args.DESIGN
 
     cohort_order = []
+    dict_cohort = defaultdict(list)
     for p_ss in search_params_dict['p_ss']:
         if p_ss == 0.0:
             p_ss = 0
@@ -61,7 +62,15 @@ def main_eval_ss(args, argparser):
         num_query = df_design[df_design[args.SUBGROUP] == 1].count()[0]
         cohort = str(num_query) + "_vs_" + str(num_ref)
         cohort_order.append(cohort)
-    print(cohort_order)
+
+        dict_cohort_tmp = defaultdict(list)
+        dict_cohort_tmp['Query'].append(num_query)
+        dict_cohort_tmp['Ref'].append(num_ref)
+
+        for key in dict_cohort_tmp.keys():
+            dict_cohort[key] = dict_cohort[key] + dict_cohort_tmp[key]
+
+    df_cohort = pd.DataFrame(dict_cohort)
 
     log_c = sys.float_info.min
     dict_diff = defaultdict(list)
@@ -80,6 +89,7 @@ def main_eval_ss(args, argparser):
                     args, file_dict[method], method,
                     path_design, 1
                 )
+
                 dict_diff_tmp = defaultdict(list)
                 dict_diff_tmp['ID'] = df_diff["ID"].tolist()
                 dict_diff_tmp['rep'] = [rep] * df_diff["ID"].shape[0]
@@ -99,6 +109,8 @@ def main_eval_ss(args, argparser):
                 elif method == "mast":
                     dict_diff_tmp['value'] = (-np.log10(df_diff["pval"] + log_c)).tolist()
 
+                dict_diff_tmp['top'] = [x for x in range(1, df_diff.shape[0]+1, 1)]
+
                 for key in dict_diff_tmp.keys():
                     dict_diff[key] = dict_diff[key] + dict_diff_tmp[key]
 
@@ -107,6 +119,11 @@ def main_eval_ss(args, argparser):
     fig_dir = os.path.join(args.OUTDIR, "eval_ss", args.DESIGN)
     if not os.path.exists(fig_dir):
         os.makedirs(fig_dir)
+
+    bar_plot = df_cohort.plot(kind="bar", stacked=True)
+    fig_out = os.path.join(fig_dir, "sub_sampling.pdf")
+    bar_plot.figure.savefig(fig_out)
+    plt.close()
 
     for id in args.IDS:
         df_diff_id = df_diff[df_diff["ID"] == id]
@@ -160,4 +177,83 @@ def main_eval_ss(args, argparser):
     sns_plot.set_xticklabels(sns_plot.get_xticklabels(), rotation=90)
     fig_out = os.path.join(fig_dir, "num_gene_selected_cat.pdf")
     sns_plot.figure.savefig(fig_out)
+    plt.close()
+
+    df_diff_top = df_diff[df_diff["top"] <= 20]
+    df_diff_top_epcy = df_diff_top[(df_diff_top["method"] == "epcy") | (df_diff_top["method"] == "epcy_bagging")]
+    df_diff_top_deg = df_diff_top[(df_diff_top["method"] != "epcy") & (df_diff_top["method"] != "epcy_bagging")]
+
+    sns_plot = sns.pointplot(
+        data=df_diff_top_epcy,
+        x="cohort", y="value", hue="method", dodge=0.3,
+        linestyles=[':'], order=cohort_order,
+        markers=['x']
+    )
+    sns_plot.set_title("EPCY top 20")
+    sns_plot.set(ylabel="MCC")
+    sns_plot.set_xticklabels(sns_plot.get_xticklabels(), rotation=90)
+    fig_out = os.path.join(fig_dir, "Top150_values_epcy.pdf")
+    sns_plot.figure.savefig(fig_out)
+    plt.close()
+
+    sns_plot = sns.pointplot(
+        data=df_diff_top_deg,
+        x="cohort", y="value", hue="method", dodge=0.3,
+        linestyles=['-', '--', '-.'], order=cohort_order,
+        markers=['o', 'v', 's']
+    )
+
+    sns_plot.set_title("DEG top 20")
+    sns_plot.axes.axhline(-np.log10(0.05), ls='--', color="r")
+    sns_plot.set(ylabel="-log10(padj)")
+    sns_plot.set_xticklabels(sns_plot.get_xticklabels(), rotation=90)
+    fig_out = os.path.join(fig_dir, "Top150_values_DEG.pdf")
+    sns_plot.figure.savefig(fig_out)
+    plt.close()
+
+    plt_fig = sns.swarmplot(
+        x="cohort", y="value",
+        data=df_diff_top_epcy, hue="method", order=cohort_order
+    )
+    plt_fig.set(ylabel="MCC")
+    plt_fig.set_title("EPCY top 20")
+    plt_fig.set_xticklabels(plt_fig.get_xticklabels(), rotation=90)
+    fig_out = os.path.join(fig_dir, "Top150_values_epcy_dot.pdf")
+    plt_fig.figure.savefig(fig_out)
+    plt.close()
+
+    df_diff_top_deseq = df_diff_top_deg[df_diff_top_deg["method"] == "deseq2"]
+    plt_fig = sns.swarmplot(
+        x="cohort", y="value",
+        data=df_diff_top_deseq, hue="method", order=cohort_order
+    )
+    plt_fig.set_title("DESeq2 top 20")
+    plt_fig.set(ylabel="-log10(padj)")
+    plt_fig.set_xticklabels(plt_fig.get_xticklabels(), rotation=90)
+    fig_out = os.path.join(fig_dir, "Top150_values_deseq2_dot.pdf")
+    plt_fig.figure.savefig(fig_out)
+    plt.close()
+
+    df_diff_top_edger = df_diff_top_deg[df_diff_top_deg["method"] == "edger"]
+    plt_fig = sns.swarmplot(
+        x="cohort", y="value",
+        data=df_diff_top_edger, hue="method", order=cohort_order
+    )
+    plt_fig.set_title("EdgeR top 10")
+    plt_fig.set(ylabel="-log10(padj)")
+    plt_fig.set_xticklabels(plt_fig.get_xticklabels(), rotation=90)
+    fig_out = os.path.join(fig_dir, "Top150_values_edger_dot.pdf")
+    plt_fig.figure.savefig(fig_out)
+    plt.close()
+
+    df_diff_top_voom = df_diff_top_deg[df_diff_top_deg["method"] == "voom"]
+    plt_fig = sns.swarmplot(
+        x="cohort", y="value",
+        data=df_diff_top_voom, hue="method", order=cohort_order
+    )
+    plt_fig.set_title("Voom top 20")
+    plt_fig.set(ylabel="-log10(padj)")
+    plt_fig.set_xticklabels(plt_fig.get_xticklabels(), rotation=90)
+    fig_out = os.path.join(fig_dir, "Top150_values_voom_dot.pdf")
+    plt_fig.figure.savefig(fig_out)
     plt.close()

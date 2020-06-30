@@ -94,70 +94,46 @@ def select_mast(args, df_diff, exp_genes, padj):
     df_diff["pval"] = df_diff["pval"].fillna(1)
     df_diff = df_diff.loc[df_diff["pval"] <= padj]
 
-    df_diff = df_diff.reindex(
-        df_diff.pval.sort_values(ascending=True).index
-    )
+    df_diff = df_diff.sort_values(["pval"], ascending=True)
 
     # df_diff = select_top(args, df_diff, top)
 
     return(df_diff)
 
 
-def select_deseq(args, df_diff, exp_genes, padj, by_pvalue=False):
+def select_deseq(args, df_diff, exp_genes, padj):
     # print("Read deseq")
     if exp_genes is not None:
         df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
     df_diff["padj"] = df_diff["padj"].fillna(1)
     df_diff = df_diff.loc[df_diff["padj"] <= padj]
     df_diff = df_diff.loc[abs(df_diff["log2FoldChange"]) >= args.LOG_FC]
-    if by_pvalue:
-        df_diff = df_diff.reindex(
-            df_diff.padj.sort_values(ascending=True).index
-        )
-    else:
-        df_diff = df_diff.reindex(
-            df_diff.log2FoldChange.abs().sort_values(ascending=False).index
-        )
-
-    # df_diff = select_top(args, df_diff, top)
+    df_diff["abs_L2FC"] = df_diff.log2FoldChange.abs()
+    df_diff = df_diff.sort_values(["padj", "abs_L2FC"], ascending=[True, False])
 
     return(df_diff)
 
 
-def select_edger(args, df_diff, exp_genes, fdr, by_pvalue=False):
+def select_edger(args, df_diff, exp_genes, fdr):
     # print("Read edger")
     if exp_genes is not None:
         df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
     df_diff = df_diff.loc[df_diff["FDR"] <= fdr]
     df_diff = df_diff.loc[abs(df_diff["logFC"]) >= args.LOG_FC]
-    if by_pvalue:
-        df_diff = df_diff.reindex(
-            df_diff.FDR.sort_values(ascending=True).index
-        )
-    else:
-        df_diff = df_diff.reindex(
-            df_diff.logFC.abs().sort_values(ascending=False).index
-        )
-
-    # df_diff = select_top(args, df_diff, top)
+    df_diff["abs_L2FC"] = df_diff.logFC.abs()
+    df_diff = df_diff.sort_values(["FDR", "abs_L2FC"], ascending=[True, False])
 
     return(df_diff)
 
 
-def select_limma(args, df_diff, exp_genes, padj, by_pvalue=False):
+def select_limma(args, df_diff, exp_genes, padj):
     # print("Read limma")
     if exp_genes is not None:
         df_diff = df_diff.loc[df_diff["ID"].isin(exp_genes)]
     df_diff = df_diff.loc[df_diff["adj.P.Val"] <= padj]
     df_diff = df_diff.loc[abs(df_diff["logFC"]) >= args.LOG_FC]
-    if by_pvalue:
-        df_diff = df_diff.reindex(
-            df_diff["adj.P.Val"].sort_values(ascending=True).index
-        )
-    else:
-        df_diff = df_diff.reindex(
-            df_diff.logFC.abs().sort_values(ascending=False).index
-        )
+    df_diff["abs_L2FC"] = df_diff.logFC.abs()
+    df_diff = df_diff.sort_values(["adj.P.Val", "abs_L2FC"], ascending=[True, False])
 
     # df_diff = select_top(args, df_diff, top)
     return(df_diff)
