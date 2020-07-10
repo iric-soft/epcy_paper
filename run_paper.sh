@@ -1,7 +1,7 @@
 
 
 type_exec="torque" # "slurm" "bash" "torque"
-num_proc="8"
+num_proc="4"
 working_dir="/u/eaudemard/project/epcy_paper/"
 #working_dir="./"
 
@@ -53,6 +53,7 @@ working_dir="/u/eaudemard/project/epcy_paper/"
 #done
 
 
+num_proc="20"
 data_type="sc"
 path_design="10X_FACS"
 data_project="10X_FACS"
