@@ -53,7 +53,7 @@ working_dir="/u/eaudemard/project/epcy_paper/"
 #done
 
 
-num_proc="48"
+num_proc="40"
 data_type="sc"
 path_design="10X_FACS"
 data_project="10X_FACS"
