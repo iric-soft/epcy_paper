@@ -109,12 +109,44 @@ def main_eval_ss(args, argparser):
                 elif method == "mast":
                     dict_diff_tmp['value'] = (-np.log10(df_diff["pval"] + log_c)).tolist()
 
+                if method == "epcy" or method == "epcy_bagging":
+                    dict_diff_tmp['l2fc'] = df_diff["L2FC"].tolist()
+                elif method == "deseq2":
+                    dict_diff_tmp['l2fc'] = df_diff["log2FoldChange"].tolist()
+                elif method == "edger":
+                    dict_diff_tmp['l2fc'] = df_diff["logFC"].tolist()
+                elif method == "voom":
+                    dict_diff_tmp['l2fc'] = df_diff["logFC"].tolist()
+                elif method == "trend":
+                    dict_diff_tmp['l2fc'] = df_diff["logFC"].tolist()
+                elif method == "mast":
+                    dict_diff_tmp['l2fc'] = [np.nan for x in range(1, df_diff.shape[0]+1, 1)]
+
                 dict_diff_tmp['top'] = [x for x in range(1, df_diff.shape[0]+1, 1)]
 
                 for key in dict_diff_tmp.keys():
                     dict_diff[key] = dict_diff[key] + dict_diff_tmp[key]
 
     df_diff = pd.DataFrame(dict_diff)
+
+    df_diff_mean = df_diff.groupby(["method", "cohort", "ID"])["value"].mean()
+    df_diff_mean = df_diff_mean.to_frame()
+    df_diff_mean = df_diff_mean.rename({"value": "mean_value"}, axis='columns')
+    df_diff_mean.reset_index(inplace=True)
+
+    df_diff_std = df_diff.groupby(["method", "cohort", "ID"])["value"].std()
+    df_diff_std = df_diff_std.to_frame()
+    df_diff_std = df_diff_std.rename({"value": "y_std"}, axis='columns')
+    df_diff_std.reset_index(inplace=True)
+
+    df_diff_l2fc = df_diff.groupby(["method", "cohort", "ID"])["l2fc"].mean()
+    df_diff_l2fc = df_diff_l2fc.to_frame()
+    df_diff_l2fc = df_diff_l2fc.rename({"l2fc": "mean_l2fc"}, axis='columns')
+    df_diff_l2fc.reset_index(inplace=True)
+
+    df_diff_resume = pd.merge(df_diff_mean, df_diff_std, on=['method', 'cohort', 'ID'])
+    df_diff_resume = pd.merge(df_diff_resume, df_diff_l2fc, on=['method', 'cohort', 'ID'])
+
 
     fig_dir = os.path.join(args.OUTDIR, "eval_ss", args.DESIGN)
     if not os.path.exists(fig_dir):
@@ -130,15 +162,26 @@ def main_eval_ss(args, argparser):
         df_diff_id_epcy = df_diff_id[(df_diff_id["method"] == "epcy") | (df_diff_id["method"] == "epcy_bagging")]
         df_diff_id_deg = df_diff_id[(df_diff_id["method"] != "epcy") & (df_diff_id["method"] != "epcy_bagging")]
 
+        fig = plt.figure(figsize=(5, 5))
+        gs = plt.GridSpec(1, 2)
+
+        ax_deg = fig.add_subplot(gs[0, 0])
+        ax_epcy = fig.add_subplot(gs[0, 1], sharex=ax_kde)
+
+        fig.subplots_adjust(hspace=0)
+        sns.despine(ax=ax_deg, top=True, right=True, left=True, bottom=True)
+        sns.despine(ax=ax_epcy, top=True, right=True, left=True, bottom=False)
+
+
         sns_plot = sns.pointplot(
             data=df_diff_id_epcy,
-            x="cohort", y="value", hue="method", dodge=0.3,
+            y="cohort", x="value", hue="method", dodge=0.3,
             linestyles=[':'],
             markers=['x']
         )
         sns_plot.set_title("EPCY " + id)
-        sns_plot.set(ylim=(-1.05, 1.05))
-        sns_plot.set(ylabel="MCC")
+        sns_plot.set(xlim=(-1.05, 1.05))
+        sns_plot.set(xlabel="MCC")
         sns_plot.set_xticklabels(sns_plot.get_xticklabels(), rotation=90)
         fig_out = os.path.join(fig_dir, id + "_epcy.pdf")
         sns_plot.figure.savefig(fig_out)
@@ -146,14 +189,14 @@ def main_eval_ss(args, argparser):
 
         sns_plot = sns.pointplot(
             data=df_diff_id_deg,
-            x="cohort", y="value", hue="method", dodge=0.3,
+            y="cohort", x="value", hue="method", dodge=0.3,
             linestyles=['-', '--', '-.'],
             markers=['o', 'v', 's']
         )
 
         sns_plot.set_title("DEG " + id)
-        sns_plot.axes.axhline(-np.log10(0.05), ls='--', color="r")
-        sns_plot.set(ylabel="-log10(padj)")
+        sns_plot.axes.axvline(-np.log10(0.05), ls='--', color="b")
+        sns_plot.set(xlabel="-log10(padj)")
         sns_plot.set_xticklabels(sns_plot.get_xticklabels(), rotation=90)
         fig_out = os.path.join(fig_dir, id + "_DEG.pdf")
         sns_plot.figure.savefig(fig_out)
@@ -257,3 +300,24 @@ def main_eval_ss(args, argparser):
     fig_out = os.path.join(fig_dir, "Top150_values_voom_dot.pdf")
     plt_fig.figure.savefig(fig_out)
     plt.close()
+
+    if len(cohort_order) == 10:
+        cohort_order = [cohort_order[i] for i in [0, 2, 9]]
+        df_diff_resume = df_diff_resume[df_diff_resume.isin(["3_vs_3", "8_vs_127", "27_vs_563"])]
+
+    for method in search_params_dict['methods']:
+        df_diff_method = df_diff_resume[(df_diff_resume["method"] == method)]
+        df_diff_method["group"] = "Query"
+        df_diff_method["group"].loc[df_diff_method["mean_l2fc"] < 0] = "Ref"
+
+
+        plt_fig = sns.relplot(
+            x="mean_l2fc", y="mean_value", hue="group",
+            row="method", col="cohort", size="y_std", sizes=(10, 200),
+            col_order=cohort_order,
+            data=df_diff_method
+        )
+
+        fig_out = os.path.join(fig_dir, method + "_volcano.pdf")
+        plt_fig.savefig(fig_out)
+        plt.close()

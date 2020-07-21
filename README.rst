@@ -20,7 +20,7 @@ Requirements:
 
 * python3 and dependency
 
-  - pip3 install -r Requirements.txt
+  - pip3 install -r Requirement.txt
 * R and dependency (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
 * 4 multicore and 2Go
 * Take 8 hours on 2GHz intel Core i5 (MacBook Pro)

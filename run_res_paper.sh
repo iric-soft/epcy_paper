@@ -170,7 +170,8 @@ p_fdr="100 200 400 1000"
 #  --outdir ../../data/res/leucegene3 \
 
 p_ss="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
-rep="1 2 3 4 5 6 7 8 9 10"
+p_ss="0 0.2 0.9"
+rep="1 2 3" # 4 5 6 7 8 9 10"
 designs="30_t15_17"
 method="deseq2 edger voom epcy" # epcy_bagging"
 ids="ENSG00000117266.15 ENSG00000162493.16 ENSG00000230749.5 ENSG00000168004.9 ENSG00000227268.4 ENSG00000008394.13 ENSG00000085514.16"

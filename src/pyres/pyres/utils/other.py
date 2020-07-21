@@ -121,6 +121,7 @@ def select_edger(args, df_diff, exp_genes, fdr):
     df_diff = df_diff.loc[df_diff["FDR"] <= fdr]
     df_diff = df_diff.loc[abs(df_diff["logFC"]) >= args.LOG_FC]
     df_diff["abs_L2FC"] = df_diff.logFC.abs()
+    df_diff["logFC"] = - df_diff["logFC"]
     df_diff = df_diff.sort_values(["FDR", "abs_L2FC"], ascending=[True, False])
 
     return(df_diff)
@@ -133,6 +134,7 @@ def select_limma(args, df_diff, exp_genes, padj):
     df_diff = df_diff.loc[df_diff["adj.P.Val"] <= padj]
     df_diff = df_diff.loc[abs(df_diff["logFC"]) >= args.LOG_FC]
     df_diff["abs_L2FC"] = df_diff.logFC.abs()
+    df_diff["logFC"] = - df_diff["logFC"]
     df_diff = df_diff.sort_values(["adj.P.Val", "abs_L2FC"], ascending=[True, False])
 
     # df_diff = select_top(args, df_diff, top)
