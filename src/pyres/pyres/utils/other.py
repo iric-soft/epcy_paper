@@ -134,7 +134,8 @@ def select_limma(args, df_diff, exp_genes, padj):
     df_diff = df_diff.loc[df_diff["adj.P.Val"] <= padj]
     df_diff = df_diff.loc[abs(df_diff["logFC"]) >= args.LOG_FC]
     df_diff["abs_L2FC"] = df_diff.logFC.abs()
-    df_diff["logFC"] = - df_diff["logFC"]
+    df_diff["logFC"] = -df_diff["logFC"]
+
     df_diff = df_diff.sort_values(["adj.P.Val", "abs_L2FC"], ascending=[True, False])
 
     # df_diff = select_top(args, df_diff, top)
@@ -166,6 +167,10 @@ def read_diff_table(args, file_name, method, path_dir, padj,
     if method == "edger_pvalue":
         df_diff = select_edger(args, df_diff, exp_genes, padj, by_pvalue=True)
     if method == "limma":
+        df_diff = select_limma(args, df_diff, exp_genes, padj)
+    if method == "voom":
+        df_diff = select_limma(args, df_diff, exp_genes, padj)
+    if method == "trend":
         df_diff = select_limma(args, df_diff, exp_genes, padj)
     if method == "limma_pvalue":
         df_diff = select_limma(args, df_diff, exp_genes, padj, by_pvalue=True)
