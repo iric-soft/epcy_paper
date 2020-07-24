@@ -133,6 +133,13 @@ ids="ENSG00000204472 ENSG00000204482 ENSG00000135047 ENSG00000211751 ENSG0000018
 #  -o ./data/res/10X/eval_ss/216_11/ \
 #  --ids ${ids}
 
+ids="ENSG00000149294 ENSG00000115523 ENSG00000105374 ENSG00000100453 ENSG00000011600"
+epcy profile_rna \
+  -d ./data/design/10X_FACS/8385_cd56_nk/design.tsv \
+  -m ./data/10X_FACS/cellranger/readcounts.xls \
+  --log --cpm --strip \
+  -o ./data/res/10X_FACS/profile/8385_cd56_nk/ \
+  --ids ${ids}
 
 cd src/pyres
 
@@ -175,14 +182,14 @@ rep="1 2 3 4 5 6 7 8 9 10"
 designs="30_t15_17"
 method="deseq2 edger voom epcy" # epcy_bagging"
 ids="ENSG00000117266.15 ENSG00000162493.16 ENSG00000230749.5 ENSG00000168004.9 ENSG00000227268.4 ENSG00000008394.13 ENSG00000085514.16"
-python3 -m pyres eval_ss \
-  -p ../../data/design/leucegene3_ss/ \
-  --methods ${method} -q "STAR_RSEM" \
-  --design ${designs} \
-  --outdir ../../data/res/leucegene3 \
-  --p_ss ${p_ss} \
-  --reps ${rep} \
-  --ids ${ids} \
+#python3 -m pyres eval_ss \
+#  -p ../../data/design/leucegene3_ss/ \
+#  --methods ${method} -q "STAR_RSEM" \
+#  --design ${designs} \
+#  --outdir ../../data/res/leucegene3 \
+#  --p_ss ${p_ss} \
+#  --reps ${rep} \
+#  --ids ${ids} \
 
 
 designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
