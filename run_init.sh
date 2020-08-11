@@ -33,6 +33,7 @@ Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/10X_FAC
 #Rscript --vanilla ./src/script/other/gen_STAG2_random.r
 
 ## Create subsampling
+Rscript --vanilla ./src/script/other/gen_rep_leucegene_subsampling.R
 #Rscript --vanilla ./src/script/other/gen_leucegene_subsampling.R
 #Rscript --vanilla ./src/script/other/gen_10X_subsampling.R
 #Rscript --vanilla ./src/script/other/gen_STAG2_subsampling.R

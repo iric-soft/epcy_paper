@@ -29,6 +29,95 @@ ids="ENSG00000117266.15 ENSG00000162493.16 ENSG00000230749.5 ENSG00000168004.9 E
 #  -o ./data/res/leucegene3/eval_ss/30_t15_17/ \
 #  --ids ${ids}
 
+ids="ENSG00000168004.9 ENSG00000162493.16 ENSG00000103710.11 ENSG00000266217.2 ENSG00000089820.15 ENSG00000126895.15 ENSG00000174697.5 ENSG00000167123.19 ENSG00000141485.16 ENSG00000163701.19 ENSG00000265190.6 ENSG00000255248.9 ENSG00000173531.15 ENSG00000164853.9 ENSG00000283235.2 ENSG00000102287.19 ENSG00000214548.18 ENSG00000117266.15 ENSG00000143995.20 ENSG00000078399.18 ENSG00000096264.14 ENSG00000183260.7 ENSG00000286179.1"
+#epcy profile_rna \
+#  -d ./data/design/leucegene3/t15_17/design.tsv \
+#  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#  --log --cpm \
+#  -o ./data/res/leucegene3/t15_17/top10/with_density \
+#  --ids ${ids}
+
+#epcy profile_rna \
+#  -d ./data/design/leucegene3/t15_17/design.tsv \
+#  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#  --log --cpm --no_density \
+#  -o ./data/res/leucegene3/30_t15_17/top10/no_density \
+#  --ids ${ids}
+
+#epcy profile_rna \
+#  -d ./data/design/leucegene3/t15_17/design.tsv \
+#  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#  --log --cpm --no_density --strip \
+#  -o ./data/res/leucegene3/30_t15_17/top10/strip \
+#  --ids ${ids}
+
+ids="ENSG00000255248.9 ENSG00000102287.19 ENSG00000078399.18 ENSG00000143995.20"
+#epcy profile_rna \
+#  -d ./data/design/leucegene3/30_t15_17/design.tsv \
+#  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#  --log --cpm \
+#  -o ./data/res/leucegene3/t15_17/same_mcc/with_density \
+#  --ids ${ids}
+
+#epcy profile_rna \
+#  -d ./data/design/leucegene3/30_t15_17/design.tsv \
+#  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#  --log --cpm --no_density \
+#  -o ./data/res/leucegene3/t15_17/same_mcc/no_density \
+#  --ids ${ids}
+
+#epcy profile_rna \
+#  -d ./data/design/leucegene3/30_t15_17/design.tsv \
+#  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#  --log --cpm --no_density --strip \
+#  -o ./data/res/leucegene3/t15_17/same_mcc/strip \
+#  --ids ${ids}
+
+ids="ENSG00000089820.15 ENSG00000163701.19 ENSG00000214548.18 ENSG00000143995.20 ENSG00000232046.7 ENSG00000279536.1 ENSG00000076706.17"
+#epcy profile_rna \
+#  -d ./data/design/leucegene3/30_t15_17/design.tsv \
+#  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#  --log --cpm \
+#  -o ./data/res/leucegene3/t15_17/voom_padj/with_density \
+#  --ids ${ids}
+
+#epcy profile_rna \
+#  -d ./data/design/leucegene3/30_t15_17/design.tsv \
+#  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#  --log --cpm --no_density \
+#  -o ./data/res/leucegene3/t15_17/voom_padj/no_density \
+#  --ids ${ids}
+
+#epcy profile_rna \
+#  -d ./data/design/leucegene3/30_t15_17/design.tsv \
+#  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#  --log --cpm --no_density --strip \
+#  -o ./data/res/leucegene3/t15_17/voom_padj/strip \
+#  --ids ${ids}
+
+ids="ENSG00000141485.16 ENSG00000078399.18 ENSG00000286179.1 ENSG00000162493.16 ENSG00000256951.1"
+#epcy profile_rna \
+#  -d ./data/design/leucegene3/30_t15_17/design.tsv \
+#  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#  --log --cpm \
+#  -o ./data/res/leucegene3/t15_17/deseq_padj/with_density \
+#  --ids ${ids}
+
+#epcy profile_rna \
+#  -d ./data/design/leucegene3/30_t15_17/design.tsv \
+#  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#  --log --cpm --no_density \
+#  -o ./data/res/leucegene3/t15_17/deseq_padj/no_density \
+#  --ids ${ids}
+
+#epcy profile_rna \
+#  -d ./data/design/leucegene3/30_t15_17/design.tsv \
+#  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+#  --log --cpm --no_density --strip \
+#  -o ./data/res/leucegene3/t15_17/deseq_padj/strip \
+#  --ids ${ids}
+
+
 #ids="ENSG00000169429 ENSG00000008394 ENSG00000163682 ENSG00000115828 ENSG00000087086"
 ids="ENSG00000086730 ENSG00000090382 ENSG00000204287 ENSG00000103313 ENSG00000233927 ENSG00000163694 ENSG00000161642"
 #epcy profile_rna \
@@ -134,12 +223,12 @@ ids="ENSG00000204472 ENSG00000204482 ENSG00000135047 ENSG00000211751 ENSG0000018
 #  --ids ${ids}
 
 ids="ENSG00000149294 ENSG00000115523 ENSG00000105374 ENSG00000100453 ENSG00000011600"
-epcy profile_rna \
-  -d ./data/design/10X_FACS/8385_cd56_nk/design.tsv \
-  -m ./data/10X_FACS/cellranger/readcounts.xls \
-  --log --cpm --strip \
-  -o ./data/res/10X_FACS/profile/8385_cd56_nk/ \
-  --ids ${ids}
+#epcy profile_rna \
+#  -d ./data/design/10X_FACS/8385_cd56_nk/design.tsv \
+#  -m ./data/10X_FACS/cellranger/readcounts.xls \
+#  --log --cpm --strip \
+#  -o ./data/res/10X_FACS/profile/8385_cd56_nk/ \
+#  --ids ${ids}
 
 cd src/pyres
 
@@ -162,19 +251,6 @@ python3 -m pyres diff_pred \
 
 ###########################################################
 # comparaison of performance on random design
-designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
-designs="30_inv16 30_t15_17"
-method="deseq2 edger limma epcy"
-p_fdr="100 200 400 1000"
-
-#python3 -m pyres eval_random \
-#  -p ../../data/design/leucegene3/ -r ../../data/design/leucegene3_random/ \
-#  --biotype protein_coding --bf ../../data/other/GRCh38_84_genes_biotype.tsv \
-#  --methods ${method} -q "STAR_RSEM" \
-#  --pfdr ${p_fdr} \
-#  --design ${designs} \
-#  --design_random ${designs_random} \
-#  --outdir ../../data/res/leucegene3 \
 
 p_ss="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
 #p_ss="0 0.2 0.9"
@@ -182,20 +258,36 @@ rep="1 2 3 4 5 6 7 8 9 10"
 designs="30_t15_17"
 method="deseq2 edger voom epcy" # epcy_bagging"
 ids="ENSG00000117266.15 ENSG00000162493.16 ENSG00000230749.5 ENSG00000168004.9 ENSG00000227268.4 ENSG00000008394.13 ENSG00000085514.16"
-#python3 -m pyres eval_ss \
-#  -p ../../data/design/leucegene3_ss/ \
-#  --methods ${method} -q "STAR_RSEM" \
-#  --design ${designs} \
-#  --outdir ../../data/res/leucegene3 \
-#  --p_ss ${p_ss} \
-#  --reps ${rep} \
-#  --ids ${ids} \
+python3 -m pyres eval_ss \
+-p ../../data/design/leucegene3_ss/ \
+--methods ${method} -q "STAR_RSEM" \
+--design ${designs} \
+--outdir ../../data/res/leucegene3 \
+--p_ss ${p_ss} \
+--reps ${rep} \
+--ids ${ids} \
+
+
+designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+designs="30_inv16 30_t15_17"
+method="deseq2 edger voom epcy"
+p_fdr="0.00001 0.0001 0.001 0.01"
+
+python3 -m pyres eval_random \
+  -p ../../data/design/leucegene3/ -r ../../data/design/leucegene3_random/ \
+  --biotype protein_coding --bf ../../data/other/GRCh38_84_genes_biotype.tsv \
+  --methods ${method} -q "STAR_RSEM" \
+  --pfdr ${p_fdr} \
+  --design ${designs} \
+  --design_random ${designs_random} \
+  --outdir ../../data/res/leucegene3 \
+  --ngenes 60564
 
 
 designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
 designs="1079_1 216_11"
 method="trend epcy mast"
-p_fdr="0.001 0.01 0.05 0.1"
+p_fdr="0.0001 0.001 0.01 0.05"
 
 #python3 -m pyres eval_random \
 #  -p ../../data/design/10X/ -r ../../data/design/10X_random/ \
@@ -204,6 +296,7 @@ p_fdr="0.001 0.01 0.05 0.1"
 #  --design ${designs} \
 #  --design_random ${designs_random} \
 #  --outdir ../../data/res/10X \
+#  --ngenes 60564
 
 
 p_ss="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7" # 0.8 0.9"
@@ -244,6 +337,7 @@ method="trend epcy"
 #  --design ${designs} \
 #  --design_random ${designs_random} \
 #  --outdir ../../data/res/STAG2 \
+#  --ngenes 60564
 
 
 p_ss="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"

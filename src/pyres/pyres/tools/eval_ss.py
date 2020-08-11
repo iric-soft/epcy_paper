@@ -165,7 +165,7 @@ def main_eval_ss(args, argparser):
     cohort_order_rev.reverse()
     df_diff['cohort'] = pd.Categorical(df_diff['cohort'], cohort_order_rev)
     col_pal = sns.color_palette("colorblind")
-    col_pal = [col_pal[i] for i in [2, 4, 1, 9]]
+    col_pal = [col_pal[i] for i in [4, 1, 2, 9]]
     col_pal_deg = [col_pal[i] for i in [0, 1, 2]]
     col_pal_epcy = [col_pal[i] for i in [3, 0]]
     for id in args.IDS:
@@ -224,24 +224,34 @@ def main_eval_ss(args, argparser):
 
         sns_plot.set_title("DEG " + id)
 
+    csv_out = os.path.join(fig_dir, "tab_volcano.csv")
+    df_diff_resume.to_csv(csv_out, index=False, sep="\t")
+    cohort_order.reverse()
     cohort_order_red = cohort_order
     if len(cohort_order) == 10:
         cohort_order_red = [cohort_order[i] for i in [0, 2, 9]]
         df_diff_resume_tmp = df_diff_resume[df_diff_resume.cohort.isin(cohort_order_red)]
 
-    cohort_order_red.reverse()
     col_pal_qr_rev = col_pal_qr
-    col_pal_qr_rev.reverse()
     for method in search_params_dict['methods']:
         df_diff_method = df_diff_resume_tmp[(df_diff_resume_tmp["method"] == method)].copy()
         df_diff_method["group"] = "Query"
         df_diff_method.loc[df_diff_method["mean_l2fc"] < 0, "group"] = "Ref"
 
+        if method == "deseq2":
+            col_dot = [col_pal[0]]
+        if method == "edger":
+            col_dot = [col_pal[1]]
+        if method == "voom":
+            col_dot = [col_pal[2]]
+        if method == "epcy":
+            col_dot = [col_pal[3]]
+
         plt_fig = sns.relplot(
-            x="mean_l2fc", y="mean_value", hue="group",
+            x="mean_l2fc", y="mean_value",
             row="method", col="cohort", size="y_std", sizes=(10, 200),
             col_order=cohort_order_red,
-            palette=col_pal_qr,
+            palette=col_dot,
             data=df_diff_method
         )
 
@@ -252,26 +262,24 @@ def main_eval_ss(args, argparser):
     if len(cohort_order) == 10:
         cohort_order_red = [cohort_order[i] for i in [0, 2, 5, 9]]
         df_diff_resume_tmp = df_diff_resume[df_diff_resume.cohort.isin(cohort_order_red)]
-        cohort_order_red.reverse()
 
         col_pal_qr_rev = col_pal_qr
-        col_pal_qr_rev.reverse()
         for method in search_params_dict['methods']:
             df_diff_method = df_diff_resume_tmp[(df_diff_resume_tmp["method"] == method)].copy()
             df_diff_method["group"] = "Query"
             df_diff_method.loc[df_diff_method["mean_l2fc"] < 0, "group"] = "Ref"
 
             if method == "deseq2":
-                col_dot = [col_pal[0], col_pal[0]]
+                col_dot = [col_pal[0]]
             if method == "edger":
-                col_dot = [col_pal[1], col_pal[1]]
+                col_dot = [col_pal[1]]
             if method == "voom":
-                col_dot = [col_pal[2], col_pal[2]]
+                col_dot = [col_pal[2]]
             if method == "epcy":
-                col_dot = [col_pal[3], col_pal[3]]
+                col_dot = [col_pal[3]]
 
             plt_fig = sns.relplot(
-                x="mean_l2fc", y="mean_value", hue="group",
+                x="mean_l2fc", y="mean_value",
                 row="method", col="cohort", size="y_std", sizes=(10, 200),
                 col_order=cohort_order_red,
                 palette=col_dot,

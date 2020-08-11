@@ -51,10 +51,16 @@ def get_argparser_eval_random(parser):
 
     parser.add_argument("--pfdr",
                         dest="P_FDR",
-                        help="list of % of FDR (Default: [100, 200, 400, 1000]).",
-                        type=int,
+                        help="list of % of FDR (Default: [0.0001, 0.001, 0.01, 0.05, 0.1]).",
+                        type=float,
                         nargs='+',
-                        default=[100, 200, 400, 1000])
+                        default=[0.0001, 0.001, 0.01, 0.05, 0.1])
+
+    parser.add_argument("--ngenes",
+                        dest="N_GENES",
+                        help="Numberof genes given in input of DEG or EPCY (Default: 60564).",
+                        type=int,
+                        default=60564)
 
     parser.add_argument("--lfc",
                         dest="LOG_FC",
@@ -73,7 +79,7 @@ def get_argparser_eval_random(parser):
                         help='methods to be tested',
                         type=str,
                         nargs='+',
-                        default=['deseq2', 'edger', 'limma', 'epcy'])
+                        default=['deseq2', 'edger', 'voom', 'epcy'])
 
     parser.add_argument("--outdir",
                         dest="OUTDIR",
