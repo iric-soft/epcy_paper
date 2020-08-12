@@ -31,7 +31,7 @@ df_tsne = df_selected.index.to_frame()
 df_tsne = df_tsne.reset_index(drop=True)
 sns_plot = sns.scatterplot(
     x="tsne_x", y="tsne_y", data=df_tsne,
-    style="STAG2_del", hue="STAG2_del",
+    hue="STAG2_del", size=1, linewidth=0,
     alpha=0.5)
 
 fig_file = os.path.join(path_matrix, "tsne.pdf")

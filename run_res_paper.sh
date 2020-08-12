@@ -259,10 +259,10 @@ designs="30_t15_17"
 method="deseq2 edger voom epcy" # epcy_bagging"
 ids="ENSG00000117266.15 ENSG00000162493.16 ENSG00000230749.5 ENSG00000168004.9 ENSG00000227268.4 ENSG00000008394.13 ENSG00000085514.16"
 python3 -m pyres eval_ss \
--p ../../data/design/leucegene3_ss/ \
+-p ../../data/design/leucegene3_rep_ss/ \
 --methods ${method} -q "STAR_RSEM" \
 --design ${designs} \
---outdir ../../data/res/leucegene3 \
+--outdir ../../data/res/leucegene3_rep \
 --p_ss ${p_ss} \
 --reps ${rep} \
 --ids ${ids} \
@@ -273,15 +273,15 @@ designs="30_inv16 30_t15_17"
 method="deseq2 edger voom epcy"
 p_fdr="0.00001 0.0001 0.001 0.01"
 
-python3 -m pyres eval_random \
-  -p ../../data/design/leucegene3/ -r ../../data/design/leucegene3_random/ \
-  --biotype protein_coding --bf ../../data/other/GRCh38_84_genes_biotype.tsv \
-  --methods ${method} -q "STAR_RSEM" \
-  --pfdr ${p_fdr} \
-  --design ${designs} \
-  --design_random ${designs_random} \
-  --outdir ../../data/res/leucegene3 \
-  --ngenes 60564
+#python3 -m pyres eval_random \
+#  -p ../../data/design/leucegene3/ -r ../../data/design/leucegene3_random/ \
+#  --biotype protein_coding --bf ../../data/other/GRCh38_84_genes_biotype.tsv \
+#  --methods ${method} -q "STAR_RSEM" \
+#  --pfdr ${p_fdr} \
+#  --design ${designs} \
+#  --design_random ${designs_random} \
+#  --outdir ../../data/res/leucegene3 \
+#  --ngenes 60564
 
 
 designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
