@@ -67,7 +67,7 @@ foreach_design <- function(name_design, p_subs, script_dir, nums, samples_rep) {
 file_mat = file.path(script_dir, "data", "leucegene3", "STAR_RSEM", "readcounts.xls")
 df_mat = fread(file_mat, header = TRUE, stringsAsFactors=FALSE, sep="\t", quote = "")
 setDF(df_mat)
-df_mat_rep = df_mat[rep(2:ncol(df_mat), each = 20)]
+df_mat_rep = df_mat[c(1,rep(2:ncol(df_mat), each = 20))]
 
 all_sample_used = lapply(designs, function(x) foreach_design(x, p_subs, script_dir, nums, colnames(df_mat_rep)))
 

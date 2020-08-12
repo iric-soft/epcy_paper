@@ -22,7 +22,7 @@ path_jobout="${working_dir}/tmp"
 ###############################################################################
 # for bulk
 walltime_epcy="24:00:00"
-mem_epcy="8Gb"
+mem_epcy="50Gb"
 
 #for sc
 #walltime_epcy="200:00:00"
