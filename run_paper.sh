@@ -136,6 +136,7 @@ data_project="10X"
 
 
 
+num_proc="20"
 data_type="sc"
 path_design="STAG2_granulo"
 data_project="STAG2_granulo"
