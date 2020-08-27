@@ -25,12 +25,12 @@ path_jobout="${working_dir}/tmp"
 #mem_epcy="50Gb"
 
 #for sc
-walltime_epcy="100:00:00"
-mem_epcy="100Gb"
+#walltime_epcy="100:00:00"
+#mem_epcy="100Gb"
 
 #for sc
-#walltime_epcy="200:00:00"
-#mem_epcy="200Gb"
+walltime_epcy="200:00:00"
+mem_epcy="200Gb"
 
 walltime_edger="3:00:00"
 mem_edger="3Gb"

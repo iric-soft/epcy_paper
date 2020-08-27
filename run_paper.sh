@@ -89,6 +89,18 @@ designs_10X="10209_cytotoxic_t 10263_regulatory_t	11213_cd4_t 9232_cd34"
 #done
 
 data_type="sc"
+path_design="10X_FACS_reduce"
+data_project="10X_FACS_reduce"
+designs_10X="1016_cytotoxic_t 1058_b_cells 1077_naive_t 1093_memory_t 1108_regulatory_t 1217_cd4_t 1338_naive_cytotoxic 287_cd14 858_cd56_nk 948_cd34"
+for src_data in cellranger
+do
+for design in ${designs_10X}
+  do
+    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+  done
+done
+
+data_type="sc"
 path_design="10X"
 data_project="10X"
 designs_10X="1046_2 1079_1 216_11 246_10 307_9 311_8 316_7 361_6 387_5 413_4 565_3"
@@ -141,37 +153,37 @@ data_type="sc"
 path_design="STAG2_granulo"
 data_project="STAG2_granulo"
 designs_STAG2="2662_ko"
-for src_data in SEQC
-do
-  for design in ${designs_STAG2}
-  do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
-  done
-done
+#for src_data in SEQC
+#do
+#  for design in ${designs_STAG2}
+#  do
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+#  done
+#done
 
 data_type="sc"
 path_design="STAG2_ko_all"
 data_project="STAG2_ko_all"
 designs_STAG2="10628_ko"
-for src_data in SEQC
-do
-  for design in ${designs_STAG2}
-  do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
-  done
-done
+#for src_data in SEQC
+#do
+#  for design in ${designs_STAG2}
+#  do
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+#  done
+#done
 
 data_type="sc"
 path_design="STAG2_ko"
 data_project="STAG2_ko"
 designs_STAG2="4458_ko"
-for src_data in SEQC
-do
-  for design in ${designs_STAG2}
-  do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
-  done
-done
+#for src_data in SEQC
+#do
+#  for design in ${designs_STAG2}
+#  do
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+#  done
+#done
 
 
 

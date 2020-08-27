@@ -265,10 +265,10 @@ def main_eval_random(args, argparser):
             df_tmp_candidate = df_all_res.loc[df_all_res["METHOD"] == method]
             df_tmp_candidate = df_tmp_candidate.loc[df_tmp_candidate["DESIGN"] == design]
             df_tmp_candidate = df_tmp_candidate.sort_values(["VALUE"], ascending=[False])
-            top10 = df_tmp_candidate["VALUE"].iloc[3]
-            d = {'DESIGN': [design], 'num_gene': [3], 'METHOD': [method], 'cutoff': [top10]}
+            top3 = df_tmp_candidate["VALUE"].iloc[3]
+            d = {'DESIGN': [design], 'num_gene': [3-1], 'METHOD': [method], 'cutoff': [top3]}
             res_top.append(pd.DataFrame(data=d))
-            top10 = df_tmp_candidate["VALUE"].iloc[10]
+            top10 = df_tmp_candidate["VALUE"].iloc[10-1]
             d = {'DESIGN': [design], 'num_gene': [10], 'METHOD': [method], 'cutoff': [top10]}
             res_top.append(pd.DataFrame(data=d))
 
@@ -412,7 +412,7 @@ def main_eval_random(args, argparser):
         plt.close()
 
         res_top_tmp = res_top.loc[res_top["DESIGN"] == design]
-        res_top_tmp = res_top_tmp.loc[res_top_tmp["num_gene"] == 10]
+        res_top_tmp = res_top_tmp.loc[res_top_tmp["num_gene"] == 10-1]
         df_merge["epcy_b"] = True
         cutoff = res_top_tmp["epcy"].values[0]
         df_merge.loc[df_merge["epcy"] < cutoff, "epcy_b"] = False

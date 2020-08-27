@@ -169,6 +169,7 @@ def main_eval_ss(args, argparser):
     col_pal_deg = [col_pal[i] for i in [0, 1, 2]]
     col_pal_epcy = [col_pal[i] for i in [3, 0]]
     for id in args.IDS:
+        print('SUBSAMPLING: score ss id: {}'.format(id))
         df_diff_id = df_diff[df_diff["ID"] == id]
         df_diff_id_epcy = df_diff_id[(df_diff_id["method"] == "epcy") | (df_diff_id["method"] == "epcy_bagging")]
         df_diff_id_deg = df_diff_id[(df_diff_id["method"] != "epcy") & (df_diff_id["method"] != "epcy_bagging")]
@@ -212,6 +213,7 @@ def main_eval_ss(args, argparser):
             palette=col_pal_epcy,
             ax=ax_epcy
         )
+        ax_epcy.axes.axvline(0.2, ls='--', color='black')
         ax_epcy.set(xlim=(-1.05, 1.05))
         ax_epcy.set(xlabel="MCC")
         ax_epcy.set(ylabel="")
@@ -228,36 +230,6 @@ def main_eval_ss(args, argparser):
     df_diff_resume.to_csv(csv_out, index=False, sep="\t")
     cohort_order.reverse()
     cohort_order_red = cohort_order
-    if len(cohort_order) == 10:
-        cohort_order_red = [cohort_order[i] for i in [0, 2, 9]]
-        df_diff_resume_tmp = df_diff_resume[df_diff_resume.cohort.isin(cohort_order_red)]
-
-    col_pal_qr_rev = col_pal_qr
-    for method in search_params_dict['methods']:
-        df_diff_method = df_diff_resume_tmp[(df_diff_resume_tmp["method"] == method)].copy()
-        df_diff_method["group"] = "Query"
-        df_diff_method.loc[df_diff_method["mean_l2fc"] < 0, "group"] = "Ref"
-
-        if method == "deseq2":
-            col_dot = [col_pal[0]]
-        if method == "edger":
-            col_dot = [col_pal[1]]
-        if method == "voom":
-            col_dot = [col_pal[2]]
-        if method == "epcy":
-            col_dot = [col_pal[3]]
-
-        plt_fig = sns.relplot(
-            x="mean_l2fc", y="mean_value",
-            row="method", col="cohort", size="y_std", sizes=(10, 200),
-            col_order=cohort_order_red,
-            palette=col_dot,
-            data=df_diff_method
-        )
-
-        fig_out = os.path.join(fig_dir, method + "_volcano.pdf")
-        plt_fig.savefig(fig_out)
-        plt.close()
 
     if len(cohort_order) == 10:
         cohort_order_red = [cohort_order[i] for i in [0, 2, 5, 9]]
@@ -279,7 +251,7 @@ def main_eval_ss(args, argparser):
                 col_dot = [col_pal[3]]
 
             plt_fig = sns.relplot(
-                x="mean_l2fc", y="mean_value",
+                x="mean_l2fc", y="mean_value", hue="method",
                 row="method", col="cohort", size="y_std", sizes=(10, 200),
                 col_order=cohort_order_red,
                 palette=col_dot,

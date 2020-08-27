@@ -27,6 +27,7 @@
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/STAG2_ko_all/ subgroup
 Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/STAG2_granulo/ subgroup
 #Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/10X_FACS/ subgroup
+Rscript --vanilla ./src/script/other/gen_design_from_all.r ./data/design/10X_FACS_reduce/ subgroup
 
 ## Create leucegene_random
 #Rscript --vanilla ./src/script/other/gen_leucegene_random.r
