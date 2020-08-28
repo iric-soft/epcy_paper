@@ -176,7 +176,7 @@ designs_STAG2="2662_ko"
 designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
 path_design="STAG2_granulo_random"
 data_project="STAG2_granulo"
-for src_data in cellranger
+for src_data in SEQC
 do
   for design in ${designs_random}
   do
@@ -201,7 +201,7 @@ designs_STAG2="10628_ko"
 designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
 path_design="STAG2_ko_all_random"
 data_project="STAG2_ko_all"
-for src_data in cellranger
+for src_data in SEQC
 do
   for design in ${designs_random}
   do
