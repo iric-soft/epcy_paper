@@ -100,6 +100,18 @@ for design in ${designs_10X}
   done
 done
 
+designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+path_design="10X_FACS_reduce_random"
+data_project="10X_FACS_reduce"
+for src_data in cellranger
+do
+  for design in ${designs_random}
+  do
+    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type}
+  done
+done
+
+
 data_type="sc"
 path_design="10X"
 data_project="10X"
