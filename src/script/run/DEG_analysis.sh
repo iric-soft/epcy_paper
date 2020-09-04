@@ -14,6 +14,10 @@ src_data=$5
 type_exec=$6
 num_proc=$7
 data_type=$8
+
+walltime_epcy=$9
+mem_epcy=${10}
+
 path_data="${working_dir}/data"
 path_jobout="${working_dir}/tmp"
 
@@ -25,8 +29,8 @@ path_jobout="${working_dir}/tmp"
 #mem_epcy="50Gb"
 
 #for sc
-walltime_epcy="100:00:00"
-mem_epcy="120Gb"
+#walltime_epcy="100:00:00"
+#mem_epcy="120Gb"
 
 #for sc
 #walltime_epcy="200:00:00"
@@ -39,7 +43,7 @@ walltime_limma="12:00:00"
 mem_limma="120Gb"
 
 walltime_mast="12:00:00"
-mem_mast="40Gb"
+mem_mast="60Gb"
 
 walltime_LDE="12:00:00"
 mem_LDE="80Gb" # 2 * num_proc
