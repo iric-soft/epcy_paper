@@ -76,7 +76,7 @@ data_project="leucegene3"
 #done
 
 
-num_proc="20"
+num_proc="40"
 data_type="sc"
 path_design="10X_FACS"
 data_project="10X_FACS"
@@ -91,6 +91,7 @@ for design in ${designs_10X}
   done
 done
 
+num_proc="20"
 data_type="sc"
 path_design="10X_FACS_reduce"
 data_project="10X_FACS_reduce"
