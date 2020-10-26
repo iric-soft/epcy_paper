@@ -37,11 +37,11 @@ path_jobout="${working_dir}/tmp"
 #mem_epcy="200Gb"
 
 walltime_edger="3:00:00"
-mem_edger="3Gb"
+mem_edger="20Gb"
 
 #for bulk
 walltime_limma="12:00:00"
-mem_limma="5Gb"
+mem_limma="20Gb"
 
 #for sc
 #walltime_limma="12:00:00"
