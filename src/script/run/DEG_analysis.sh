@@ -39,8 +39,13 @@ path_jobout="${working_dir}/tmp"
 walltime_edger="3:00:00"
 mem_edger="3Gb"
 
+#for bulk
 walltime_limma="12:00:00"
-mem_limma="120Gb"
+mem_limma="5Gb"
+
+#for sc
+#walltime_limma="12:00:00"
+#mem_limma="120Gb"
 
 walltime_mast="12:00:00"
 mem_mast="60Gb"
