@@ -28,7 +28,7 @@ p_subs="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
 nums="1" # 2 3 4 5 6 7 8 9 10"
 path_design_leucegene="leucegene3_ss"
 data_project="leucegene3"
-mem_epcy="20Gb"
+mem_epcy="48Gb"
 for src_data in STAR_RSEM #kallisto
 do
   for design in ${designs_leucegene}

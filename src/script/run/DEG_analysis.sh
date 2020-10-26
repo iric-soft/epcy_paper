@@ -41,7 +41,7 @@ mem_edger="20Gb"
 
 #for bulk
 walltime_limma="12:00:00"
-mem_limma="20Gb"
+mem_limma="48Gb"
 
 #for sc
 #walltime_limma="12:00:00"
