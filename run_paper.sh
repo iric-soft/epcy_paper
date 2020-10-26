@@ -25,7 +25,7 @@ mem_epcy="50Gb"
 
 designs_leucegene="30_t15_17 30_inv16"
 p_subs="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
-nums="1 2 3 4 5 6 7 8 9 10"
+nums="1" # 2 3 4 5 6 7 8 9 10"
 path_design_leucegene="leucegene3_ss"
 data_project="leucegene3"
 for src_data in STAR_RSEM #kallisto
