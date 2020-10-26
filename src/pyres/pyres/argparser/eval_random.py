@@ -98,3 +98,9 @@ def get_argparser_eval_random(parser):
                         help="Name column of group sample in the design file (Default: subgroup)",
                         type=str,
                         default="subgroup")
+
+    parser.add_argument("--top",
+                        dest="TOP",
+                        help="Top x used for scatterplot (Default: 20)",
+                        type=int,
+                        default=20)

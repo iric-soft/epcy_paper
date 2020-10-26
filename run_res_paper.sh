@@ -96,7 +96,7 @@ ids="ENSG00000089820.15 ENSG00000163701.19 ENSG00000214548.18 ENSG00000143995.20
 #  -o ./data/res/leucegene3/t15_17/voom_padj/strip \
 #  --ids ${ids}
 
-ids="ENSG00000141485.16 ENSG00000078399.18 ENSG00000286179.1 ENSG00000162493.16 ENSG00000256951.1"
+ids="ENSG00000141485.16 ENSG00000078399.18 ENSG00000286179.1 ENSG00000162493.16 ENSG00000256951.1 ENSG00000108511.10 ENSG00000270946.6"
 #epcy profile_rna \
 #  -d ./data/design/leucegene3/30_t15_17/design.tsv \
 #  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
@@ -118,6 +118,28 @@ ids="ENSG00000141485.16 ENSG00000078399.18 ENSG00000286179.1 ENSG00000162493.16 
 #  -o ./data/res/leucegene3/t15_17/deseq_padj/strip \
 #  --ids ${ids}
 
+
+ids="ENSG00000147403 ENSG00000174059 ENSG00000167526 ENSG00000115268 ENSG00000008988 ENSG00000196126 ENSG00000019582 ENSG00000231389 ENSG00000204287 ENSG00000113389 ENSG00000233968 ENSG00000237819 ENSG00000113389 ENSG00000163106 ENSG00000204287 ENSG00000124766 ENSG00000125691 ENSG00000171858 ENSG00000165092 ENSG00000174099 ENSG00000156508 ENSG00000204472"
+#epcy profile_rna \
+#  -d ./data/design/10X_FACS_reduce/948_cd34/design.tsv \
+#  -m ./data/10X_FACS_reduce/cellranger/readcounts.xls \
+#  --log --cpmed --violin \
+#  -o ./data/res/10X_FACS_reduce/948_cd34/with_density \
+#  --ids ${ids}
+
+#epcy profile_rna \
+#  -d ./data/design/10X_FACS_reduce/948_cd34/design.tsv \
+#  -m ./data/10X_FACS_reduce/cellranger/readcounts.xls \
+#  --log --cpmed --no_density --violin \
+#  -o ./data/res/10X_FACS_reduce/948_cd34/violin \
+#  --ids ${ids}
+
+#epcy profile_rna \
+#  -d ./data/design/10X_FACS_reduce/948_cd34/design.tsv \
+#  -m ./data/10X_FACS_reduce/cellranger/readcounts.xls \
+#  --log --cpmed --no_density \
+#  -o ./data/res/10X_FACS_reduce/948_cd34/deseq_padj/no_density \
+#  --ids ${ids}
 
 #ids="ENSG00000169429 ENSG00000008394 ENSG00000163682 ENSG00000115828 ENSG00000087086"
 ids="ENSG00000086730 ENSG00000090382 ENSG00000204287 ENSG00000103313 ENSG00000233927 ENSG00000163694 ENSG00000161642"
@@ -246,8 +268,8 @@ cd src/pyres
 #  --outdir ../../data/res/leucegene \
 #  --top_values 1 3 5 10 50 100 200 500
 
-python3 -m pyres diff_pred \
-  --outdir ../../data/res/ \
+#python3 -m pyres diff_pred \
+#  --outdir ../../data/res/ \
 
 
 ###########################################################
@@ -270,7 +292,7 @@ ids="ENSG00000117266.15 ENSG00000162493.16 ENSG00000230749.5 ENSG00000168004.9 E
 
 
 designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
-designs="30_inv16 30_t15_17"
+designs="30_t15_17 30_inv16"
 method="deseq2 edger voom epcy"
 p_fdr="0.00001 0.0001 0.001 0.01"
 
@@ -278,31 +300,26 @@ p_fdr="0.00001 0.0001 0.001 0.01"
 #  -p ../../data/design/leucegene3/ -r ../../data/design/leucegene3_random/ \
 #  --biotype protein_coding --bf ../../data/other/GRCh38_84_genes_biotype.tsv \
 #  --methods ${method} -q "STAR_RSEM" \
-#  --pfdr ${p_fdr} \
+#  --pfdr ${p_fdr} --top 20 \
 #  --design ${designs} \
 #  --design_random ${designs_random} \
 #  --outdir ../../data/res/leucegene3 \
 #  --ngenes 60564
 
-
-designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
-designs="1079_1 216_11"
-method="trend epcy mast"
-p_fdr="0.0001 0.001 0.01 0.05"
-
-#python3 -m pyres eval_random \
-#  -p ../../data/design/10X/ -r ../../data/design/10X_random/ \
-#  --methods ${method} -q "cellranger" \
-#  --pfdr ${p_fdr} \
-#  --design ${designs} \
-#  --design_random ${designs_random} \
-#  --outdir ../../data/res/10X \
-#  --ngenes 60564
+python3 -m pyres eval_random \
+  -p ../../data/design/leucegene3/ -r ../../data/design/leucegene3_random/ \
+  --biotype protein_coding --bf ../../data/other/GRCh38_84_genes_biotype.tsv \
+  --methods ${method} -q "STAR_RSEM" \
+  --pfdr ${p_fdr} --top 50 \
+  --design ${designs} \
+  --design_random ${designs_random} \
+  --outdir ../../data/res/leucegene3 \
+  --ngenes 60564
 
 
 p_ss="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7" # 0.8 0.9"
 rep="1 2 3 4 5 6 7 8 9 10"
-method="trend epcy mast"
+method="mast trend epcy"
 design="1079_1"
 ids="ENSG00000143546 ENSG00000163220 CD14 ENSG00000162444 ENSG00000160255 CD27 ENSG00000196924 ENSG00000078596 ENSG00000152518 CD4"
 #python3 -m pyres eval_ss \
@@ -327,20 +344,6 @@ ids="ENSG00000204472 ENSG00000204482 ENSG00000135047 ENSG00000211751 ENSG0000018
 #  --ids ${ids} \
 
 
-
-designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
-designs="4458_ko"
-method="trend epcy"
-
-#python3 -m pyres eval_random \
-#  -p ../../data/design/STAG2/ -r ../../data/design/STAG2_random/ \
-#  --methods ${method} -q "cellranger" \
-#  --design ${designs} \
-#  --design_random ${designs_random} \
-#  --outdir ../../data/res/STAG2 \
-#  --ngenes 60564
-
-
 p_ss="0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9"
 rep="1 2 3 4 5 6 7 8 9 10"
 method="trend epcy"
@@ -354,3 +357,72 @@ design="4458_ko"
 #  --p_ss ${p_ss} \
 #  --reps ${rep} \
 #  --ids ${ids} \
+
+designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+designs="287_cd14 858_cd56_nk 948_cd34 1016_cytotoxic_t 1058_b_cells 1077_naive_t 1093_memory_t 1108_regulatory_t 1217_cd4_t 1338_naive_cytotoxic"
+method="mast trend epcy"
+p_fdr="0.0001 0.001 0.01 0.05"
+
+#python3 -m pyres eval_random \
+#  -p ../../data/design/10X_FACS_reduce/ -r ../../data/design/10X_FACS_reduce_random/ \
+#  --methods ${method} -q "cellranger" \
+#  --pfdr ${p_fdr} --top 20 \
+#  --design ${designs} \
+#  --design_random ${designs_random} \
+#  --outdir ../../data/res/10X_FACS_reduce \
+#  --ngenes 21952
+
+#python3 -m pyres eval_random \
+#  -p ../../data/design/10X_FACS_reduce/ -r ../../data/design/10X_FACS_reduce_random/ \
+#  --methods ${method} -q "cellranger" \
+#  --pfdr ${p_fdr} --top 50 \
+#  --design ${designs} \
+#  --design_random ${designs_random} \
+#  --outdir ../../data/res/10X_FACS_reduce \
+#  --ngenes 21952
+
+designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+designs="10628_ko"
+method="mast trend epcy "
+p_fdr="0.0001 0.001 0.01 0.05"
+
+#python3 -m pyres eval_random \
+#  -p ../../data/design/STAG2_ko_all/ -r ../../data/design/STAG2_ko_all_random/ \
+#  --methods ${method} -q "SEQC" \
+#  --pfdr ${p_fdr} --top 20 \
+#  --design ${designs} \
+#  --design_random ${designs_random} \
+#  --outdir ../../data/res/STAG2_ko_all \
+#  --ngenes 17953
+
+#python3 -m pyres eval_random \
+#  -p ../../data/design/STAG2_ko_all/ -r ../../data/design/STAG2_ko_all_random/ \
+#  --methods ${method} -q "SEQC" \
+#  --pfdr ${p_fdr} --top 50 \
+#  --design ${designs} \
+#  --design_random ${designs_random} \
+#  --outdir ../../data/res/STAG2_ko_all \
+#  --ngenes 17953
+
+designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+designs="2662_ko"
+method="mast trend epcy"
+p_fdr="0.0001 0.001 0.01 0.05"
+
+#python3 -m pyres eval_random \
+#  -p ../../data/design/STAG2_granulo/ -r ../../data/design/STAG2_granulo_random/ \
+#  --methods ${method} -q "SEQC" \
+#  --pfdr ${p_fdr} --top 20 \
+#  --design ${designs} \
+#  --design_random ${designs_random} \
+#  --outdir ../../data/res/STAG2_granulo \
+#  --ngenes 17953
+
+#python3 -m pyres eval_random \
+#  -p ../../data/design/STAG2_granulo/ -r ../../data/design/STAG2_granulo_random/ \
+#  --methods ${method} -q "SEQC" \
+#  --pfdr ${p_fdr} --top 50 \
+#  --design ${designs} \
+#  --design_random ${designs_random} \
+#  --outdir ../../data/res/STAG2_granulo \
+#  --ngenes 17953

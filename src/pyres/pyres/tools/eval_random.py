@@ -98,7 +98,6 @@ def main_eval_random(args, argparser):
                     "DESIGN": design,
                     "TYPE": "MCC" if method == "epcy" else "PVALUE",
                     "VALUE": df_tmp[strvalue_dict[method]] if method == "epcy" else -np.log10(df_tmp[strvalue_dict[method]]),
-                    "L2FC": df_tmp[strl2fc_dict[method]],
                     "TOP": [x for x in range(1, df_tmp.shape[0]+1, 1)]
                 })
             )
@@ -113,7 +112,6 @@ def main_eval_random(args, argparser):
                         "DESIGN": design,
                         "TYPE": "PADJ",
                         "VALUE": -np.log10(df_tmp[strvalueadj_dict[method]]),
-                        "L2FC": df_tmp[strl2fc_dict[method]],
                         "TOP": [x for x in range(1, df_tmp.shape[0]+1, 1)]
                     })
                 )
@@ -137,10 +135,10 @@ def main_eval_random(args, argparser):
                     "DESIGN": design,
                     "TYPE": "MCC" if method == "epcy" else "PVALUE",
                     "VALUE": df_tmp[strvalue_dict[method]] if method == "epcy" else -np.log10(df_tmp[strvalue_dict[method]]),
-                    "L2FC": df_tmp[strl2fc_dict[method]],
                     "TOP": [x for x in range(1, df_tmp.shape[0]+1, 1)]
                 })
             )
+
 
             if method != "epcy":
                 df_tmp = df_tmp.reindex(df_tmp[strvalueadj_dict[method]].abs().sort_values(ascending=True).index)
@@ -152,13 +150,14 @@ def main_eval_random(args, argparser):
                         "DESIGN": design,
                         "TYPE": "PADJ",
                         "VALUE": -np.log10(df_tmp[strvalueadj_dict[method]]),
-                        "L2FC": df_tmp[strl2fc_dict[method]],
                         "TOP": [x for x in range(1, df_tmp.shape[0]+1, 1)]
                     })
                 )
 
     print('MERGE ALL DATA')
     df_all_res = pd.concat(df_all_res)
+    df_all_res = df_all_res.replace([np.inf, -np.inf], 340)
+
     # create subfolder for log and res
     fig_dir = os.path.join(args.OUTDIR, "eval_random")
 
@@ -183,9 +182,13 @@ def main_eval_random(args, argparser):
 
         if method == "deseq2":
             col_dot = [col_pal[0]]
+        if method == "mast":
+            col_dot = [col_pal[0]]
         if method == "edger":
             col_dot = [col_pal[1]]
         if method == "voom":
+            col_dot = [col_pal[2]]
+        if method == "trend":
             col_dot = [col_pal[2]]
         if method == "epcy":
             col_dot = [col_pal[3]]
@@ -268,8 +271,8 @@ def main_eval_random(args, argparser):
             top3 = df_tmp_candidate["VALUE"].iloc[3]
             d = {'DESIGN': [design], 'num_gene': [3-1], 'METHOD': [method], 'cutoff': [top3]}
             res_top.append(pd.DataFrame(data=d))
-            top10 = df_tmp_candidate["VALUE"].iloc[10-1]
-            d = {'DESIGN': [design], 'num_gene': [10], 'METHOD': [method], 'cutoff': [top10]}
+            top_x = df_tmp_candidate["VALUE"].iloc[args.TOP-1]
+            d = {'DESIGN': [design], 'num_gene': [args.TOP], 'METHOD': [method], 'cutoff': [top_x]}
             res_top.append(pd.DataFrame(data=d))
 
     res_fdr = pd.concat(res_fdr)
@@ -289,13 +292,21 @@ def main_eval_random(args, argparser):
     res_top.reset_index(drop=False, inplace=True)
     res_top.to_csv(csv_out, index=False, sep="\t")
 
+    markers=['o', 'v', 's', 'x']
+    linestyles=['-', '--', '-.', ':']
+    if len(args.METHODS) == 3:
+        markers=['o', 's', 'x']
+        linestyles=['-', '-.', ':']
+        col_pal=[col_pal[0], col_pal[2], col_pal[3]]
+
     for design in args.DESIGN:
         res_fdr_tmp = res_fdr[res_fdr["DESIGN"] == design]
         sns_plot = sns.pointplot(
             x="pFDR", y="counts", hue="METHOD",
             hue_order=args.METHODS, order=args.P_FDR, dodge=0.3,
-            linestyles=['-', '--', '-.', ':'], data=res_fdr_tmp,
-            markers=['o', 'v', 's', 'x'],
+            data=res_fdr_tmp,
+            linestyles=linestyles,
+            markers=markers,
             palette=col_pal
         )
         sns_plot.set_title("Number of gene candidates\n function to % of FDR")
@@ -307,38 +318,41 @@ def main_eval_random(args, argparser):
         kind="point", col="DESIGN",
         x="pFDR", y="counts", hue="METHOD",
         hue_order=args.METHODS, order=args.P_FDR, dodge=0.3,
-        linestyles=['-', '--', '-.', ':'], data=res_fdr,
-        markers=['o', 'v', 's', 'x'],
+        data=res_fdr,
+        linestyles=linestyles,
+        markers=markers,
         palette=col_pal
     )
     fig_out = os.path.join(fig_dir, "num_gene_candidates_fdr.pdf")
     sns_plot.savefig(fig_out)
     plt.close()
 
-    res_common = []
-    for p_fdr in args.P_FDR:
-        df_tmp = res_ids_fdr.loc[res_ids_fdr["pFDR"] == p_fdr]
-        for method in args.METHODS:
-            df_tmp_method = df_tmp.loc[df_tmp["METHOD"] == method]
-            df_tmp1 = df_tmp_method.loc[df_tmp_method["DESIGN"] == args.DESIGN[0]]
-            df_tmp2 = df_tmp_method.loc[df_tmp_method["DESIGN"] == args.DESIGN[1]]
-            df_common = df_tmp1.loc[df_tmp1["ID"].isin(df_tmp2['ID'])]
-            d = {'pFDR': [p_fdr], 'METHOD': [method], 'shared_genes': [df_common.shape[0]]}
-            res_common.append(pd.DataFrame(data=d))
+    if (len(args.DESIGN) >= 2):
+        res_common = []
+        for p_fdr in args.P_FDR:
+            df_tmp = res_ids_fdr.loc[res_ids_fdr["pFDR"] == p_fdr]
+            for method in args.METHODS:
+                df_tmp_method = df_tmp.loc[df_tmp["METHOD"] == method]
+                df_tmp1 = df_tmp_method.loc[df_tmp_method["DESIGN"] == args.DESIGN[0]]
+                df_tmp2 = df_tmp_method.loc[df_tmp_method["DESIGN"] == args.DESIGN[1]]
+                df_common = df_tmp1.loc[df_tmp1["ID"].isin(df_tmp2['ID'])]
+                d = {'pFDR': [p_fdr], 'METHOD': [method], 'shared_genes': [df_common.shape[0]]}
+                res_common.append(pd.DataFrame(data=d))
 
-    res_common = pd.concat(res_common)
+        res_common = pd.concat(res_common)
 
-    sns_plot = sns.pointplot(
-        kind="point", col="DESIGN",
-        x="pFDR", y="shared_genes", hue="METHOD",
-        hue_order=args.METHODS, order=args.P_FDR, dodge=0.3,
-        linestyles=['-', '--', '-.', ':'], data=res_common,
-        markers=['o', 'v', 's', 'x'],
-        palette=col_pal
-    )
-    fig_out = os.path.join(fig_dir, "shared_genes_by_fdr.pdf")
-    sns_plot.figure.savefig(fig_out)
-    plt.close()
+        sns_plot = sns.pointplot(
+            kind="point", col="DESIGN",
+            x="pFDR", y="shared_genes", hue="METHOD",
+            hue_order=args.METHODS, order=args.P_FDR, dodge=0.3,
+            data=res_common,
+            linestyles=linestyles,
+            markers=markers,
+            palette=col_pal
+        )
+        fig_out = os.path.join(fig_dir, "shared_genes_by_fdr.pdf")
+        sns_plot.figure.savefig(fig_out)
+        plt.close()
 
     for design in search_params_dict['designs']:
         df_all_tmp = df_all_res.loc[df_all_res["DESIGN"] == design]
@@ -357,27 +371,48 @@ def main_eval_random(args, argparser):
         csv_out = os.path.join(fig_dir, design + "_merge_table.xls")
         df_merge.to_csv(csv_out, index=False, sep="\t")
 
+        methods_b = ["epcy_b"]
         df_merge["epcy_b"] = True
         cutoff = res_cutoff["epcy"][1]
         df_merge.loc[df_merge["epcy"] < cutoff, "epcy_b"] = False
         df_merge.loc[pd.isna(df_merge["epcy"]), "epcy_b"] = False
 
-        df_merge["deseq2_b"] = True
-        cutoff = res_cutoff["deseq2"][1]
-        df_merge.loc[df_merge["deseq2"] < cutoff, "deseq2_b"] = False
-        df_merge.loc[pd.isna(df_merge["deseq2"]), "deseq2_b"] = False
+        if "deseq2" in search_params_dict["methods"]:
+            df_merge["deseq2_b"] = True
+            cutoff = res_cutoff["deseq2"][1]
+            df_merge.loc[df_merge["deseq2"] < cutoff, "deseq2_b"] = False
+            df_merge.loc[pd.isna(df_merge["deseq2"]), "deseq2_b"] = False
+            methods_b.append("deseq2_b")
 
-        df_merge["edger_b"] = True
-        cutoff = res_cutoff["edger"][1]
-        df_merge.loc[df_merge["edger"] < cutoff, "edger_b"] = False
-        df_merge.loc[pd.isna(df_merge["edger"]), "edger_b"] = False
+        if "edger" in search_params_dict["methods"]:
+            df_merge["edger_b"] = True
+            cutoff = res_cutoff["edger"][1]
+            df_merge.loc[df_merge["edger"] < cutoff, "edger_b"] = False
+            df_merge.loc[pd.isna(df_merge["edger"]), "edger_b"] = False
+            methods_b.append("edger_b")
 
-        df_merge["voom_b"] = True
-        cutoff = res_cutoff["voom"][1]
-        df_merge.loc[df_merge["voom"] < cutoff, "voom_b"] = False
-        df_merge.loc[pd.isna(df_merge["voom"]), "voom_b"] = False
+        if "voom" in search_params_dict["methods"]:
+            df_merge["voom_b"] = True
+            cutoff = res_cutoff["voom"][1]
+            df_merge.loc[df_merge["voom"] < cutoff, "voom_b"] = False
+            df_merge.loc[pd.isna(df_merge["voom"]), "voom_b"] = False
+            methods_b.append("voom_b")
 
-        res = df_merge.groupby(["epcy_b", "deseq2_b", "edger_b", "voom_b"]).size()
+        if "mast" in search_params_dict["methods"]:
+            df_merge["mast_b"] = True
+            cutoff = res_cutoff["mast"][1]
+            df_merge.loc[df_merge["mast"] < cutoff, "mast_b"] = False
+            df_merge.loc[pd.isna(df_merge["mast"]), "mast_b"] = False
+            methods_b.append("mast_b")
+
+        if "trend" in search_params_dict["methods"]:
+            df_merge["trend_b"] = True
+            cutoff = res_cutoff["trend"][1]
+            df_merge.loc[df_merge["trend"] < cutoff, "trend_b"] = False
+            df_merge.loc[pd.isna(df_merge["trend"]), "trend_b"] = False
+            methods_b.append("trend_b")
+
+        res = df_merge.groupby(methods_b).size()
         res = res[1:]
         up.plot(res)
         fig_out = os.path.join(fig_dir, design + "_upset_1.pdf")
@@ -389,22 +424,37 @@ def main_eval_random(args, argparser):
         df_merge.loc[df_merge["epcy"] < cutoff, "epcy_b"] = False
         df_merge.loc[pd.isna(df_merge["epcy"]), "epcy_b"] = False
 
-        df_merge["deseq2_b"] = True
-        cutoff = res_cutoff["deseq2"][0]
-        df_merge.loc[df_merge["deseq2"] < cutoff, "deseq2_b"] = False
-        df_merge.loc[pd.isna(df_merge["deseq2"]), "deseq2_b"] = False
+        if "deseq2" in search_params_dict["methods"]:
+            df_merge["deseq2_b"] = True
+            cutoff = res_cutoff["deseq2"][0]
+            df_merge.loc[df_merge["deseq2"] < cutoff, "deseq2_b"] = False
+            df_merge.loc[pd.isna(df_merge["deseq2"]), "deseq2_b"] = False
 
-        df_merge["edger_b"] = True
-        cutoff = res_cutoff["edger"][0]
-        df_merge.loc[df_merge["edger"] < cutoff, "edger_b"] = False
-        df_merge.loc[pd.isna(df_merge["edger"]), "edger_b"] = False
+        if "edger" in search_params_dict["methods"]:
+            df_merge["edger_b"] = True
+            cutoff = res_cutoff["edger"][0]
+            df_merge.loc[df_merge["edger"] < cutoff, "edger_b"] = False
+            df_merge.loc[pd.isna(df_merge["edger"]), "edger_b"] = False
 
-        df_merge["voom_b"] = True
-        cutoff = res_cutoff["voom"][0]
-        df_merge.loc[df_merge["voom"] < cutoff, "voom_b"] = False
-        df_merge.loc[pd.isna(df_merge["voom"]), "voom_b"] = False
+        if "voom" in search_params_dict["methods"]:
+            df_merge["voom_b"] = True
+            cutoff = res_cutoff["voom"][0]
+            df_merge.loc[df_merge["voom"] < cutoff, "voom_b"] = False
+            df_merge.loc[pd.isna(df_merge["voom"]), "voom_b"] = False
 
-        res = df_merge.groupby(["epcy_b", "deseq2_b", "edger_b", "voom_b"]).size()
+        if "mast" in search_params_dict["methods"]:
+            df_merge["mast_b"] = True
+            cutoff = res_cutoff["mast"][0]
+            df_merge.loc[df_merge["mast"] < cutoff, "mast_b"] = False
+            df_merge.loc[pd.isna(df_merge["mast"]), "mast_b"] = False
+
+        if "trend" in search_params_dict["methods"]:
+            df_merge["trend_b"] = True
+            cutoff = res_cutoff["trend"][0]
+            df_merge.loc[df_merge["trend"] < cutoff, "trend_b"] = False
+            df_merge.loc[pd.isna(df_merge["trend"]), "trend_b"] = False
+
+        res = df_merge.groupby(methods_b).size()
         res = res[1:]
         up.plot(res)
         fig_out = os.path.join(fig_dir, design + "_upset_0.pdf")
@@ -412,223 +462,122 @@ def main_eval_random(args, argparser):
         plt.close()
 
         res_top_tmp = res_top.loc[res_top["DESIGN"] == design]
-        res_top_tmp = res_top_tmp.loc[res_top_tmp["num_gene"] == 10-1]
+        res_top_tmp = res_top_tmp.loc[res_top_tmp["num_gene"] == args.TOP]
         df_merge["epcy_b"] = True
         cutoff = res_top_tmp["epcy"].values[0]
         df_merge.loc[df_merge["epcy"] < cutoff, "epcy_b"] = False
         df_merge.loc[pd.isna(df_merge["epcy"]), "epcy_b"] = False
 
-        df_merge["deseq2_b"] = True
-        cutoff = res_top_tmp["deseq2"].values[0]
-        df_merge.loc[df_merge["deseq2"] < cutoff, "deseq2_b"] = False
-        df_merge.loc[pd.isna(df_merge["deseq2"]), "deseq2_b"] = False
+        if "deseq2" in search_params_dict["methods"]:
+            df_merge["deseq2_b"] = True
+            cutoff = res_top_tmp["deseq2"].values[0]
+            df_merge.loc[df_merge["deseq2"] < cutoff, "deseq2_b"] = False
+            df_merge.loc[pd.isna(df_merge["deseq2"]), "deseq2_b"] = False
 
-        df_merge["edger_b"] = True
-        cutoff = res_top_tmp["edger"].values[0]
-        df_merge.loc[df_merge["edger"] < cutoff, "edger_b"] = False
-        df_merge.loc[pd.isna(df_merge["edger"]), "edger_b"] = False
+        if "edger" in search_params_dict["methods"]:
+            df_merge["edger_b"] = True
+            cutoff = res_top_tmp["edger"].values[0]
+            df_merge.loc[df_merge["edger"] < cutoff, "edger_b"] = False
+            df_merge.loc[pd.isna(df_merge["edger"]), "edger_b"] = False
 
-        df_merge["voom_b"] = True
-        cutoff = res_top_tmp["voom"].values[0]
-        df_merge.loc[df_merge["voom"] < cutoff, "voom_b"] = False
-        df_merge.loc[pd.isna(df_merge["voom"]), "voom_b"] = False
+        if "voom" in search_params_dict["methods"]:
+            df_merge["voom_b"] = True
+            cutoff = res_top_tmp["voom"].values[0]
+            df_merge.loc[df_merge["voom"] < cutoff, "voom_b"] = False
+            df_merge.loc[pd.isna(df_merge["voom"]), "voom_b"] = False
 
-        res = df_merge.groupby(["epcy_b", "deseq2_b", "edger_b", "voom_b"]).size()
+        if "mast" in search_params_dict["methods"]:
+            df_merge["mast_b"] = True
+            cutoff = res_top_tmp["mast"].values[0]
+            df_merge.loc[df_merge["mast"] < cutoff, "mast_b"] = False
+            df_merge.loc[pd.isna(df_merge["mast"]), "mast_b"] = False
+
+        if "trend" in search_params_dict["methods"]:
+            df_merge["trend_b"] = True
+            cutoff = res_top_tmp["trend"].values[0]
+            df_merge.loc[df_merge["trend"] < cutoff, "trend_b"] = False
+            df_merge.loc[pd.isna(df_merge["trend"]), "trend_b"] = False
+
+        res = df_merge.groupby(methods_b).size()
         res = res[1:]
         up.plot(res)
-        fig_out = os.path.join(fig_dir, design + "_upset_top10.pdf")
+        fig_out = os.path.join(fig_dir, design + "_upset_top_" + str(args.TOP) + ".pdf")
         plt.savefig(fig_out)
         plt.close()
 
-        sns_plot = sns.scatterplot(
-            x="epcy", y="voom", size=2, linewidth=0,
-            data=df_merge, color="black"
-        )
-        sns_plot.axes.axvline(res_cutoff["epcy"][0], ls='--', color='black')
-        sns_plot.axes.axhline(res_cutoff["voom"][0], ls='--', color='black')
-        sns_plot.axes.axvline(res_top_tmp["epcy"].values[0], ls=':', color='black')
-        sns_plot.axes.axhline(res_top_tmp["voom"].values[0], ls=':', color='black')
+        for method in search_params_dict["methods"]:
+            if method != "epcy":
+                sns_plot = sns.scatterplot(
+                    x="epcy", y=method, size=2, linewidth=0,
+                    data=df_merge, color="black"
+                )
+                sns_plot.axes.axvline(res_cutoff["epcy"][0], ls='--', color='black')
+                sns_plot.axes.axvline(res_top_tmp["epcy"].values[0], ls=':', color='black')
+                sns_plot.axes.axhline(res_cutoff[method][0], ls='--', color='black')
+                sns_plot.axes.axhline(res_top_tmp[method].values[0], ls=':', color='black')
 
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            0, res_cutoff["voom"][0],
-            where=(df_merge["epcy"] > res_cutoff["epcy"][0]) & (df_merge["epcy"] < res_top_tmp["epcy"].values[0]),
-            color=col_pal[3], alpha=0.25)
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            0, res_cutoff["voom"][0],
-            where=df_merge["epcy"] > res_top_tmp["epcy"].values[0],
-            color=col_pal[3], alpha=0.5)
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            res_cutoff["voom"][0], res_top_tmp["voom"].values[0],
-            where=df_merge["epcy"] > res_top_tmp["epcy"].values[0],
-            color=col_pal[3], alpha=0.25)
+                if method == "deseq2":
+                    col_dot = [col_pal[0]]
+                if method == "mast":
+                    col_dot = [col_pal[0]]
+                if method == "edger":
+                    col_dot = [col_pal[1]]
+                if method == "voom":
+                    col_dot = [col_pal[2]]
+                if method == "trend":
+                    col_dot = [col_pal[1]]
 
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            res_cutoff["voom"][0], res_top_tmp["voom"].values[0],
-            where=df_merge["epcy"] < res_cutoff["epcy"][0],
-            color=col_pal[2], alpha=0.25)
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            res_top_tmp["voom"].values[0], df_merge["voom"].max(),
-            where=df_merge["epcy"] < res_cutoff["epcy"][0],
-            color=col_pal[2], alpha=0.5)
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            res_top_tmp["voom"].values[0], df_merge["voom"].max(),
-            where=(df_merge["epcy"] > res_cutoff["epcy"][0]) & (df_merge["epcy"] < res_top_tmp["epcy"].values[0]),
-            color=col_pal[2], alpha=0.25)
+                sns_plot.fill_between(
+                    df_merge["epcy"],
+                    0, res_cutoff[method][0],
+                    where=(df_merge["epcy"] > res_cutoff["epcy"][0]) & (df_merge["epcy"] < res_top_tmp["epcy"].values[0]),
+                    color=col_pal[len(col_pal)-1], alpha=0.25)
+                sns_plot.fill_between(
+                    df_merge["epcy"],
+                    0, res_cutoff[method][0],
+                    where=df_merge["epcy"] > res_top_tmp["epcy"].values[0],
+                    color=col_pal[len(col_pal)-1], alpha=0.5)
+                sns_plot.fill_between(
+                    df_merge["epcy"],
+                    res_cutoff[method][0], res_top_tmp[method].values[0],
+                    where=df_merge["epcy"] > res_top_tmp["epcy"].values[0],
+                    color=col_pal[len(col_pal)-1], alpha=0.25)
 
-        for line in range(0, df_merge.shape[0]):
-            if df_merge.epcy[line] > res_top_tmp["epcy"].values[0] or df_merge.voom[line] > res_top_tmp["voom"].values[0]:
-                sns_plot.text(
-                    df_merge.epcy[line]+0.02, df_merge.voom[line],
-                    df_merge.ID[line], horizontalalignment='left',
-                    size='medium', color='black', weight='semibold')
+                sns_plot.fill_between(
+                    df_merge["epcy"],
+                    res_cutoff[method][0], res_top_tmp[method].values[0],
+                    where=df_merge["epcy"] < res_cutoff["epcy"][0],
+                    color=col_dot, alpha=0.25)
+                sns_plot.fill_between(
+                    df_merge["epcy"],
+                    res_top_tmp[method].values[0], df_merge[method].max(),
+                    where=df_merge["epcy"] < res_cutoff["epcy"][0],
+                    color=col_dot, alpha=0.5)
+                sns_plot.fill_between(
+                    df_merge["epcy"],
+                    res_top_tmp[method].values[0], df_merge[method].max(),
+                    where=(df_merge["epcy"] > res_cutoff["epcy"][0]) & (df_merge["epcy"] < res_top_tmp["epcy"].values[0]),
+                    color=col_dot, alpha=0.25)
 
-            if df_merge.epcy[line] < 0.2 and df_merge.voom[line] > res_cutoff["voom"][0]:
-                sns_plot.text(
-                    df_merge.epcy[line]+0.02, df_merge.voom[line],
-                    df_merge.ID[line], horizontalalignment='left',
-                    size='medium', color='black', weight='semibold')
+                for line in range(0, df_merge.shape[0]):
+                    if df_merge.epcy[line] > res_top_tmp["epcy"].values[0] or df_merge[method][line] > res_top_tmp[method].values[0]:
+                        sns_plot.text(
+                            df_merge.epcy[line]+0.02, df_merge[method][line],
+                            df_merge.ID[line], horizontalalignment='left',
+                            size='medium', color='black', weight='semibold')
 
-            if df_merge.epcy[line] > 0.45 and df_merge.voom[line] < res_cutoff["voom"][0]:
-                sns_plot.text(
-                    df_merge.epcy[line]+0.02, df_merge.voom[line],
-                    df_merge.ID[line], horizontalalignment='left',
-                    size='medium', color='black', weight='semibold')
+                    #if df_merge.epcy[line] < 0.2 and df_merge[method][line] > res_cutoff[method][0]:
+                    #    sns_plot.text(
+                    #        df_merge.epcy[line]+0.02, df_merge[method][line],
+                    #        df_merge.ID[line], horizontalalignment='left',
+                    #        size='medium', color='black', weight='semibold')
 
+                    #if df_merge.epcy[line] > 0.45 and df_merge[method][line] < res_cutoff[method][0]:
+                    #    sns_plot.text(
+                    #        df_merge.epcy[line]+0.02, df_merge[method][line],
+                    #        df_merge.ID[line], horizontalalignment='left',
+                    #        size='medium', color='black', weight='semibold')
 
-        fig_out = os.path.join(fig_dir, design + "_epcy_vs_limma.pdf")
-        sns_plot.figure.savefig(fig_out)
-        plt.close()
-
-        sns_plot = sns.scatterplot(
-            x="epcy", y="edger", size=2, linewidth=0,
-            data=df_merge, color="black"
-        )
-        sns_plot.axes.axvline(res_cutoff["epcy"][0], ls='--', color='black')
-        sns_plot.axes.axhline(res_cutoff["edger"][0], ls='--', color='black')
-        sns_plot.axes.axvline(res_top_tmp["epcy"].values[0], ls=':', color='black')
-        sns_plot.axes.axhline(res_top_tmp["edger"].values[0], ls=':', color='black')
-
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            0, res_cutoff["edger"][0],
-            where=(df_merge["epcy"] > res_cutoff["epcy"][0]) & (df_merge["epcy"] < res_top_tmp["epcy"].values[0]),
-            color=col_pal[3], alpha=0.25)
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            0, res_cutoff["edger"][0],
-            where=df_merge["epcy"] > res_top_tmp["epcy"].values[0],
-            color=col_pal[3], alpha=0.5)
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            res_cutoff["edger"][0], res_top_tmp["edger"].values[0],
-            where=df_merge["epcy"] > res_top_tmp["epcy"].values[0],
-            color=col_pal[3], alpha=0.25)
-
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            res_cutoff["edger"][0], res_top_tmp["edger"].values[0],
-            where=df_merge["epcy"] < res_cutoff["epcy"][0],
-            color=col_pal[1], alpha=0.25)
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            res_top_tmp["edger"].values[0], df_merge["edger"].max(),
-            where=df_merge["epcy"] < res_cutoff["epcy"][0],
-            color=col_pal[1], alpha=0.5)
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            res_top_tmp["edger"].values[0], df_merge["edger"].max(),
-            where=(df_merge["epcy"] > res_cutoff["epcy"][0]) & (df_merge["epcy"] < res_top_tmp["epcy"].values[0]),
-            color=col_pal[1], alpha=0.25)
-
-        for line in range(0, df_merge.shape[0]):
-            if df_merge.epcy[line] > res_top_tmp["epcy"].values[0] or df_merge.edger[line] > res_top_tmp["edger"].values[0]:
-                sns_plot.text(
-                    df_merge.epcy[line]+0.02, df_merge.edger[line],
-                    df_merge.ID[line], horizontalalignment='left',
-                    size='medium', color='black', weight='semibold')
-
-            if df_merge.epcy[line] < 0.2 and df_merge.edger[line] > res_cutoff["edger"][0]:
-                sns_plot.text(
-                    df_merge.epcy[line]+0.02, df_merge.edger[line],
-                    df_merge.ID[line], horizontalalignment='left',
-                    size='medium', color='black', weight='semibold')
-
-            if df_merge.epcy[line] > 0.45 and df_merge.edger[line] < res_cutoff["edger"][0]:
-                sns_plot.text(
-                    df_merge.epcy[line]+0.02, df_merge.edger[line],
-                    df_merge.ID[line], horizontalalignment='left',
-                    size='medium', color='black', weight='semibold')
-
-        fig_out = os.path.join(fig_dir, design + "_epcy_vs_edger.pdf")
-        sns_plot.figure.savefig(fig_out)
-        plt.close()
-
-        sns_plot = sns.scatterplot(
-            x="epcy", y="deseq2", size=2, linewidth=0,
-            data=df_merge, color="black"
-        )
-        sns_plot.axes.axvline(res_cutoff["epcy"][0], ls='--', color='black')
-        sns_plot.axes.axhline(res_cutoff["deseq2"][0], ls='--', color='black')
-        sns_plot.axes.axvline(res_top_tmp["epcy"].values[0], ls=':', color='black')
-        sns_plot.axes.axhline(res_top_tmp["deseq2"].values[0], ls=':', color='black')
-
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            0, res_cutoff["deseq2"][0],
-            where=(df_merge["epcy"] > res_cutoff["epcy"][0]) & (df_merge["epcy"] < res_top_tmp["epcy"].values[0]),
-            color=col_pal[3], alpha=0.25)
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            0, res_cutoff["deseq2"][0],
-            where=df_merge["epcy"] > res_top_tmp["epcy"].values[0],
-            color=col_pal[3], alpha=0.5)
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            res_cutoff["deseq2"][0], res_top_tmp["deseq2"].values[0],
-            where=df_merge["epcy"] > res_top_tmp["epcy"].values[0],
-            color=col_pal[3], alpha=0.25)
-
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            res_cutoff["deseq2"][0], res_top_tmp["deseq2"].values[0],
-            where=df_merge["epcy"] < res_cutoff["epcy"][0],
-            color=col_pal[0], alpha=0.25)
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            res_top_tmp["deseq2"].values[0], df_merge["deseq2"].max(),
-            where=df_merge["epcy"] < res_cutoff["epcy"][0],
-            color=col_pal[0], alpha=0.5)
-        sns_plot.fill_between(
-            df_merge["epcy"],
-            res_top_tmp["deseq2"].values[0], df_merge["deseq2"].max(),
-            where=(df_merge["epcy"] > res_cutoff["epcy"][0]) & (df_merge["epcy"] < res_top_tmp["epcy"].values[0]),
-            color=col_pal[0], alpha=0.25)
-
-        for line in range(0, df_merge.shape[0]):
-            if df_merge.epcy[line] > res_top_tmp["epcy"].values[0] or df_merge.deseq2[line] > res_top_tmp["deseq2"].values[0]:
-                sns_plot.text(
-                    df_merge.epcy[line]+0.02, df_merge.deseq2[line],
-                    df_merge.ID[line], horizontalalignment='left',
-                    size='medium', color='black', weight='semibold')
-
-            if df_merge.epcy[line] < 0.2 and df_merge.deseq2[line] > res_cutoff["deseq2"][0]:
-                sns_plot.text(
-                    df_merge.epcy[line]+0.02, df_merge.deseq2[line],
-                    df_merge.ID[line], horizontalalignment='left',
-                    size='medium', color='black', weight='semibold')
-
-            if df_merge.epcy[line] > 0.45 and df_merge.deseq2[line] < res_cutoff["deseq2"][0]:
-                sns_plot.text(
-                    df_merge.epcy[line]+0.02, df_merge.deseq2[line],
-                    df_merge.ID[line], horizontalalignment='left',
-                    size='medium', color='black', weight='semibold')
-
-        fig_out = os.path.join(fig_dir, design + "_epcy_vs_deseq2.pdf")
-        sns_plot.figure.savefig(fig_out)
-        plt.close()
+                fig_out = os.path.join(fig_dir, design + "_epcy_vs_" + method + "_top_" + str(args.TOP) + ".pdf")
+                sns_plot.figure.savefig(fig_out)
+                plt.close()

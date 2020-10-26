@@ -95,15 +95,6 @@ write.table(all_design, file.path(dir_out, "design.tsv"), quote=FALSE, row.names
 
 ids_reduce = sample(1:length(all_design$sample),  10000)
 
-
-dir_out = file.path(
-  script_dir, "data", "10X_FACS_reduce",
-  "cellranger"
-)
-all_in_filtred_red = all_in_filtred[, ids_reduce]
-dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
-write.table(all_in_filtred_red, file.path(dir_out, "readcounts.xls"), quote=FALSE, row.names=FALSE, sep="\t")
-
 dir_out = file.path(
   script_dir, "data", "design", "10X_FACS_reduce",
   "all"
@@ -111,3 +102,12 @@ dir_out = file.path(
 all_design_red = all_design[ids_reduce, ]
 dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
 write.table(all_design_red, file.path(dir_out, "design.tsv"), quote=FALSE, row.names=FALSE, sep="\t")
+
+
+dir_out = file.path(
+  script_dir, "data", "10X_FACS_reduce",
+  "cellranger"
+)
+all_in_filtred_red = all_in_filtred[, c(1,which(colnames(all_in_filtred) %in% all_design_red$sample))]
+dir.create(dir_out, recursive = TRUE, showWarnings = FALSE)
+write.table(all_in_filtred_red, file.path(dir_out, "readcounts.xls"), quote=FALSE, row.names=FALSE, sep="\t")

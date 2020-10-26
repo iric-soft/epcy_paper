@@ -267,7 +267,7 @@ LDE()
 
 	if [ -f ${path_matrix}/readcounts.xls ]
 	then
-		if [ ! -f ${path_output}/readcounts/deseq2_genes.xls ] && [ ! -f ${path_output}/readcounts/limma_voom_genes.xls ] && [ ! -f ${path_output}/readcounts/edger_genes.xls ]
+		if false && [ ! -f ${path_output}/readcounts/deseq2_genes.xls ] && [ ! -f ${path_output}/readcounts/limma_voom_genes.xls ] && [ ! -f ${path_output}/readcounts/edger_genes.xls ]
 		then
 		  job_name="LDE_${subgroup}"
 			path_output_lde="${path_output}/readcounts"
@@ -288,7 +288,6 @@ LDE()
 			else
 				echo "deseq2 ${subgroup} done!"
 			fi
-
 
 			if [ ! -f ${path_output}/readcounts/edger_genes.xls ]
 			then

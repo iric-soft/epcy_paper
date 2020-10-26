@@ -6,4 +6,4 @@ path_anno=$2
 path_output=$3
 num_proc=$4
 
-echo "epcy pred_rna --full --kal --cpm --log --bs 10 -l 0 -e 0 -t ${num_proc} -d ${path_design}/design.tsv --anno ${path_anno} -o ${path_output}/ --randomseed 42 && epcy qc -p ${path_output}/predictive_capability.xls -o ${path_output}/"
+echo "epcy pred_rna --kal --cpm --log --bs 10 -l 0 -e 0 -t ${num_proc} -d ${path_design}/design.tsv --anno ${path_anno} -o ${path_output}/ --randomseed 42 && epcy qc -p ${path_output}/predictive_capability.xls -o ${path_output}/"

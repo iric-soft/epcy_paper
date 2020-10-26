@@ -37,8 +37,8 @@ def plot_exp(fig, gs, i, query_exp, ref_exp, args, square_mk, circle_mk):
     )
 
     ax_kde = fig.add_subplot(gs[0, i])
-    ax_swarm1 = fig.add_subplot(gs[1:3, i], sharex=ax_kde)
-    ax_swarm2 = fig.add_subplot(gs[4:7, i], sharex=ax_kde)
+    ax_swarm1 = fig.add_subplot(gs[1:4, i], sharex=ax_kde)
+    ax_swarm2 = fig.add_subplot(gs[5:8, i], sharex=ax_kde)
 
     fig.subplots_adjust(hspace=0)
     sns.despine(ax=ax_kde, top=True, right=True, left=True, bottom=True)
@@ -172,8 +172,8 @@ def main_diff_pred(args, argparser):
     circle_mk, = b.get_paths()
 
     num_plot = 3
-    fig = plt.figure(figsize=(5*num_plot, 7))
-    gs = plt.GridSpec(7, num_plot)
+    fig = plt.figure(figsize=(5*num_plot, 8))
+    gs = plt.GridSpec(8, num_plot)
 
     query_exp = [[] for x in range(0, num_plot)]
     ref_exp = [[] for x in range(0, num_plot)]
@@ -186,12 +186,12 @@ def main_diff_pred(args, argparser):
     ref_exp[2] = np.random.normal(18, 1, size=100)
     sns_plot = plot_exp(fig, gs, 0, query_exp, ref_exp, args, square_mk, circle_mk)
 
-    query_exp[0] = np.random.normal(10, 4, size=10000)
-    query_exp[1] = np.random.normal(10, 4, size=6)
-    query_exp[2] = np.random.normal(10, 4, size=100)
-    ref_exp[0] = np.random.normal(18, 4, size=10000)
-    ref_exp[1] = np.random.normal(18, 4, size=6)
-    ref_exp[2] = np.random.normal(18, 4, size=100)
+    query_exp[0] = np.random.normal(20, 4, size=10000)
+    query_exp[1] = np.random.normal(20, 4, size=6)
+    query_exp[2] = np.random.normal(20, 4, size=100)
+    ref_exp[0] = np.random.normal(28, 4, size=10000)
+    ref_exp[1] = np.random.normal(28, 4, size=6)
+    ref_exp[2] = np.random.normal(28, 4, size=100)
     sns_plot = plot_exp(fig, gs, 1, query_exp, ref_exp, args, square_mk, circle_mk)
 
     query_exp[0] = np.append(np.random.normal(3, 0.2, size=5000), np.random.normal(7, 0.2, size=5000))
@@ -205,5 +205,43 @@ def main_diff_pred(args, argparser):
 
 
     fig_out = os.path.join(fig_dir, "diff_pred.pdf")
+    sns_plot.figure.savefig(fig_out)
+    plt.close()
+
+
+    num_plot = 3
+    fig = plt.figure(figsize=(5*num_plot, 8))
+    gs = plt.GridSpec(8, num_plot)
+
+    query_exp = [[] for x in range(0, num_plot)]
+    ref_exp = [[] for x in range(0, num_plot)]
+
+    query_exp[0] = np.append(np.random.normal(10, 1, size=9800), np.random.normal(18, 1, size=200))
+    query_exp[1] = np.append(np.random.normal(10, 1, size=98), np.random.normal(18, 1, size=2))
+    query_exp[2] = np.append(np.random.normal(10, 1, size=980), np.random.normal(18, 1, size=20))
+    ref_exp[0] = np.append(np.random.normal(18, 1, size=9700), np.random.normal(10, 1, size=300))
+    ref_exp[1] = np.append(np.random.normal(18, 1, size=97), np.random.normal(10, 1, size=3))
+    ref_exp[2] = np.append(np.random.normal(18, 1, size=970), np.random.normal(10, 1, size=30))
+    sns_plot = plot_exp(fig, gs, 0, query_exp, ref_exp, args, square_mk, circle_mk)
+
+    query_exp[0] = np.append(np.random.normal(0, 0.1, size=7000), np.random.normal(5, 2, size=3000))
+    query_exp[1] = np.append(np.random.normal(0, 0.1, size=70), np.random.normal(5, 2, size=30))
+    query_exp[2] = np.append(np.random.normal(0, 0.1, size=700), np.random.normal(5, 2, size=300))
+    ref_exp[0] = np.random.normal(0, 0.1, size=10000)
+    ref_exp[1] = np.random.normal(0, 0.1, size=100)
+    ref_exp[2] = np.random.normal(0, 0.1, size=1000)
+    sns_plot = plot_exp(fig, gs, 1, query_exp, ref_exp, args, square_mk, circle_mk)
+
+    query_exp[0] = np.random.normal(0, 0.1, size=10000)
+    query_exp[1] = np.random.normal(0, 0.1, size=100)
+    query_exp[2] = np.random.normal(0, 0.1, size=1000)
+    ref_exp[0] = np.append(np.random.normal(0, 0.1, size=7000), np.random.normal(5, 2, size=3000))
+    ref_exp[1] = np.append(np.random.normal(0, 0.1, size=70), np.random.normal(5, 2, size=30))
+    ref_exp[2] = np.append(np.random.normal(0, 0.1, size=700), np.random.normal(5, 2, size=300))
+    sns_plot = plot_exp(fig, gs, 2, query_exp, ref_exp, args, square_mk, circle_mk)
+
+
+
+    fig_out = os.path.join(fig_dir, "type_pred.pdf")
     sns_plot.figure.savefig(fig_out)
     plt.close()
