@@ -8,7 +8,8 @@ script_dir = here()
 set.seed(42)
 
 nums = c(1:10)
-designs = c("30_t15_17", "30_inv16")
+#designs = c("30_t15_17", "30_inv16")
+design = "30_t15_17"
 p_subs = c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 
 
@@ -51,7 +52,7 @@ foreach_num <- function(num, design, name_design, p_subs, script_dir, samples_re
 }
 
 foreach_design <- function(name_design, p_subs, script_dir, nums, samples_rep) {
-  dir_design = file.path(script_dir, "data", "design", "leucegene3", designs[1])
+  dir_design = file.path(script_dir, "data", "design", "leucegene3", name_design)
   file_design = file.path(dir_design, "design.tsv")
   design = fread(file_design, header = TRUE, stringsAsFactors=FALSE, sep="\t", quote = "")
 
@@ -69,7 +70,8 @@ df_mat = fread(file_mat, header = TRUE, stringsAsFactors=FALSE, sep="\t", quote 
 setDF(df_mat)
 df_mat_rep = df_mat[c(1,rep(2:ncol(df_mat), each = 20))]
 
-all_sample_used = lapply(designs, function(x) foreach_design(x, p_subs, script_dir, nums, colnames(df_mat_rep)))
+#all_sample_used = lapply(designs,  function(x) foreach_design(x, p_subs, script_dir, nums, colnames(df_mat_rep)[-1])
+all_sample_used = foreach_design(design, p_subs, script_dir, nums, colnames(df_mat_rep)[-1])
 
 dir_nat_rep = file.path(script_dir, "data", "leucegene3_rep", "STAR_RSEM")
 file_rep = file.path(dir_nat_rep, "readcounts.xls")

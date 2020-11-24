@@ -33,21 +33,21 @@ path_jobout="${working_dir}/tmp"
 ###############################################################################
 walltime_deseq=${walltime_deg1}
 mem_deseq=${mem_deg1}
-vmem_deseq=${mem_deg1}
+vmem_deseq=${vmem_deg1}
 
 walltime_edger=${walltime_deg2}
 mem_edger=${mem_deg2}
-vmem_edger=${mem_deg2}
+vmem_edger=${vmem_deg2}
 
 #for bulk
 walltime_limma=${walltime_deg2}
 mem_limma=${mem_deg2}
-vmem_limma=${mem_deg2}
+vmem_limma=${vmem_deg2}
 
 
 walltime_mast=${walltime_deg1}
 mem_mast=${mem_deg1}
-vmem_mast=${mem_deg1}
+vmem_mast=${vmem_deg1}
 
 #walltime_LDE="12:00:00"
 #mem_LDE="80Gb" # 2 * num_proc
@@ -70,9 +70,9 @@ send2torque()
 	eval vmem="$7"
 
 	mkdir -p ${path_jobout}
-	echo "${cmd}" | qsub -V -l nodes=1:ppn=${ppn}:m256G,mem=${mem},vmem=${vmem},walltime=${walltime} -j oe -N ${job_name} -o ${path_jobout}
+	echo "${cmd}" | qsub -V -l nodes=1:ppn=${ppn},mem=${mem},vmem=${vmem},walltime=${walltime} -j oe -N ${job_name} -o ${path_jobout}
 	#FORDEBUG
-	#echo "${cmd} | qsub -V -l nodes=1:ppn=${ppn},mem=${mem},walltime=${walltime} -j oe -N ${job_name} -o ${path_jobout}"
+	#echo "${cmd} | qsub -V -l nodes=1:ppn=${ppn},mem=${mem},vmem=${vmem},walltime=${walltime} -j oe -N ${job_name} -o ${path_jobout}"
 }
 
 exec_cmd()
