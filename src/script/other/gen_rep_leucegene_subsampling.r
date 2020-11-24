@@ -9,7 +9,7 @@ set.seed(42)
 
 nums = c(1:10)
 designs = c("30_t15_17", "30_inv16")
-p_subs = c(0, 0.01, 0.02, 0.04, 0.06, 0.08, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
+p_subs = c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)
 
 
 sub_sampling <- function(p, design, name_design, num, script_dir, samples_rep) {

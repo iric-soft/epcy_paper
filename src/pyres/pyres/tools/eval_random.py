@@ -247,21 +247,21 @@ def main_eval_random(args, argparser):
 
         df_tmp_random = df_tmp_random.sort_values(by='VALUE', ascending=False)
         num_random = len(search_params_dict['designs_random'])
-        for p_fdr in args.P_FDR:
-            num_gene = int(args.N_GENES * num_random * p_fdr)
+        for e_fpr in args.E_FPR:
+            num_gene = int(args.N_GENES * num_random * e_fpr)
             cutoff = df_tmp_random["VALUE"].iloc[num_gene]
             df_tmp_candidate = df_all_res.loc[df_all_res["METHOD"] == method]
             df_tmp_candidate = df_tmp_candidate.loc[df_tmp_candidate["DESIGN"].isin(search_params_dict['designs'])]
             df_tmp_candidate = df_tmp_candidate.loc[df_tmp_candidate["VALUE"] >= cutoff]
 
             res = df_tmp_candidate["DESIGN"].value_counts().rename_axis('DESIGN').reset_index(name='counts')
-            res["pFDR"] = p_fdr
+            res["eFPR"] = e_fpr
             res["METHOD"] = method
             res_fdr.append(res)
-            df_tmp_candidate["pFDR"] = p_fdr
+            df_tmp_candidate["eFPR"] = e_fpr
             res_ids_fdr.append(df_tmp_candidate)
 
-            d = {'pFDR': [p_fdr], 'num_gene': [num_gene], 'METHOD': [method], 'cutoff': [cutoff]}
+            d = {'eFPR': [e_fpr], 'num_gene': [num_gene], 'METHOD': [method], 'cutoff': [cutoff]}
             res_cutoff.append(pd.DataFrame(data=d))
 
         for design in search_params_dict['designs']:
@@ -282,11 +282,11 @@ def main_eval_random(args, argparser):
 
 
     csv_out = os.path.join(fig_dir, "tab_cutoff.csv")
-    res_cutoff = pd.pivot_table(res_cutoff, values='cutoff', index=['pFDR', 'num_gene'], columns=['METHOD'])
+    res_cutoff = pd.pivot_table(res_cutoff, values='cutoff', index=['eFPR', 'num_gene'], columns=['METHOD'])
     res_cutoff.reset_index(drop=False, inplace=True)
     res_cutoff.to_csv(csv_out, index=False, sep="\t")
 
-    #res_cutoff.reindex_axis(['pFDR', 'num_gene', 'deseq2', 'edger', 'voom', "epcy"], axis=1)
+    #res_cutoff.reindex_axis(['eFPR', 'num_gene', 'deseq2', 'edger', 'voom', "epcy"], axis=1)
     csv_out = os.path.join(fig_dir, "tab_top.csv")
     res_top = pd.pivot_table(res_top, values='cutoff', index=['num_gene', 'DESIGN'], columns=['METHOD'])
     res_top.reset_index(drop=False, inplace=True)
@@ -302,8 +302,8 @@ def main_eval_random(args, argparser):
     for design in args.DESIGN:
         res_fdr_tmp = res_fdr[res_fdr["DESIGN"] == design]
         sns_plot = sns.pointplot(
-            x="pFDR", y="counts", hue="METHOD",
-            hue_order=args.METHODS, order=args.P_FDR, dodge=0.3,
+            x="eFPR", y="counts", hue="METHOD",
+            hue_order=args.METHODS, order=args.E_FPR,
             data=res_fdr_tmp,
             linestyles=linestyles,
             markers=markers,
@@ -316,8 +316,8 @@ def main_eval_random(args, argparser):
 
     sns_plot = sns.catplot(
         kind="point", col="DESIGN",
-        x="pFDR", y="counts", hue="METHOD",
-        hue_order=args.METHODS, order=args.P_FDR, dodge=0.3,
+        x="eFPR", y="counts", hue="METHOD",
+        hue_order=args.METHODS, order=args.E_FPR,
         data=res_fdr,
         linestyles=linestyles,
         markers=markers,
@@ -329,22 +329,22 @@ def main_eval_random(args, argparser):
 
     if (len(args.DESIGN) >= 2):
         res_common = []
-        for p_fdr in args.P_FDR:
-            df_tmp = res_ids_fdr.loc[res_ids_fdr["pFDR"] == p_fdr]
+        for e_fpr in args.E_FPR:
+            df_tmp = res_ids_fdr.loc[res_ids_fdr["eFPR"] == e_fpr]
             for method in args.METHODS:
                 df_tmp_method = df_tmp.loc[df_tmp["METHOD"] == method]
                 df_tmp1 = df_tmp_method.loc[df_tmp_method["DESIGN"] == args.DESIGN[0]]
                 df_tmp2 = df_tmp_method.loc[df_tmp_method["DESIGN"] == args.DESIGN[1]]
                 df_common = df_tmp1.loc[df_tmp1["ID"].isin(df_tmp2['ID'])]
-                d = {'pFDR': [p_fdr], 'METHOD': [method], 'shared_genes': [df_common.shape[0]]}
+                d = {'eFPR': [e_fpr], 'METHOD': [method], 'shared_genes': [df_common.shape[0]]}
                 res_common.append(pd.DataFrame(data=d))
 
         res_common = pd.concat(res_common)
 
         sns_plot = sns.pointplot(
             kind="point", col="DESIGN",
-            x="pFDR", y="shared_genes", hue="METHOD",
-            hue_order=args.METHODS, order=args.P_FDR, dodge=0.3,
+            x="eFPR", y="shared_genes", hue="METHOD",
+            hue_order=args.METHODS, order=args.E_FPR,
             data=res_common,
             linestyles=linestyles,
             markers=markers,

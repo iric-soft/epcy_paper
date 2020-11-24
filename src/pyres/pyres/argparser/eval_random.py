@@ -49,8 +49,8 @@ def get_argparser_eval_random(parser):
                         type=str,
                         default=None)
 
-    parser.add_argument("--pfdr",
-                        dest="P_FDR",
+    parser.add_argument("--efpr",
+                        dest="E_FPR",
                         help="list of % of FDR (Default: [0.0001, 0.001, 0.01, 0.05, 0.1]).",
                         type=float,
                         nargs='+',
