@@ -106,6 +106,65 @@ sns_plot.figure.savefig(fig_out)
 plt.close('all')
 
 
+
+top = 100
+all.sort_values(by='kernel_mcc', ascending=False, inplace=True)
+d = {
+    'method': ["EPCY"] * top,
+    'log2FC': all.l2fc[0:top].values,
+    'top': [top] * top
+}
+df_res = pd.DataFrame(data=d)
+
+all.sort_values(by='padj', ascending=False, inplace=True)
+d = {
+    'method': ["DESeq2"] * top,
+    'log2FC': all.l2fc[0:top].values,
+    'top': [top] * top
+}
+df_tmp = pd.DataFrame(data=d)
+df_res = df_res.append(df_tmp)
+
+all.sort_values(by='adj.P.Val', ascending=False, inplace=True)
+d = {
+    'method': ["Voom"] * top,
+    'log2FC': all.l2fc[0:top].values,
+    'top': [top] * top
+}
+df_tmp = pd.DataFrame(data=d)
+df_res = df_res.append(df_tmp)
+
+col_pal_method = sns.color_palette("colorblind")
+col_pal_method = [col_pal_method[i] for i in [4, 1, 2, 9]]
+col_pal_method = [col_pal_method[3], col_pal_method[0], col_pal_method[2]]
+
+epcy_deseq = stats.mannwhitneyu(
+    df_res.log2FC.loc[df_res.method == "EPCY"],
+    df_res.log2FC.loc[df_res.method == "DESeq2"]
+)[1]
+epcy_voom = stats.mannwhitneyu(
+    df_res.log2FC.loc[df_res.method == "EPCY"],
+    df_res.log2FC.loc[df_res.method == "Voom"]
+)[1]
+deseq_voom = stats.mannwhitneyu(
+    df_res.log2FC.loc[df_res.method == "DESeq2"],
+    df_res.log2FC.loc[df_res.method == "Voom"]
+)[1]
+
+sns_plot = sns.boxplot(x="method", y="log2FC",
+                hue="method", linewidth=1,
+                palette=col_pal_method,
+                data=df_res)
+sns_plot.set_title("log2FC distribution of top " + str(top) + "\nepcy_deseq=" + str(epcy_deseq) + "\nepcy_voom=" + str(epcy_voom) + "\ndeseq_voom=" + str(deseq_voom))
+#sns_plot.set(ylim=(-0.05, 1.2))
+
+fig_out = os.path.join(path_res_design, "log2FC_top" + str(top) + ".pdf")
+sns_plot.figure.savefig(fig_out)
+plt.close('all')
+
+
+
+
 tmp = all.loc[all["kernel_mcc"] > 0.9]
 print(tmp)
 

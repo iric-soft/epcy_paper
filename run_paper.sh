@@ -18,8 +18,8 @@ path_design_leucegene="leucegene3"
 data_project="leucegene3"
 #EPCY
 walltime_epcy="24:00:00"
-mem_epcy="12Gb"
-vmem_epcy="32Gb"
+mem_epcy="8Gb"
+vmem_epcy="24Gb"
 #deseq2
 walltime_deseq="2:00:00"
 mem_deseq="24Gb"
@@ -91,17 +91,17 @@ data_type="sc"
 path_design="10X_FACS_reduce"
 data_project="10X_FACS_reduce"
 #EPCY
-walltime_epcy="24:00:00"
-mem_epcy="120Gb"
-vmem_epcy="200Gb"
+walltime_epcy="4:00:00"
+mem_epcy="48Gb"
+vmem_epcy="124Gb"
 #MAST
 mem_mast="20Gb"
-vmem_mast="48Gb"
-walltime_mast="4:00:00"
+vmem_mast="24Gb"
+walltime_mast="1:00:00"
 #limma trend
-mem_limma="10Gb"
-vmem_limma="20Gb"
-walltime_limma="1:00:00"
+mem_limma="12Gb"
+vmem_limma="16Gb"
+walltime_limma="0:30:00"
 
 designs_10X="1016_cytotoxic_t 1058_b_cells 1077_naive_t 1093_memory_t 1108_regulatory_t 1217_cd4_t 1338_naive_cytotoxic 287_cd14 858_cd56_nk 948_cd34"
 for src_data in cellranger

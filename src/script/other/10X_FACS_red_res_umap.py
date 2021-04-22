@@ -79,57 +79,18 @@ all["adj.P.Val"] = round(all["adj.P.Val"], 4)
 
 
 top = 50
-all.sort_values(by='kernel_ppv', ascending=False, inplace=True)
-d = {
-    'type': ["ppv"] * top,
-    'method': ["max"] * top,
-    'value': all.kernel_ppv[0:top].values,
-    'top': [top] * top
-}
-df_res = pd.DataFrame(data=d)
-
-all.sort_values(by='kernel_npv', ascending=False, inplace=True)
-d = {
-    'type': ["npv"] * top,
-    'method': ["max"] * top,
-    'value': all.kernel_npv[0:top].values,
-    'top': [top] * top
-}
-df_tmp = pd.DataFrame(data=d)
-df_res = df_res.append(df_tmp)
-
 all.sort_values(by='kernel_mcc', ascending=False, inplace=True)
 d = {
-    'type': ["ppv"] * top,
-    'method': ["epcy"] * top,
-    'value': all.kernel_ppv[0:top].values,
+    'method': ["EPCY"] * top,
+    'log2FC': all.l2fc[0:top].values,
     'top': [top] * top
 }
-df_tmp = pd.DataFrame(data=d)
-#df_res = df_res.append(df_tmp)
 df_res = pd.DataFrame(data=d)
-d = {
-    'type': ["npv"] * top,
-    'method': ["epcy"] * top,
-    'value': all.kernel_npv[0:top].values,
-    'top': [top] * top
-}
-df_tmp = pd.DataFrame(data=d)
-df_res = df_res.append(df_tmp)
 
 all.sort_values(by='pval', ascending=False, inplace=True)
 d = {
-    'type': ["ppv"] * top,
-    'method': ["mast"] * top,
-    'value': all.kernel_ppv[0:top].values,
-    'top': [top] * top
-}
-df_tmp = pd.DataFrame(data=d)
-df_res = df_res.append(df_tmp)
-d = {
-    'type': ["npv"] * top,
-    'method': ["mast"] * top,
-    'value': all.kernel_npv[0:top].values,
+    'method': ["Mast"] * top,
+    'log2FC': all.l2fc[0:top].values,
     'top': [top] * top
 }
 df_tmp = pd.DataFrame(data=d)
@@ -137,77 +98,100 @@ df_res = df_res.append(df_tmp)
 
 all.sort_values(by='adj.P.Val', ascending=False, inplace=True)
 d = {
-    'type': ["ppv"] * top,
-    'method': ["trend"] * top,
-    'value': all.kernel_ppv[0:top].values,
+    'method': ["Trend"] * top,
+    'log2FC': all.l2fc[0:top].values,
     'top': [top] * top
 }
 df_tmp = pd.DataFrame(data=d)
 df_res = df_res.append(df_tmp)
-d = {
-    'type': ["npv"] * top,
-    'method': ["trend"] * top,
-    'value': all.kernel_npv[0:top].values,
-    'top': [top] * top
-}
-df_tmp = pd.DataFrame(data=d)
-df_res = df_res.append(df_tmp)
+
 
 col_pal_method = sns.color_palette("colorblind")
 col_pal_method = [col_pal_method[i] for i in [4, 1, 2, 9]]
 col_pal_method = [col_pal_method[3], col_pal_method[0], col_pal_method[2]]
 
-df_res_npv = df_res.loc[df_res.type == "npv"]
-npv_epcy_trend = stats.mannwhitneyu(
-    df_res_npv.value.loc[df_res_npv.method == "epcy"],
-    df_res_npv.value.loc[df_res_npv.method == "trend"]
-)[1]
-npv_epcy_mast = stats.mannwhitneyu(
-    df_res_npv.value.loc[df_res_npv.method == "epcy"],
-    df_res_npv.value.loc[df_res_npv.method == "mast"]
-)[1]
-npv_mast_trend = stats.mannwhitneyu(
-    df_res_npv.value.loc[df_res_npv.method == "mast"],
-    df_res_npv.value.loc[df_res_npv.method == "trend"]
-)[1]
 
-df_res_ppv = df_res.loc[df_res.type == "ppv"]
-ppv_epcy_trend = stats.mannwhitneyu(
-    df_res_ppv.value.loc[df_res_ppv.method == "epcy"],
-    df_res_ppv.value.loc[df_res_ppv.method == "trend"]
+epcy_mast = stats.mannwhitneyu(
+    df_res.log2FC.loc[df_res.method == "EPCY"],
+    df_res.log2FC.loc[df_res.method == "Mast"]
 )[1]
-ppv_epcy_mast = stats.mannwhitneyu(
-    df_res_ppv.value.loc[df_res_ppv.method == "epcy"],
-    df_res_ppv.value.loc[df_res_ppv.method == "mast"]
+epcy_trend = stats.mannwhitneyu(
+    df_res.log2FC.loc[df_res.method == "EPCY"],
+    df_res.log2FC.loc[df_res.method == "Trend"]
 )[1]
-ppv_mast_trend = stats.mannwhitneyu(
-    df_res_ppv.value.loc[df_res_ppv.method == "mast"],
-    df_res_ppv.value.loc[df_res_ppv.method == "trend"]
+mast_trend = stats.mannwhitneyu(
+    df_res.log2FC.loc[df_res.method == "Mast"],
+    df_res.log2FC.loc[df_res.method == "Trend"]
 )[1]
 
-fig = plt.figure(figsize=(10, 7))
-gs = plt.GridSpec(1, 2)
+sns_plot = sns.boxplot(x="method", y="log2FC",
+                hue="method", linewidth=1,
+                palette=col_pal_method,
+                data=df_res)
+sns_plot.set_title("PPV distribution of top " + str(top) + "\nepcy_trend=" + str(epcy_trend) + "\nepcy_mast=" + str(epcy_mast) + "\mast_trend=" + str(mast_trend))
 
-ax_ppv = fig.add_subplot(gs[0, 0])
-ax_npv = fig.add_subplot(gs[0, 1])
-
-sns_plot = sns.boxplot(x="method", y="value",
-                       hue="method", ax=ax_ppv, linewidth=1,
-                       palette=col_pal_method,
-                       data=df_res.loc[df_res.type == "ppv"])
-sns_plot.set_title("PPV distribution of top " + str(top) + "\nepcy_trend=" + str(ppv_epcy_trend) + "\nepcy_mast=" + str(ppv_epcy_mast) + "\ntrend_mast=" + str(ppv_mast_trend))
-sns_plot.set(ylim=(0, 1))
-
-sns_plot = sns.boxplot(x="method", y="value",
-                       hue="method", ax=ax_npv, linewidth=1,
-                       palette=col_pal_method,
-                       data=df_res.loc[df_res.type == "npv"])
-sns_plot.set_title("NPV distribution of top " + str(top) + "\nepcy_trend=" + str(npv_epcy_trend) + "\nepcy_mast=" + str(npv_epcy_mast) + "\ntrend_mast=" + str(npv_mast_trend))
-sns_plot.set(ylim=(0, 1))
-
-fig_file = os.path.join(path_res, design, "ppv_npv.pdf")
-sns_plot.figure.savefig(fig_file)
+fig_out = os.path.join(path_res_design, "log2FC_top" + str(top) + ".pdf")
+sns_plot.figure.savefig(fig_out)
 plt.close('all')
+
+
+
+top = 100
+all.sort_values(by='kernel_mcc', ascending=False, inplace=True)
+d = {
+    'method': ["EPCY"] * top,
+    'log2FC': all.l2fc[0:top].values,
+    'top': [top] * top
+}
+df_res = pd.DataFrame(data=d)
+
+all.sort_values(by='pval', ascending=False, inplace=True)
+d = {
+    'method': ["Mast"] * top,
+    'log2FC': all.l2fc[0:top].values,
+    'top': [top] * top
+}
+df_tmp = pd.DataFrame(data=d)
+df_res = df_res.append(df_tmp)
+
+all.sort_values(by='adj.P.Val', ascending=False, inplace=True)
+d = {
+    'method': ["Trend"] * top,
+    'log2FC': all.l2fc[0:top].values,
+    'top': [top] * top
+}
+df_tmp = pd.DataFrame(data=d)
+df_res = df_res.append(df_tmp)
+
+
+col_pal_method = sns.color_palette("colorblind")
+col_pal_method = [col_pal_method[i] for i in [4, 1, 2, 9]]
+col_pal_method = [col_pal_method[3], col_pal_method[0], col_pal_method[2]]
+
+
+epcy_mast = stats.mannwhitneyu(
+    df_res.log2FC.loc[df_res.method == "EPCY"],
+    df_res.log2FC.loc[df_res.method == "Mast"]
+)[1]
+epcy_trend = stats.mannwhitneyu(
+    df_res.log2FC.loc[df_res.method == "EPCY"],
+    df_res.log2FC.loc[df_res.method == "Trend"]
+)[1]
+mast_trend = stats.mannwhitneyu(
+    df_res.log2FC.loc[df_res.method == "Mast"],
+    df_res.log2FC.loc[df_res.method == "Trend"]
+)[1]
+
+sns_plot = sns.boxplot(x="method", y="log2FC",
+                hue="method", linewidth=1,
+                palette=col_pal_method,
+                data=df_res)
+sns_plot.set_title("PPV distribution of top " + str(top) + "\nepcy_trend=" + str(epcy_trend) + "\nepcy_mast=" + str(epcy_mast) + "\mast_trend=" + str(mast_trend))
+
+fig_out = os.path.join(path_res_design, "log2FC_top" + str(top) + ".pdf")
+sns_plot.figure.savefig(fig_out)
+plt.close('all')
+
 
 
 def gene_umap(df, path_res, counts):
@@ -231,6 +215,12 @@ def gene_umap(df, path_res, counts):
 tmp = all.loc[(all["kernel_mcc"] < 0.15) & (all["pval"] > 300)]
 print(tmp)
 path_res_gene = os.path.join(path_res, design, "mast_p_300_mcc_m_15")
+gene_umap(tmp, path_res_gene, counts)
+
+##############
+tmp = all.loc[(all["kernel_mcc"] < 0.05) & (all["pval"] > 150)]
+print(tmp)
+path_res_gene = os.path.join(path_res, design, "mast_p_150_mcc_m_5")
 gene_umap(tmp, path_res_gene, counts)
 
 ##############
@@ -258,6 +248,12 @@ print(tmp)
 path_res_gene = os.path.join(path_res, design, "trend_340_mcc_m_20")
 gene_umap(tmp, path_res_gene, counts)
 
+##############
+tmp = all.loc[(all["kernel_mcc"] < 0.05) & (all["adj.P.Val"] > 150)]
+print(tmp)
+path_res_gene = os.path.join(path_res, design, "trend_p_150_mcc_m_5")
+gene_umap(tmp, path_res_gene, counts)
+
 
 ##############
 tmp = all.loc[(all["kernel_mcc"] > 0.6)]
@@ -270,6 +266,7 @@ tmp = all.loc[(all["adj.P.Val"] == 340) | (all["pval"] == 340)]
 print(tmp)
 path_res_gene = os.path.join(path_res, design, "340")
 gene_umap(tmp, path_res_gene, counts)
+
 
 
 ##############

@@ -8,9 +8,7 @@ cd src/pyres
 ##########################################################################
 # Figure 1: Synthetic examples to illustrate the diff. between DEG and PG
 
-python3 -m pyres diff_pred \
-  --outdir ../../data/res/ \
-
+#python3 -m pyres diff_pred --outdir ../../data/res/ \
 
 ########################################################################
 # Figure 3: Trends of significance values as a fonction of # of samples
@@ -73,18 +71,18 @@ e_fpr="0.0001 0.001 0.01 0.05"
 
 cd ../..
 #Create UMAP on some selected genes and Fig. 6B)
-python3 ./src/script/other/10X_FACS_red_res_umap.py
+#python3 ./src/script/other/10X_FACS_red_res_umap.py
 
 
 ########################################################################
 # Plotting gene expression used in severals figures and in supplemtary
-#ids="ENSG00000141485.16 ENSG00000078399.18 ENSG00000286179.1 ENSG00000162493.16 ENSG00000256951.1 ENSG00000227268.4 ENSG00000089820.15 ENSG00000163701.19 ENSG00000214548.18 ENSG00000143995.20 ENSG00000232046.7 ENSG00000279536.1 ENSG00000076706.17 ENSG00000255248.9 ENSG00000102287.19 ENSG00000078399.18 ENSG00000143995.20"
-#epcy profile_rna \
-#  -d ./data/design/leucegene3/30_t15_17/design.tsv \
-#  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
-#  --log --cpm  --no_density \
-#  -o ./data/res/leucegene3/profile/30_t15_17/ \
-#  --ids ${ids}
+ids="ENSG00000141485.16 ENSG00000078399.18 ENSG00000286179.1 ENSG00000162493.16 ENSG00000256951.1 ENSG00000227268.4 ENSG00000089820.15 ENSG00000163701.19 ENSG00000214548.18 ENSG00000143995.20 ENSG00000232046.7 ENSG00000279536.1 ENSG00000076706.17 ENSG00000255248.9 ENSG00000102287.19 ENSG00000078399.18 ENSG00000143995.20 ENSG00000266217.2"
+epcy profile_rna \
+  -d ./data/design/leucegene3/30_t15_17/design.tsv \
+  -m ./data/leucegene3/STAR_RSEM/readcounts.xls \
+  --log --cpm  --no_density \
+  -o ./data/res/leucegene3/profile/30_t15_17/ \
+  --ids ${ids}
 
 ids="ENSG00000171388.12 ENSG00000147488.11 ENSG00000133392.18 ENSG00000227502.3 ENSG00000188153.13 ENSG00000228836.8"
 #epcy profile_rna \
@@ -94,10 +92,10 @@ ids="ENSG00000171388.12 ENSG00000147488.11 ENSG00000133392.18 ENSG00000227502.3 
 #  -o ./data/res/leucegene3/profile/30_inv16/ \
 #  --ids ${ids}
 
-#ids="ENSG00000147403 ENSG00000174059 ENSG00000167526 ENSG00000115268 ENSG00000008988 ENSG00000196126 ENSG00000019582 ENSG00000231389 ENSG00000204287 ENSG00000113389 ENSG00000233968 ENSG00000237819 ENSG00000113389 ENSG00000163106 ENSG00000204287 ENSG00000124766 ENSG00000125691 ENSG00000171858 ENSG00000165092 ENSG00000174099 ENSG00000156508 ENSG00000204472"
-#epcy profile_rna \
-#  -d ./data/design/10X_FACS_reduce/948_cd34/design.tsv \
-#  -m ./data/10X_FACS_reduce/cellranger/readcounts.xls \
-#  --log --cpmed --no_density --violin \
-#  -o ./data/res/10X_FACS_reduce/948_cd34/violin \
-#  --ids ${ids}
+ids="ENSG00000147403 ENSG00000174059 ENSG00000167526 ENSG00000115268 ENSG00000008988 ENSG00000196126 ENSG00000019582 ENSG00000231389 ENSG00000204287 ENSG00000113389 ENSG00000233968 ENSG00000237819 ENSG00000113389 ENSG00000163106 ENSG00000204287 ENSG00000124766 ENSG00000125691 ENSG00000171858 ENSG00000165092 ENSG00000174099 ENSG00000156508 ENSG00000204472 ENSG00000223609 ENSG00000163751"
+epcy profile_rna \
+  -d ./data/design/10X_FACS_reduce/948_cd34/design.tsv \
+  -m ./data/10X_FACS_reduce/cellranger/readcounts.xls \
+  --log --cpmed --no_density --violin \
+  -o ./data/res/10X_FACS_reduce/948_cd34/violin \
+  --ids ${ids}
