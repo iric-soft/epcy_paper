@@ -12,12 +12,12 @@ working_dir="/u/eaudemard/project/epcy_paper/"
 #########################################################
 # Run on small leucegene
 #
-data_type="bulk"
+data_type="small"
 designs_leucegene="inv16_vs_t15_17"
 path_design_leucegene="small_leucegene"
 data_project="small_leucegene"
 #EPCY
-walltime_epcy="24:00:00"
+walltime_epcy="48:00:00"
 mem_epcy="8Gb"
 vmem_epcy="24Gb"
 #deseq2

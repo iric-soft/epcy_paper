@@ -318,6 +318,15 @@ then
 
 fi
 
+if [ $data_type == "small" ]
+then
+	#epcy "quant" ${path_design} ${path_output} ${path_jobout_subgroup}
+	epcy "count" ${path_design} ${path_output} ${path_jobout_subgroup}
+	epcy "bagging" ${path_design} ${path_output} ${path_jobout_subgroup}
+	LDE ${path_design} ${path_output} ${path_jobout_subgroup}
+
+fi
+
 if [ $data_type == "sc" ]
 then
   epcy "count_sc" ${path_design} ${path_output} ${path_jobout_subgroup}
