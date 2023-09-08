@@ -27,7 +27,7 @@ mpl.rcParams['pdf.fonttype'] = 42
 def main_eval_cv(args, argparser):
 
     file_dict = {
-        'epcy' : "prediction_capability.xls",
+        'epcy' : "predictive_capability.xls",
         'deseq2' : "deseq2_genes.xls",
         'edger' : "edger_genes.xls",
         'limma' : "limma_voom_genes.xls",
@@ -64,10 +64,10 @@ def main_eval_cv(args, argparser):
 
                 for dataset in datasets[:n_datasets]:
                     path_dataset_train = os.path.join(dir_design, dataset, "train")
-                    df_design_train = uo.get_design(args, path_dataset_train)
+                    df_design_train = uo.get_design(args, "Query", path_dataset_train)
 
                     path_dataset_test = os.path.join(dir_design, dataset, "test")
-                    df_design_test = uo.get_design(args, path_dataset_test)
+                    df_design_test = uo.get_design(args, "Query", path_dataset_test)
 
                     dict_diff[method] = uo.read_diff_table(args, file_dict[method], method, path_dataset_train, pvalue, list_genes)
 
@@ -117,13 +117,15 @@ def main_eval_cv(args, argparser):
                         df = df.loc[df.learn == learn]
                         df = df.loc[df.pvalue == pvalue]
 
+                        print(df)
+
                         # continue only if df is non-empty
                         if len(df) < 2 : break
 
                         df = df.sort_values(by=['dataset'], ascending=[True])
 
                         # convert probs to array
-                        probas = np.array([y for x in df.proba.values for y in x[:,0]])
+                        probas = df.proba.values
                         # same for labels
                         labels = np.array([label for x in df.label.values for label in x])
                         ids_query = np.where(labels == 1)

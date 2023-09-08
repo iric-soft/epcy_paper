@@ -96,4 +96,4 @@ def get_argparser_density(parser):
                         help = 'Top x for each methods',
                         default = 3)
 
-    parser.BIOTYPE = None
+    parser.set_defaults(BIOTYPE=None)
