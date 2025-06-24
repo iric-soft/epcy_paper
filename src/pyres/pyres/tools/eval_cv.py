@@ -27,7 +27,7 @@ mpl.rcParams['pdf.fonttype'] = 42
 def main_eval_cv(args, argparser):
 
     file_dict = {
-        'epcy' : "predictive_capability.xls",
+        'epcy' : "predictive_capability.tsv",
         'deseq2' : "deseq2_genes.xls",
         'edger' : "edger_genes.xls",
         'limma' : "limma_voom_genes.xls",

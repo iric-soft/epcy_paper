@@ -1,8 +1,11 @@
 
 ##Bioconductor: https://bioconductor.org/
+repo <- "http://cran.us.r-project.org"
 
 if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
+    install.packages("BiocManager", repos=repo)
+
+#BiocManager::install(version = "3.15")
 
 BiocManager::install("GenomicDataCommons", ask=F)
 BiocManager::install("SummarizedExperiment", ask=F)
@@ -18,12 +21,12 @@ BiocManager::install("scran", ask=F)
 BiocManager::install("SingleCellExperiment", ask=F)
 BiocManager::install("MAST", ask=F)
 
-#For genes length 2nd solution
-#BiocManager::install("EnsDb.Hsapiens.v86", ask=F)
-
 ##Other
 
-install.packages("data.table")
-install.packages("dplyr")
-install.packages("here")
-install.packages("xlsx")
+install.packages("data.table", repos=repo)
+install.packages("dplyr", repos=repo)
+install.packages("here", repos=repo)
+install.packages("xlsx", repos=repo)
+
+install.packages("devtools", repos=repo)
+devtools::install_github("immunogenomics/presto")

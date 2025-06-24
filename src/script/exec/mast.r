@@ -15,6 +15,8 @@ dir.create(path_output, recursive = TRUE, showWarnings = FALSE)
 
 design_file = file.path(path_design, "design.tsv")
 design = read.table(design_file, header = TRUE, stringsAsFactors=FALSE, sep="\t")
+design = design[order(design$subgroup), ]
+design$subgroup = factor(design$subgroup,levels=c("Ref", "Query"))
 
 file_counts = file.path(path_counts, "readcounts.xls")
 counts = read.delim(file_counts, header=TRUE, row.names=1, check.names=FALSE)
@@ -30,10 +32,16 @@ sca = FromMatrix(exprsArray = log2(cpms + 1),
                                      grp = design$subgroup))
 zlmdata = zlm(~grp, sca)
 mast = lrTest(zlmdata, "grp")
+logFC = getLogFC(zlmdata)
+
+pvalues = mast[, "hurdle", "Pr(>Chisq)"]
+adjpavlues = p.adjust(pvalues, method="BH")
 
 df_res = data.frame(
   ID = names(mast[, "hurdle", "Pr(>Chisq)"]),
-  pval = mast[, "hurdle", "Pr(>Chisq)"]
+  pval = pvalues,
+  adj.P.Val = adjpavlues,
+  logFC = logFC[, "logFC"]
 )
 file_out = file.path(path_output, "mast_genes.xls")
 write.table(df_res, file_out, quote=FALSE, row.names=FALSE, sep="\t")

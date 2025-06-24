@@ -10,11 +10,17 @@ __pycache__/
 
 # R
 *.Rhistory
+.Renviron
+R_lib
 
 # Data
 cv
 data/design/*/*/STAR
 data/design/*/*/htseq
+data/10X_FACS_reduce_*_*
+*.xls
+data/design/leucegene3/30_inv16/
+data/design/leucegene3/30_t15_17/
 
 # Results
 data/res

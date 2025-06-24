@@ -44,10 +44,13 @@ walltime_limma=${walltime_deg2}
 mem_limma=${mem_deg2}
 vmem_limma=${vmem_deg2}
 
-
 walltime_mast=${walltime_deg1}
 mem_mast=${mem_deg1}
 vmem_mast=${vmem_deg1}
+
+walltime_wilcox=${walltime_deg1}
+mem_wilcox=${mem_deg1}
+vmem_wilcox=${vmem_deg1}
 
 #walltime_LDE="12:00:00"
 #mem_LDE="80Gb" # 2 * num_proc
@@ -75,6 +78,23 @@ send2torque()
 	#echo "${cmd} | qsub -V -l nodes=1:ppn=${ppn},mem=${mem},vmem=${vmem},walltime=${walltime} -j oe -N ${job_name} -o ${path_jobout}"
 }
 
+send2slurm()
+{
+	eval cmd="$1"
+	eval ppn="$2"
+	eval mem="$3"
+	eval walltime="$4"
+	eval job_name="$5"
+	eval path_jobout="$6"
+	eval vmem="$7"
+	job_name_tmp="${job_name////_}"
+
+	mkdir -p ${path_jobout}
+	sbatch --nodes=1 --cpus-per-task=${ppn} --mem=${vmem} --time=${walltime} --account=bioinfo --job-name=${job_name} --output=${path_jobout}/${job_name_tmp}.out --oversubscribe --wrap="${cmd}"
+	#FOR DEBUG
+	# echo "sbatch --nodes=1 --cpus-per-task=${ppn} --mem=${vmem} --time=${walltime} --account=bioinfo --job-name=${job_name} --output=${path_jobout}/${job_name_tmp}.out --oversubscribe --wrap=\"${cmd}\""
+}
+
 exec_cmd()
 {
 	eval type_exec="$1"
@@ -91,6 +111,17 @@ exec_cmd()
 	  send2torque "\${cmd}" ${n_proc} ${mem} ${walltime} ${job_name} ${path_jobout} ${vmem}
 	fi
 
+	if [ $type_exec == "slurm" ]
+	then
+		eval n_proc="$3"
+		eval mem="$4"
+		eval walltime="$5"
+		eval job_name="$6"
+		eval path_jobout="$7"
+		eval vmem="$8"
+	  send2slurm "\${cmd}" ${n_proc} ${mem} ${walltime} ${job_name} ${path_jobout} ${vmem}
+	fi
+
 	if [ $type_exec == "bash" ]
 	then
 	  ${cmd}
@@ -102,14 +133,14 @@ exec_cmd()
 
 epcy()
 {
-  eval type_run="$1"
-  eval input_design="$2"
+	eval type_run="$1"
+	eval input_design="$2"
 	eval path_output="$3"
 	eval path_jobout="$4"
 
 	if [ $type_run == "quant" ] && [ -f ${path_matrix}/quant.xls ]
 	then
-		if [ ! -f ${path_output}/quant/predictive_capability.xls ]
+		if [ ! -f ${path_output}/quant/predictive_capability.tsv ]
 		then
 			job_name="epcy_${subgroup}"
 			path_output_epcy="${path_output}/quant"
@@ -122,7 +153,7 @@ epcy()
 
 	if [ $type_run == "count" ] && [ -f ${path_matrix}/readcounts.xls ]
 	then
-		if [ ! -f ${path_output}/readcounts/predictive_capability.xls ]
+		if [ ! -f ${path_output}/readcounts/predictive_capability.tsv ]
 		then
 			job_name="epcy_count_${subgroup}"
 			path_output_epcy="${path_output}/readcounts"
@@ -135,7 +166,7 @@ epcy()
 
 	if [ $type_run == "count_sc" ] && [ -f ${path_matrix}/readcounts.xls ]
 	then
-		if [ ! -f ${path_output}/readcounts/predictive_capability.xls ]
+		if [ ! -f ${path_output}/readcounts/predictive_capability.tsv ]
 		then
 			job_name="epcy_sc_count_${subgroup}"
 			path_output_epcy="${path_output}/readcounts"
@@ -148,7 +179,7 @@ epcy()
 
 	if [ $type_run == "bagging" ] && [ -f ${path_matrix}/readcounts.xls ]
 	then
-		if [ ! -f ${path_output}/readcounts_bagging/predictive_capability.xls ]
+		if [ ! -f ${path_output}/readcounts_bagging/predictive_capability.tsv ]
 		then
 			job_name="epcy_bagging_${subgroup}"
 			path_output_epcy="${path_output}/readcounts_bagging"
@@ -162,17 +193,17 @@ epcy()
 
 deseq()
 {
-  eval input_design="$1"
+    eval input_design="$1"
 	eval path_output="$2"
 	eval path_jobout="$3"
 	if [ -f ${path_matrix}/readcounts.xls ]
 	then
 		if [ ! -f ${path_output}/readcounts/deseq2_genes.xls ]
 		then
-		  job_name="DESEQ2_${subgroup}"
+		    job_name="DESEQ2_${subgroup}"
 			path_output_deseq2="${path_output}/readcounts"
-		  path_exec="${working_dir}/src/script/exec/deseq2.r"
-		  cmd=$(bash ${path_cmd}/deseq2.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_deseq2} ${num_proc})
+		    path_exec="${working_dir}/src/script/exec/deseq2.r"
+		    cmd=$(bash ${path_cmd}/deseq2.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_deseq2} ${num_proc})
 			exec_cmd ${type_exec} "\${cmd}" ${num_proc} ${mem_deseq} ${walltime_deseq} ${job_name} ${path_jobout} ${vmem_deseq}
 		else
 			echo "deseq2 ${subgroup} done!"
@@ -180,9 +211,30 @@ deseq()
 	fi
 }
 
+presto_wilcox()
+{
+    eval input_design="$1"
+	eval path_output="$2"
+	eval path_jobout="$3"
+
+	if [ -f ${path_matrix}/readcounts.xls ]
+	then
+		if [ ! -f ${path_output}/readcounts/presto_genes.xls ]
+		then
+		  job_name="WILCOX_${subgroup}"
+			path_output_edger="${path_output}/readcounts"
+		  path_exec="${working_dir}/src/script/exec/wilcox.r"
+		  cmd=$(bash ${path_cmd}/wilcox.sh ${path_exec} ${input_design} ${path_matrix} ${path_output_edger})
+			exec_cmd ${type_exec} "\${cmd}" 1 ${mem_wilcox} ${walltime_wilcox} ${job_name} ${path_jobout} ${vmem_wilcox}
+		else
+			echo "presto_wilcox ${subgroup} done!"
+		fi
+	fi
+}
+
 edger()
 {
-  eval input_design="$1"
+    eval input_design="$1"
 	eval path_output="$2"
 	eval path_jobout="$3"
 
@@ -203,7 +255,7 @@ edger()
 
 limma_trend()
 {
-  eval input_design="$1"
+    eval input_design="$1"
 	eval path_output="$2"
 	eval path_jobout="$3"
 
@@ -245,7 +297,7 @@ limma()
 
 mast()
 {
-  eval input_design="$1"
+    eval input_design="$1"
 	eval path_output="$2"
 	eval path_jobout="$3"
 
@@ -267,7 +319,7 @@ mast()
 
 LDE()
 {
-  eval input_design="$1"
+    eval input_design="$1"
 	eval path_output="$2"
 	eval path_jobout="$3"
 
@@ -322,14 +374,15 @@ if [ $data_type == "small" ]
 then
 	#epcy "quant" ${path_design} ${path_output} ${path_jobout_subgroup}
 	epcy "count" ${path_design} ${path_output} ${path_jobout_subgroup}
-	epcy "bagging" ${path_design} ${path_output} ${path_jobout_subgroup}
+	#epcy "bagging" ${path_design} ${path_output} ${path_jobout_subgroup}
 	LDE ${path_design} ${path_output} ${path_jobout_subgroup}
 
 fi
 
 if [ $data_type == "sc" ]
 then
-  epcy "count_sc" ${path_design} ${path_output} ${path_jobout_subgroup}
-	limma_trend ${path_design} ${path_output} ${path_jobout_subgroup}
+    epcy "count_sc" ${path_design} ${path_output} ${path_jobout_subgroup}
+    limma_trend ${path_design} ${path_output} ${path_jobout_subgroup}
 	mast ${path_design} ${path_output} ${path_jobout_subgroup}
+	presto_wilcox ${path_design} ${path_output} ${path_jobout_subgroup}
 fi

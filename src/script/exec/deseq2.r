@@ -18,6 +18,9 @@ dir.create(path_output, recursive = TRUE, showWarnings = FALSE)
 
 design_file = file.path(path_design, "design.tsv")
 design = read.table(design_file, header = TRUE, stringsAsFactors=FALSE, sep="\t")
+design = design[order(design$subgroup), ]
+design$subgroup = factor(design$subgroup,levels=c("Ref", "Query"))
+
 sampleTable = data.frame(condition = design$subgroup)
 
 file_counts = file.path(path_counts, "readcounts.xls")
@@ -30,7 +33,7 @@ counts = trunc(counts)
 dds <- DESeqDataSetFromMatrix(counts, sampleTable, ~condition)
 
 ## wald
-dds_wald <- DESeq(dds, parallel=TRUE, BPPARAM=MulticoreParam(args[4]))
+dds_wald <- DESeq(dds, parallel=TRUE, BPPARAM=MulticoreParam(strtoi(args[4])))
 res <- results(dds_wald, contrast=c("condition","Query","Ref"))
 
 res = cbind(data.frame(ID=row.names(res), stringsAsFactors=FALSE), res)

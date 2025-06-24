@@ -1,5 +1,5 @@
 #!/bin/bash
-#edger.sh ${path_software}${path_design} ${path_counts} ${path_output} 
+#wilcox.sh ${path_software}${path_design} ${path_counts} ${path_output} 
 
 path_software=$1
 path_design=$2

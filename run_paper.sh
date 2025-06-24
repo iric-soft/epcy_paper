@@ -3,7 +3,7 @@
 # RUN DEG and PEG analysis on leucegene3 and 10X_FACS
 ########################################################
 
-type_exec="torque" # "slurm" "bash"
+type_exec="slurm" # "slurm" "bash" "torque"
 num_proc="4"
 working_dir="/u/eaudemard/project/epcy_paper/"
 #working_dir="./"
@@ -21,31 +21,31 @@ walltime_epcy="24:00:00"
 mem_epcy="8Gb"
 vmem_epcy="24Gb"
 #deseq2
-walltime_deseq="2:00:00"
+walltime_deseq="4:00:00"
 mem_deseq="24Gb"
 vmem_deseq="48Gb"
 #limma voom and edger
 walltime_limma="4:00:00"
 mem_limma="6Gb"
 vmem_limma="24Gb"
-for src_data in STAR_RSEM
-do
-  for design in ${designs_leucegene}
-  do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type} ${walltime_epcy} ${mem_epcy} ${vmem_epcy} ${walltime_deseq} ${mem_deseq} ${vmem_deseq} ${walltime_limma} ${mem_limma} ${vmem_limma}
-  done
-done
+#for src_data in STAR_RSEM
+#do
+#  for design in ${designs_leucegene}
+#  do
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type} ${walltime_epcy} ${mem_epcy} ${vmem_epcy} ${walltime_deseq} ${mem_deseq} ${vmem_deseq} ${walltime_limma} ${mem_limma} ${vmem_limma}
+#  done
+#done
 
 designs_leucegene="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
 path_design_leucegene="leucegene3_random"
 data_project="leucegene3"
-for src_data in STAR_RSEM
-do
-  for design in ${designs_leucegene}
-  do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type} ${walltime_epcy} ${mem_epcy} ${vmem_epcy} ${walltime_deseq} ${mem_deseq} ${vmem_deseq} ${walltime_limma} ${mem_limma} ${vmem_limma}
-  done
-done
+#for src_data in STAR_RSEM
+#do
+#  for design in ${designs_leucegene}
+#  do
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design_leucegene} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type} ${walltime_epcy} ${mem_epcy} ${vmem_epcy} ${walltime_deseq} ${mem_deseq} ${vmem_deseq} ${walltime_limma} ${mem_limma} ${vmem_limma}
+#  done
+#done
 
 
 #EPCY
@@ -91,38 +91,51 @@ data_type="sc"
 path_design="10X_FACS_reduce"
 data_project="10X_FACS_reduce"
 #EPCY
-walltime_epcy="4:00:00"
+walltime_epcy="12:00:00"
 mem_epcy="48Gb"
 vmem_epcy="124Gb"
 #MAST
 mem_mast="20Gb"
 vmem_mast="24Gb"
-walltime_mast="1:00:00"
+walltime_mast="4:00:00"
 #limma trend
 mem_limma="12Gb"
 vmem_limma="16Gb"
 walltime_limma="0:30:00"
 
-designs_10X="1016_cytotoxic_t 1058_b_cells 1077_naive_t 1093_memory_t 1108_regulatory_t 1217_cd4_t 1338_naive_cytotoxic 287_cd14 858_cd56_nk 948_cd34"
-for src_data in cellranger
-do
-for design in ${designs_10X}
-  do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type} ${walltime_epcy} ${mem_epcy} ${vmem_epcy} ${walltime_mast} ${mem_mast} ${vmem_mast} ${walltime_limma} ${mem_limma} ${vmem_limma}
-  done
-done
+num_samples="3000 5000 8000 10000"
+#for num_sample in ${num_samples}
+#do
+#  for num_project in {1..20}
+#  do
+#    path_design="10X_FACS_reduce_${num_sample}_${num_project}"
+#    data_project="10X_FACS_reduce_${num_sample}_${num_project}"
+
+#    for fullpath in ./data/design/${path_design}/*
+#    do
+#      designs_10X=$(basename "$fullpath")
+#      for src_data in cellranger
+#      do
+#        for design in ${designs_10X}
+#        do
+#          bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type} ${walltime_epcy} ${mem_epcy} ${vmem_epcy} ${walltime_mast} ${mem_mast} ${vmem_mast} ${walltime_limma} ${mem_limma} ${vmem_limma}
+#        done
+#      done
+#    done
+#  done
+#done
 
 
-designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
-path_design="10X_FACS_reduce_random"
-data_project="10X_FACS_reduce"
-for src_data in cellranger
-do
-  for design in ${designs_random}
-  do
-    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type} ${walltime_epcy} ${mem_epcy} ${vmem_epcy} ${walltime_mast} ${mem_mast} ${vmem_mast} ${walltime_limma} ${mem_limma} ${vmem_limma}
-  done
-done
+#designs_random="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+#path_design="10X_FACS_reduce_random"
+#data_project="10X_FACS_reduce"
+#for src_data in cellranger
+#do
+#  for design in ${designs_random}
+#  do
+#    bash ./src/script/run/DEG_analysis.sh ${working_dir} ${design} ${path_design} ${data_project} ${src_data} ${type_exec} ${num_proc} ${data_type} ${walltime_epcy} ${mem_epcy} ${vmem_epcy} ${walltime_mast} ${mem_mast} ${vmem_mast} ${walltime_limma} ${mem_limma} ${vmem_limma}
+#  done
+#done
 
 
 ################################

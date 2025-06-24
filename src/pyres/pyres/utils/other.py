@@ -3,6 +3,7 @@ import sys
 import re
 import math
 import hdbscan
+import fnmatch
 
 from collections import defaultdict
 
@@ -152,7 +153,7 @@ def read_diff_table(args, file_name, method, path_dir, padj,
         path_file = os.path.join(path_file, args.QUANT, args.TYPE_QUANT + "_bagging", file_name)
     else:
         path_file = os.path.join(path_file, args.QUANT, args.TYPE_QUANT, file_name)
-
+        
     df_diff = pd.read_csv(path_file, sep="\t")
 
     if "epcy" in method:
@@ -205,6 +206,11 @@ def read_sample_pred_table(args, file_name, df_diff, dataset=None):
 
     return(df_pred)
 
+def find_folder(path, pattern):
+    for dirname in os.listdir(path):
+        if pattern in dirname:
+            return dirname
+
 
 def get_design(args, subg_query,  path=None, dataset=None,
                file_name="design.tsv", replace=True):
@@ -233,6 +239,9 @@ def get_exp(args, file_name, df_design=None):
 
     df_exp = pd.read_csv(file_name, sep="\t")
 
+    if 'id' in df_exp.columns:
+        df_exp = df_exp.rename(columns={'id': 'ID'})
+    
     if args.BIOTYPE is not None:
         df_exp = df_exp.loc[df_exp["ID"].isin(df_biotype["ensembl_gene_id"])]
 

@@ -33,8 +33,8 @@ mpl.rcParams['pdf.fonttype'] = 42
 def main_eval_ss(args, argparser):
 
     file_dict = {
-        'epcy': "predictive_capability.xls",
-        'epcy_bagging': "predictive_capability.xls",
+        'epcy': "predictive_capability.tsv",
+        'epcy_bagging': "predictive_capability.tsv",
         'deseq2': "deseq2_genes.xls",
         'edger': "edger_genes.xls",
         'voom': "limma_voom_genes.xls",
@@ -58,8 +58,8 @@ def main_eval_ss(args, argparser):
         rep = 1
         path_design = os.path.join(args.PATH, design, str(p_ss), str(rep))
         df_design = uo.get_design(args, "Query", path_design)
-        num_ref = df_design[df_design[args.SUBGROUP] == 0].count()[0]
-        num_query = df_design[df_design[args.SUBGROUP] == 1].count()[0]
+        num_ref = df_design[df_design[args.SUBGROUP] == 0].count().iloc[0]
+        num_query = df_design[df_design[args.SUBGROUP] == 1].count().iloc[0]
         cohort = str(num_query) + "_vs_" + str(num_ref)
         cohort_order.append(cohort)
 
@@ -82,8 +82,8 @@ def main_eval_ss(args, argparser):
                 print('SUBSAMPLING: design: {}, p_ss: {}, rep: {}, method: {}'.format(design, p_ss, rep, method))
                 path_design = os.path.join(args.PATH, design, str(p_ss), str(rep))
                 df_design = uo.get_design(args, "Query", path_design)
-                num_ref = df_design[df_design[args.SUBGROUP] == 0].count()[0]
-                num_query = df_design[df_design[args.SUBGROUP] == 1].count()[0]
+                num_ref = df_design[df_design[args.SUBGROUP] == 0].count().iloc[0]
+                num_query = df_design[df_design[args.SUBGROUP] == 1].count().iloc[0]
                 cohort = str(num_query) + "_vs_" + str(num_ref)
                 df_diff = uo.read_diff_table(
                     args, file_dict[method], method,
@@ -134,7 +134,7 @@ def main_eval_ss(args, argparser):
     df_diff_mean = df_diff_mean.rename({"value": "mean_value"}, axis='columns')
     df_diff_mean.reset_index(inplace=True)
 
-    df_diff_std = df_diff.groupby(["method", "cohort", "ID"])["value"].std()
+    df_diff_std = df_diff.groupby(["method", "cohort", "ID"])["value"].std(ddof=0)
     df_diff_std = df_diff_std.to_frame()
     df_diff_std = df_diff_std.rename({"value": "y_std"}, axis='columns')
     df_diff_std.reset_index(inplace=True)
@@ -167,7 +167,7 @@ def main_eval_ss(args, argparser):
     col_pal = sns.color_palette("colorblind")
     col_pal = [col_pal[i] for i in [4, 1, 2, 9]]
     col_pal_deg = [col_pal[i] for i in [0, 1, 2]]
-    col_pal_epcy = [col_pal[i] for i in [3, 0]]
+    col_pal_epcy = [col_pal[i] for i in [3]]
     for id in args.IDS:
         print('SUBSAMPLING: score ss id: {}'.format(id))
         df_diff_id = df_diff[df_diff["ID"] == id]
@@ -207,7 +207,7 @@ def main_eval_ss(args, argparser):
 
         sns_plot = sns.pointplot(
             data=df_diff_id_epcy,
-            y="cohort", x="value", hue="method", dodge=0.3,
+            y="cohort", x="value", hue="method",
             linestyles=[':'],
             markers=['x'],
             palette=col_pal_epcy,
@@ -238,6 +238,7 @@ def main_eval_ss(args, argparser):
         col_pal_qr_rev = col_pal_qr
         for method in search_params_dict['methods']:
             df_diff_method = df_diff_resume_tmp[(df_diff_resume_tmp["method"] == method)].copy()
+            df_diff_method.sort_values(by='y_std', ascending=True, inplace=True)
             df_diff_method["group"] = "Query"
             df_diff_method.loc[df_diff_method["mean_l2fc"] < 0, "group"] = "Ref"
 
@@ -250,15 +251,21 @@ def main_eval_ss(args, argparser):
             if method == "epcy":
                 col_dot = [col_pal[3]]
 
+            df_diff_method['y_std_binned'] = pd.cut(df_diff_method['y_std'], bins=4).astype(str)
+            intervals = df_diff_method['y_std_binned'].unique()
+            size_mapping = {intervals[0]: 20, intervals[1]: 80, intervals[2]: 140, intervals[3]: 200}
+
             plt_fig = sns.relplot(
                 x="mean_l2fc", y="mean_value", hue="method",
-                row="method", col="cohort", size="y_std", sizes=(10, 200),
+                row="method", col="cohort", size="y_std_binned",
+                sizes=size_mapping,
                 col_order=cohort_order_red,
                 palette=col_dot,
                 data=df_diff_method
             )
 
             fig_out = os.path.join(fig_dir, method + "_volcano_4.pdf")
+            print(fig_out)
             plt_fig.savefig(fig_out)
             plt.close()
 

@@ -5,6 +5,7 @@ from .argparser.clust_exp_umap import *
 from .argparser.clust_all_umap import *
 from .argparser.gen_cv import *
 from .argparser.eval_cv import *
+from .argparser.eval_sc import *
 from .argparser.heatmap_cv import *
 from .argparser.density import *
 from .argparser.gene_density import *
@@ -12,6 +13,7 @@ from .argparser.log_reg import *
 from .argparser.eval_tt import *
 from .argparser.eval_auc import *
 from .argparser.eval_random import *
+from .argparser.eval_bulk import *
 from .argparser.diff_pred import *
 from .argparser.eval_ss import *
 
@@ -20,6 +22,8 @@ from .tools.clust_exp_umap import main_clust_exp_umap
 from .tools.clust_all_umap import main_clust_all_umap
 from .tools.gen_cv import main_gen_cv
 from .tools.eval_cv import main_eval_cv
+from .tools.eval_sc import main_eval_sc
+from .tools.eval_bulk import main_eval_bulk
 from .tools.heatmap_cv import main_heatmap_cv
 from .tools.density import main_density
 from .tools.gene_density import main_gene_density
@@ -54,6 +58,22 @@ def main():
     )
     eval_ss.set_defaults(func=main_eval_ss)
     get_argparser_eval_ss(eval_ss)
+
+    # create the argparser for the "eval_bulk" command
+    eval_bulk = subparsers.add_parser(
+        'eval_bulk',
+        help='Evaluate bulk results.'
+    )
+    eval_bulk.set_defaults(func=main_eval_bulk)
+    get_argparser_eval_ss(eval_bulk)
+
+    # create the argparser for the "eval_sc" command
+    eval_sc = subparsers.add_parser(
+        'eval_sc',
+        help='Evaluate single-cell results.'
+    )
+    eval_sc.set_defaults(func=main_eval_sc)
+    get_argparser_eval_ss(eval_sc)
 
     # create the argparser for the "density" command
     density = subparsers.add_parser(

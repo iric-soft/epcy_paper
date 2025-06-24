@@ -12,7 +12,7 @@ This framework was developed to compare `EPCY <https://github.com/iric-soft/epcy
 Requirements:
 -------------
 
-* python 3.7.1
+* python 3.11.5
 * R >= 4.2 
 
 and dependency (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
@@ -27,11 +27,12 @@ Install:
   source venv/bin/activate
   pip3 install pip setuptools --upgrade
   pip3 install wheel
-  pip3 install epcy==0.1.3
+  pip3 install epcy==0.2.6.4
   pip3 install -r Requirement.txt
 
   mkdir -p R_lib
   echo "R_LIBS=$PWD/R_lib" > .Renviron
+  Rscript --vanilla ./src/script/other/lib_install.r
 
 --------------
 Small analysis:
@@ -53,7 +54,7 @@ Usage:
   source venv/bin/activate
   pip3 install pip setuptools --upgrade
   pip3 install wheel
-  pip3 install epcy==0.1.3
+  pip3 install epcy==0.2.6.4
   pip3 install -r Requirement.txt
 
   # Step 1: Create some files used as input in next script

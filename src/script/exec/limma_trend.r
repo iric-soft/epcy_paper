@@ -17,6 +17,9 @@ dir.create(path_output, recursive = TRUE, showWarnings = FALSE)
 
 design_file = file.path(path_design, "design.tsv")
 design = read.table(design_file, header = TRUE, stringsAsFactors=FALSE, sep="\t")
+design = design[order(design$subgroup), ]
+design$subgroup = factor(design$subgroup,levels=c("Ref", "Query"))
+
 sampleTable = data.frame(condition = design$subgroup)
 
 file_counts = file.path(path_counts, "readcounts.xls")

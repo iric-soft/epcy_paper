@@ -12,14 +12,6 @@ for num_sample in  3000 5000 8000 10000; do
   done
 done
 
-## Create leucegene_random
-echo "Generate random for leucegene 3"
-Rscript --vanilla ./src/script/other/gen_leucegene_random.r
-echo "Generate random for 10X FACS reduce"
-Rscript --vanilla ./src/script/other/gen_10X_random.r
-Rscript --vanilla ./src/script/other/gen_10X_reduce_random.r
-Rscript --vanilla ./src/script/other/gen_10X_rep_random.r
-
 ## Create subsampling
 echo "Generate subsampling for leucegene3"
 Rscript --vanilla ./src/script/other/gen_rep_leucegene_subsampling.r
