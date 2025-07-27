@@ -7,22 +7,27 @@ Introduction
 
 This framework was developed to compare `EPCY <https://github.com/iric-soft/epcy>`_ output with other major DEG tools using Leucegene3 and 10X FACS datasets.  
 It consists of several scripts to run all analyses and generate the figures and tables used in the paper.  
+
 **Note:** This is not a general-purpose DEG analysis framework, but a tool to reproduce the results presented in the paper.
 
 Requirements
 ------------
 
 * Python 3.11.5
-  - epcy 0.2.6.4
+   - epcy 0.2.6.4
+
 * R >= 4.2 
-  - with dependencies (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
+   - with dependencies (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
 
 Installation
 ------------
 
 .. code:: shell
 
-  cd [to_epcy_paper_folder]
+  # Clone the repository
+  git clone https://github.com/iric-soft/epcy_paper.git
+  cd epcy_paper
+
   # Set up Python environment and install dependencies
   python3 -m venv venv
   source venv/bin/activate
@@ -41,14 +46,16 @@ Installation
   zcat readcounts.xls.gz | gzip > readcounts.xls
   cd ../../10X_FACS/cellranger
   zcat readcounts.xls.gz | gzip > readcounts.xls
+  # see below to download 10X readcount.xls.gz
 
 Full Analyses
 -------------
 
 * To reproduce all analyses and results from the paper, it is recommended to use a cluster with a scheduler.
 * The total data size is about **18 GB**, distributed as:
-  - 404 analyses on Leucegene3 (101 analyses for each method)
-  - 3200 analyses on 10X FACS (800 analyses for each method)
+   - 404 analyses on Leucegene3 (101 analyses for each method)
+   - 3200 analyses on 10X FACS (800 analyses for each method)
+
 * Resource requirements for running all analyses are specified in `run_paper.sh`.  
   (These are not optimized; you may be able to use fewer resources.)
 * `run_paper.sh` supports both Torque and Slurm schedulers.  
@@ -91,3 +98,9 @@ Alternative Approach
 * Steps 1 and 3 can be performed on a laptop or single computer.
 * To skip the resource-intensive step 2, you can download the results of all analyses from Zenodo (link provided in the paper), to run step 3.
 * To evaluate reproducibility of step 2, select a subset of analyses to rerun and compare your results with the downloaded ones.
+
+10X readcount
+-------------
+
+To build 10X_FACS/cellranger/readcount.xls, you can by download all datasets on `10Xgenomics <https://www.10xgenomics.com/datasets>`_ and use src/script/other/10X_FACS.r. 
+Or download the readcount matrix from Zenodo (link provided in the paper) and unzip it in the data/10X_FACS/cellranger folder.
