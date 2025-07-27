@@ -50,7 +50,7 @@ def main_eval_bulk(args, argparser):
     # create dict with search params
     search_params_dict = {
         'methods' : args.METHODS,
-        'designs' : args.DESIGNS
+        'designs' : args.DESIGN
     }
 
     strl2fc_dict = {
@@ -80,7 +80,6 @@ def main_eval_bulk(args, argparser):
     }
 
     cohort_order = [*search_params_dict['designs']]
-    print(cohort_order)
 
     df_biotype = pd.read_csv(args.BF, sep="\t")
     df_biotype['ensembl_gene_id'] = df_biotype['ensembl_gene_id'].str.split('.').str[0]
@@ -323,7 +322,6 @@ def main_eval_bulk(args, argparser):
                 sns_plot.savefig(fig_file)
                 plt.close('all')
 
-
             df_deseq2 = df_upset_raw[
                 (df_upset_raw["epcy"] == False) &
                 (df_upset_raw["deseq2"] == True) &
@@ -347,8 +345,6 @@ def main_eval_bulk(args, argparser):
                 fig_file = os.path.join(fig_dir, design + "_deseq2_unique_" + str(quantile) + ".pdf")
                 sns_plot.savefig(fig_file)
                 plt.close('all')
-
-
 
             df_edger = df_upset_raw[
                 (df_upset_raw["epcy"] == False) &
@@ -374,8 +370,6 @@ def main_eval_bulk(args, argparser):
                 sns_plot.savefig(fig_file)
                 plt.close('all')
 
-
-
             df_voom = df_upset_raw[
                 (df_upset_raw["epcy"] == False) &
                 (df_upset_raw["deseq2"] == False) &
@@ -400,34 +394,8 @@ def main_eval_bulk(args, argparser):
                 sns_plot.savefig(fig_file)
                 plt.close('all')
 
-
-
             df_res = pd.concat([df_deseq2_res,  df_edger_res, df_voom_res, df_epcy_res])
             df_fc = pd.concat([df_deseq2_fc, df_edger_fc, df_voom_fc, df_epcy_fc])
-            
-            sns_plot = sns.boxplot(
-                data=df_res, x="method", y="variance", hue="subgroup",
-                linewidth=1, #palette=col_pal
-            )
-            fig_out = os.path.join(fig_dir, design + "_variance_unique_" + str(quantile) + ".pdf")
-            sns_plot.figure.savefig(fig_out)
-            plt.close('all')
-
-            sns_plot = sns.boxplot(
-                data=df_res, x="method", y="mean", hue="subgroup",
-                linewidth=1, #palette=col_pal
-            )
-            fig_out = os.path.join(fig_dir, design + "_mean_unique_" + str(quantile) + ".pdf")
-            sns_plot.figure.savefig(fig_out)
-            plt.close('all')
-
-            sns_plot = sns.boxplot(
-                data=df_fc, x="method", y="log2FC", hue="method",
-                linewidth=1, palette=col_pal
-            )
-            fig_out = os.path.join(fig_dir, design + "_fc_unique_" + str(quantile) + ".pdf")
-            sns_plot.figure.savefig(fig_out)
-            plt.close('all')
 
             sns_plot = sns.violinplot(
                 data=df_res, x="method", y="variance", hue='subgroup', density_norm='width',
@@ -442,78 +410,6 @@ def main_eval_bulk(args, argparser):
                 split=True, cut=0, gap=.1, inner="quart" #palette=col_pal
             )
             fig_out = os.path.join(fig_dir, design + "_mean_unique_violin_" + str(quantile) + ".pdf")
-            sns_plot.figure.savefig(fig_out)
-            plt.close('all')
-            
-
-            df_epcy = df_upset_raw[
-                (df_upset_raw["epcy"] == True)
-            ]
-            df_epcy_res, df_epcy_fc = compute_result(df_epcy, df_design, design, df_exp)
-            df_epcy_res['method'] = 'epcy'
-            df_epcy_fc['method'] = 'epcy'
-
-            df_deseq2 = df_upset_raw[
-                (df_upset_raw["deseq2"] == True)
-            ]
-            df_deseq2_res, df_deseq2_fc  = compute_result(df_deseq2, df_design, design, df_exp)
-            df_deseq2_res['method'] = 'deseq2'
-            df_deseq2_fc['method'] = 'deseq2'
-
-            df_edger = df_upset_raw[
-                (df_upset_raw["edger"] == True)
-            ]
-            df_edger_res, df_edger_fc  = compute_result(df_edger, df_design, design, df_exp)
-            df_edger_res['method'] = 'edger'
-            df_edger_fc['method'] = 'edger'
-
-            df_voom = df_upset_raw[
-                (df_upset_raw["voom"] == True)
-            ]
-            df_voom_res, df_voom_fc  = compute_result(df_voom, df_design, design, df_exp)
-            df_voom_res['method'] = 'voom'
-            df_voom_fc['method'] = 'voom'
-
-            df_res = pd.concat([df_deseq2_res,  df_edger_res, df_voom_res, df_epcy_res])
-            df_fc = pd.concat([df_deseq2_fc, df_edger_fc, df_voom_fc, df_epcy_fc])
-            
-            sns_plot = sns.boxplot(
-                data=df_res, x="method", y="variance", hue="subgroup",
-                linewidth=1, #palette=col_pal
-            )
-            fig_out = os.path.join(fig_dir, design + "_variance_" + str(quantile) + ".pdf")
-            sns_plot.figure.savefig(fig_out)
-            plt.close('all')
-
-            sns_plot = sns.boxplot(
-                data=df_res, x="method", y="mean", hue="subgroup",
-                linewidth=1, #palette=col_pal
-            )
-            fig_out = os.path.join(fig_dir, design + "_mean_" + str(quantile) + ".pdf")
-            sns_plot.figure.savefig(fig_out)
-            plt.close('all')
-
-            sns_plot = sns.boxplot(
-                data=df_fc, x="method", y="log2FC", hue="method",
-                linewidth=1, palette=col_pal
-            )
-            fig_out = os.path.join(fig_dir, design + "_fc_" + str(quantile) + ".pdf")
-            sns_plot.figure.savefig(fig_out)
-            plt.close('all')
-
-            sns_plot = sns.violinplot(
-                data=df_res, x="method", y="variance", hue='subgroup', density_norm='width',
-                split=True, cut=0, gap=.1, inner="quart" #palette=col_pal
-            )
-            fig_out = os.path.join(fig_dir, design + "_variance_violin_" + str(quantile) + ".pdf")
-            sns_plot.figure.savefig(fig_out)
-            plt.close('all')
-
-            sns_plot = sns.violinplot(
-                data=df_res, x="method", y="mean", hue='subgroup', density_norm='width',
-                split=True, cut=0, gap=.1, inner="quart" #palette=col_pal
-            )
-            fig_out = os.path.join(fig_dir, design + "_mean_violin_" + str(quantile) + ".pdf")
             sns_plot.figure.savefig(fig_out)
             plt.close('all')
 

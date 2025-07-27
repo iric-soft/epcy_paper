@@ -1,6 +1,6 @@
 from .common import *
 
-def get_argparser_eval_ss(parser):
+def get_argparser_eval_sc(parser):
 
     parser.add_argument("-p",
                         dest="PATH",
@@ -38,6 +38,13 @@ def get_argparser_eval_ss(parser):
                         nargs='+',
                         default=['deseq2', 'edger', 'limma', 'epcy'])
 
+    parser.add_argument("--celltypes",
+                        dest="CELLTYPES",
+                        help='Cell types to be tested',
+                        type=str,
+                        nargs='+',
+                        default=['cd14', 'cd56_nk', 'cd34'])
+
     parser.add_argument("--reps",
                         dest="REPS",
                         help='Replicates to be tested',
@@ -45,12 +52,12 @@ def get_argparser_eval_ss(parser):
                         nargs='+',
                         default=['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'])
 
-    parser.add_argument("--numsamples",
-                        dest="NUMSAMPLES",
+    parser.add_argument("--cellNumber",
+                        dest="CELLNUMBER",
                         help='Mean number of samples by replicates',
-                        type=str,
+                        type=int,
                         nargs='+',
-                        default=['5000', '8000', '10000'])
+                        default=['3000', '5000', '8000', '10000'])
 
     parser.add_argument("--outdir",
                         dest="OUTDIR",
@@ -76,3 +83,15 @@ def get_argparser_eval_ss(parser):
                         help="Name column of group sample in the design file (Default: subgroup)",
                         type=str,
                         default="subgroup")
+
+    parser.add_argument("--ngenes",
+                        dest="N_GENES",
+                        help="Number of genes given in input of DEG or EPCY (Default: 21953).",
+                        type=int,
+                        default=21953)
+
+    parser.add_argument("--full",
+                        dest="FULL",
+                        help="Full evaluation (Default: False).",
+                        action='store_true',
+                        default=False)

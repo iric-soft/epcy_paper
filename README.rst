@@ -1,108 +1,93 @@
-
 =====================================================================
-EPCY paper: framework used to evaluate EPCY
+EPCY Paper: Framework for Evaluating EPCY
 =====================================================================
 
--------------
-Introduction:
--------------
+Introduction
+------------
 
-This framework was developed to compare `EPCY <https://github.com/iric-soft/epcy>`_ ouput with other main DEG tools.
+This framework was developed to compare `EPCY <https://github.com/iric-soft/epcy>`_ output with other major DEG tools using Leucegene3 and 10X FACS datasets.  
+It consists of several scripts to run all analyses and generate the figures and tables used in the paper.  
+**Note:** This is not a general-purpose DEG analysis framework, but a tool to reproduce the results presented in the paper.
 
-Requirements:
--------------
+Requirements
+------------
 
-* python 3.11.5
+* Python 3.11.5
+  - epcy 0.2.6.4
 * R >= 4.2 
+  - with dependencies (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
 
-and dependency (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
+Installation
+------------
 
-Install:
---------
 .. code:: shell
 
   cd [to_epcy_paper_folder]
-  # Install dependency
+  # Set up Python environment and install dependencies
   python3 -m venv venv
   source venv/bin/activate
-  pip3 install pip setuptools --upgrade
+  pip3 install --upgrade pip setuptools
   pip3 install wheel
   pip3 install epcy==0.2.6.4
   pip3 install -r Requirement.txt
 
+  # Set up R library path and install R dependencies
   mkdir -p R_lib
   echo "R_LIBS=$PWD/R_lib" > .Renviron
   Rscript --vanilla ./src/script/other/lib_install.r
 
---------------
-Small analysis:
---------------
+  # Unzip readcount matrices
+  cd data/leucegene3/STAR_RSEM
+  zcat readcounts.xls.gz | gzip > readcounts.xls
+  cd ../../10X_FACS/cellranger
+  zcat readcounts.xls.gz | gzip > readcounts.xls
 
-This analysis is limited to analyse the smallest design (28_inv16_vs_28), to be run on an single workstation.
-Full analysis follow bellow.
-
-* 4 multicore and 2Go
-* Take 8 hours on 2GHz intel Core i5 (MacBook Pro)
-
-Usage:
-------
-.. code:: shell
-
-  cd [your_epcy_paper_folder]
-  # Install dependency
-  python3 -m venv venv
-  source venv/bin/activate
-  pip3 install pip setuptools --upgrade
-  pip3 install wheel
-  pip3 install epcy==0.2.6.4
-  pip3 install -r Requirement.txt
-
-  # Step 1: Create some files used as input in next script
-  bash run_init.sh
-  # Step 2: Create all cross-validated datasets and run DEG and EPCY analysis
-  bash run_ismb_small.sh
-  #Note that run_ismb_small.sh have a smart restart mechanism.
-  #Rerun it, until all jobs finish their execution correctly
-  # Step 3: When all job are completed run
-  # Analyse DEG and EPCY outputs and create graphes
-  bash run_res_ismb_small.sh
-
---------------
-Full analysis:
---------------
-
-Requirements:
+Full Analyses
 -------------
 
-* python3 and dependency
+* To reproduce all analyses and results from the paper, it is recommended to use a cluster with a scheduler.
+* The total data size is about **18 GB**, distributed as:
+  - 404 analyses on Leucegene3 (101 analyses for each method)
+  - 3200 analyses on 10X FACS (800 analyses for each method)
+* Resource requirements for running all analyses are specified in `run_paper.sh`.  
+  (These are not optimized; you may be able to use fewer resources.)
+* `run_paper.sh` supports both Torque and Slurm schedulers.  
+  Set the *type_exec* parameter in `run_paper.sh` to specify your scheduler.
 
-  - pip3 install -r Requirements.txt
-* R and dependency (see `lib_install.r <https://github.com/iric-soft/epcy_paper/blob/master/src/script/other/lib_install.r>`_)
-* To run full analysis it's recomanded to use a cluster with a scheduler.
-* 8 multicore and
+Pipeline Overview
+-----------------
 
-  - 80Go to run Deseq2 in parallel on 400 samples and more.
-  - 4Go is enough for Limma, EdgeR and EPCY.
+The pipeline consists of three main steps:
 
-scheduler:
-----------
-* We have implemented:
+1. **Prepare Input Files**
+   
+   .. code:: shell
 
-  - torque
+      cd [your_epcy_paper_folder]
+      bash run_init_paper.sh
 
-Create an issue if you need slurm, or add it in DEG_analysis.sh (see exec_cmd function).
+   This step creates all design and readcount matrix files based on the full Leucegene3 and 10X datasets.
 
-Usage:
-------
-.. code:: shell
+2. **Run All DEG and PG Analyses**
+   
+   .. code:: shell
 
-  cd [your_epcy_paper_folder]
-  # Step 1: Create some files used as input in next script
-  bash run_init.sh
-  # Step 2: Create all cross-validated datasets and run DEG and EPCY analysis
-  bash run_ismb.sh
-  #Note that run_ismb.sh have a smart restart mechanism.
-  #Rerun it, until all jobs finish their execution correctly
-  # Step 3: When all job are completed run
-  # Analyse DEG and EPCY outputs and create graphes
-  bash run_res_ismb.sh
+      bash run_paper.sh
+
+   - This script has a 'smart' restart mechanism: it checks if output files already exist and only reruns missing or incomplete jobs.
+   - If some files are corrupted, remove them and rerun the script.
+
+3. **Generate Figures and Tables**
+   
+   .. code:: shell
+
+      bash run_res_paper.sh
+
+   - On a MacBook Pro M3 with 8GB RAM, this step takes about **1 hour 30 minutes** and uses up to **2.81 GB** of RAM.
+
+Alternative Approach
+--------------------
+
+* Steps 1 and 3 can be performed on a laptop or single computer.
+* To skip the resource-intensive step 2, you can download the results of all analyses from Zenodo (link provided in the paper), to run step 3.
+* To evaluate reproducibility of step 2, select a subset of analyses to rerun and compare your results with the downloaded ones.

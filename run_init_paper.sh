@@ -1,3 +1,4 @@
+Rscript --vanilla ./src/script/other/biotype.r
 
 ## To create all design for all cohorts
 echo "Generate subgroup for leucegene 3"

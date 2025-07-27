@@ -1,6 +1,6 @@
 from .common import *
 
-def get_argparser_eval_random(parser):
+def get_argparser_eval_bulk(parser):
 
     parser.add_argument("-p",
                         dest="PATH",
@@ -17,6 +17,11 @@ def get_argparser_eval_random(parser):
                         help="Software used for quantification (STAR, htseq). (Default: STAR)",
                         type=str,
                         default='STAR')
+
+    parser.add_argument("--cpm",
+                        dest="CPM",
+                        help="To normalize the matrix, as Count Par Million (CPM)",
+                        action='store_true')
 
     parser.add_argument("-t",
                         dest="TYPE_QUANT",
@@ -44,7 +49,7 @@ def get_argparser_eval_random(parser):
 
     parser.add_argument("--quantiles",
                         dest="QUANTILES",
-                        help="list of % of FDR (Default: [0.9999, 0.9995, 0.999, 0.995, 0.99]).",
+                        help="list of %% of FDR (Default: [0.9999, 0.9995, 0.999, 0.995, 0.99]).",
                         type=float,
                         nargs='+',
                         default=[0.9999, 0.9995, 0.999, 0.995, 0.99])

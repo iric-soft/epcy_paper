@@ -29,8 +29,6 @@ library(here)
 ##VARIABLE
 script_dir = here()
 
-set.seed(42)
-
 dir_design = file.path(script_dir, "data", "design", "10X_FACS", "all")
 file_design = file.path(dir_design, "design.tsv")
 dir_readcount = file.path(script_dir, "data", "10X_FACS", "cellranger")
@@ -42,6 +40,8 @@ cat("Reading readcount file:", file_readcount, "\n")
 readcount = fread(file_readcount, header = TRUE, stringsAsFactors=FALSE, sep="\t", quote = "")
 
 for (mean_sample in c(3000, 5000, 8000, 10000)) {
+  # Set seed for reproducibility with paper results
+  set.seed(42)
   cat("Processing mean sample size:", mean_sample, "\n")
   for (i in c(1:20)) {
     cat("  Iteration:", i, "\n")

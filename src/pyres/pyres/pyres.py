@@ -1,4 +1,5 @@
 import argparse
+import sys 
 
 from .argparser.clust_exp import *
 from .argparser.clust_exp_umap import *
@@ -65,7 +66,7 @@ def main():
         help='Evaluate bulk results.'
     )
     eval_bulk.set_defaults(func=main_eval_bulk)
-    get_argparser_eval_ss(eval_bulk)
+    get_argparser_eval_bulk(eval_bulk)
 
     # create the argparser for the "eval_sc" command
     eval_sc = subparsers.add_parser(
@@ -73,7 +74,7 @@ def main():
         help='Evaluate single-cell results.'
     )
     eval_sc.set_defaults(func=main_eval_sc)
-    get_argparser_eval_ss(eval_sc)
+    get_argparser_eval_sc(eval_sc)
 
     # create the argparser for the "density" command
     density = subparsers.add_parser(
@@ -162,7 +163,7 @@ def main():
         help='Evalutate performance of kt, LDE (Limma + EdgeR + DEseq)'
     )
     eval_tt.set_defaults(func=main_eval_tt)
-    get_argparser_eval_cv(eval_tt)
+    get_argparser_eval_tt(eval_tt)
 
 
     # create the argparser for the "heatmap_cv" command
@@ -175,6 +176,10 @@ def main():
 
     # recover arguments
     args = argparser.parse_args()
+
+    if not len(sys.argv) > 1:
+        sys.stderr.write("WARNING: use pyres -h, if you need help\n")
+        exit(0)
 
     # execute the command
     args.func(args, argparser)

@@ -29,40 +29,36 @@ python3 -m pyres eval_ss \
 
 designs="30_t15_17" #"30_t15_17 30_inv16"
 method="deseq2 edger voom epcy"
-quantiles="0.9999 0.9995 0.999 0.995"
+quantiles="0.9999 0.9995 0.999 0.995 0.99"
 
 python3 -m pyres eval_bulk \
   -p ../../data/design/leucegene3/ \
+  -m ../../data/leucegene3/STAR_RSEM/readcounts.xls --cpm \
   --bf ../../data/other/GRCh38_84_genes_biotype.tsv \
   --methods ${method} -q "STAR_RSEM" \
   --quantiles ${quantiles} \
   --design ${designs} \
-  --outdir ../../data/res/leucegene3 \
+  --outdir ../../data/res/leucegene3/ \
   --ngenes 60564
 
 cd ../..
-#Create Fig. 5B), and selecte some genes to highlight
-#python3 ./src/script/other/t15_17.py
 
 cd src/pyres
 ##############################################################################
 # Figure 4 and 5: scatter plot which compare EPCY vs DEG on single cell
 
-num_samples="3000 5000 8000 10000"
+cell_numbers="3000 5000 8000 10000"
 rep="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
-method="deseq2 edger voom epcy"
+method="wilcox mast trend epcy"
 celltypes="cd14 cd56_nk cd34 cytotoxic_t b_cells naive_t memory_t regulatory_t cd4 naive_cytotoxic"
 
 python3 -m pyres eval_sc \
   -p ../../data/design \
-  --methods ${method} -q "STAR_RSEM" \
+  --methods ${method} -q "cellranger" \
   --celltypes ${celltypes} \
   --outdir ../../data/res/ \
-  --numsamples ${num_samples} \
+  --cellNumber ${cell_numbers} \
   --reps ${rep} \
-
-
-
 
 cd ../..
 
