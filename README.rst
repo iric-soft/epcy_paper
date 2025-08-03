@@ -99,7 +99,7 @@ Alternative Approach
 --------------------
 
 * Steps 1 and 3 can be performed on a laptop or single computer.
-* To skip the resource-intensive step 2, you can download the results of all analyses from Zenodo (link provided in the paper), to run step 3.
+* To skip the resource-intensive step 2, you can download the results of all analyses from Zenodo (10.5281/zenodo.16508797), to run step 3.
     - epcy_paper_data_readcount.tar.gz need to be unzip in epcy_paper/data/
     - epcy_paper_data_design_10X_FACS.tar.gz and epcy_paper_data_design_leucegene3.tar.gz need to be unzip in epcy_paper/data/design/
 * To evaluate reproducibility of step 2, select a subset of analyses to rerun and compare your results with the downloaded ones.
